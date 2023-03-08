@@ -18,7 +18,9 @@ Checks if followings are detected:
 ## How to add the bookmarklet?
 To avoid copy/pasting the code, create a new favorite page and in the `URL`section, add this code: [bookmarklet.js](https://github.com/opradg/adagio-checker/blob/main/bookmarklet.js).  
 On the targeted website, click on the bookmarklet. It will execute the code in the console.   
-[How-to video:](https://www.loom.com/share/5e4d8a7f3eac4464aaaeb4c3449ea42e)
+
+## How-to video
+https://www.loom.com/share/5e4d8a7f3eac4464aaaeb4c3449ea42e
 
 ## Example of result
 ```
