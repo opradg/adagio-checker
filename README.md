@@ -15,6 +15,11 @@ Checks if followings are detected:
 - Consent management platform (CMP) for Adagio & Co
 - AdUnit for Adagio
 
+## How to add the bookmarklet?
+To avoid copy/pasting the code, create a new favorite page and in the `URL`section, add this code: [bookmarklet.js](https://github.com/opradg/adagio-checker/blob/main/bookmarklet.js).  
+On the targetted website, click on the bookmarklet. It will execute the code in the console.   
+How-to video: soon...
+
 ## Example of result
 ```
 ✅ Prebid.js (v7.25.0)
