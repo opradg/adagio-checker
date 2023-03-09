@@ -50,7 +50,7 @@ function checkAdagioLocalStorage() {
     // Is Adagio localstorage enabled
     let localstorage = prebidObject.bidderSettings;
     if (localstorage.adagio === undefined) {
-        if (parseInt(pbjs.version.charAt(1) < 7)) console.log("⚠️ Localstorage: Prebid version lower than 7");
+        if (parseInt(prebidObject.version.charAt(1) < 7)) console.log("⚠️ Localstorage: Prebid version lower than 7");
         else console.log("❌ Localstorage");
     }
     else if (localstorage.adagio.storageAllowed === false) console.log("❌ Localstorage => storageAllowed: false");
@@ -60,37 +60,42 @@ function checkAdagioLocalStorage() {
 function checkAdagioConsent() {
 
     // Gives the Consent Management strings values
-    window.__tcfapi('getTCData', 2, (tcdata, success) => {
+    if (typeof window.__tcfapi === "function") { 
 
-        const cmpAdagioBidders = new Map();
-        cmpAdagioBidders.set(617 ,  "Adagio");
-        cmpAdagioBidders.set(58 ,   "33Across");
-        cmpAdagioBidders.set(285,   "Freewheel");
-        cmpAdagioBidders.set(253 ,  "Improve Digital");
-        cmpAdagioBidders.set(10 ,   "Index Exchange");
-        cmpAdagioBidders.set(241 ,  "OneTag");
-        cmpAdagioBidders.set(76 ,   "Pubmatic");
-        cmpAdagioBidders.set(52 ,   "Rubicon");
-        cmpAdagioBidders.set(13 ,   "Sovrn");
-        cmpAdagioBidders.set(25 ,   "Yahoo");
+        window.__tcfapi('getTCData', 2, (tcdata, success) => {
 
-        var inConsents, inLegitimates, stringResult = "", allConsentsTrue = true;
+            const cmpAdagioBidders = new Map();
+            cmpAdagioBidders.set(617 ,  "Adagio");
+            cmpAdagioBidders.set(58 ,   "33Across");
+            cmpAdagioBidders.set(285,   "Freewheel");
+            cmpAdagioBidders.set(253 ,  "Improve Digital");
+            cmpAdagioBidders.set(10 ,   "Index Exchange");
+            cmpAdagioBidders.set(241 ,  "OneTag");
+            cmpAdagioBidders.set(76 ,   "Pubmatic");
+            cmpAdagioBidders.set(52 ,   "Rubicon");
+            cmpAdagioBidders.set(13 ,   "Sovrn");
+            cmpAdagioBidders.set(25 ,   "Yahoo");
+    
+            var inConsents, inLegitimates, stringResult = "", allConsentsTrue = true;
+    
+            for (let [key, value] of cmpAdagioBidders) {
+                if (tcdata.vendor.consents[key]) inConsents = "✅";
+                else { 
+                    inConsents = "❌";
+                    allConsentsTrue = false;
+                }
+                if (tcdata.vendor.legitimateInterests[key]) inLegitimates = "✅";
+                else inLegitimates = "❌";
+                stringResult += "   " + value + " (" + key + ")" + ' => Consents: ' + inConsents + ' / Legitimates: ' + inLegitimates + '\n';
+            };
+    
+            if (allConsentsTrue) console.log("✅ Consent Management Platform");
+            else console.log("❌ Consent Management Platform");
+            console.log(stringResult);
+        });
+    }
+    else console.log("❌ Consent Management Platform: __tcfapi function is not is not defined in the context");
 
-        for (let [key, value] of cmpAdagioBidders) {
-            if (tcdata.vendor.consents[key]) inConsents = "✅";
-            else { 
-                inConsents = "❌";
-                allConsentsTrue = false;
-            }
-            if (tcdata.vendor.legitimateInterests[key]) inLegitimates = "✅";
-            else inLegitimates = "❌";
-            stringResult += "   " + value + " (" + key + ")" + ' => Consents: ' + inConsents + ' / Legitimates: ' + inLegitimates + '\n';
-        };
-
-        if (allConsentsTrue) console.log("✅ Consent Management Platform");
-        else console.log("❌ Consent Management Platform");
-        console.log(stringResult);
-    });
 }
 
 function checkAdagioAdUnitParams() {
