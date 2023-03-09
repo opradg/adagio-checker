@@ -33,7 +33,7 @@ function checkPrebidVersion() {
         }
     }
     else {
-        console.log('❌ No Prebid.js detected! window._pbjsGlobals: ' + pbjsGlobals);
+        console.log('❌ No Prebid.js => window._pbjsGlobals: ' + pbjsGlobals);
     }
 }
 
@@ -51,9 +51,9 @@ function checkAdagioLocalStorage() {
     let localstorage = prebidObject.bidderSettings;
     if (localstorage.adagio === undefined) {
         if (parseInt(prebidObject.version.charAt(1) < 7)) console.log("⚠️ Localstorage: Prebid version lower than 7");
-        else console.log("❌ Localstorage");
+        else console.log("❌ Localstorage => bidderSettings.adagio.storageAllowed not set");
     }
-    else if (localstorage.adagio.storageAllowed === false) console.log("❌ Localstorage => storageAllowed: false");
+    else if (localstorage.adagio.storageAllowed === false) console.log("❌ Localstorage => bidderSettings.adagio.storageAllowed: false");
     else console.log("✅ Localstorage");
 }
 
