@@ -47,23 +47,25 @@ function checkAdagioModule() {
 
 function checkAdagioLocalStorage() {
 
-    // Is Adagio localstorage enabled
-    let localstorage = prebidObject.bidderSettings;
-    if (localstorage.adagio === undefined) {
-        if (parseInt(prebidObject.version.charAt(1) < 7)) console.log("⚠️ Localstorage: Prebid version lower than 7");
-        else console.log("❌ Localstorage => bidderSettings.adagio.storageAllowed not set");
+    // Is global locastorage enabled
+    if (prebidObject.getConfig("deviceAccess") === true) console.log("✅ Localstorage => global access set to true");
+    else {
+        // Is Adagio localstorage enabled
+        let localstorage = prebidObject.bidderSettings;
+        if (localstorage.adagio === undefined) {
+            if (parseInt(prebidObject.version.charAt(1) < 7)) console.log("⚠️ Localstorage: Prebid version lower than 7");
+            else console.log("❌ Localstorage => bidderSettings.adagio.storageAllowed not set");
+        }
+        else if (localstorage.adagio.storageAllowed === false) console.log("❌ Localstorage => bidderSettings.adagio.storageAllowed: false");
+        else console.log("✅ Localstorage");
     }
-    else if (localstorage.adagio.storageAllowed === false) console.log("❌ Localstorage => bidderSettings.adagio.storageAllowed: false");
-    else console.log("✅ Localstorage");
 }
 
 function checkAdagioConsent() {
 
     // Gives the Consent Management strings values
     if (typeof window.__tcfapi === "function") { 
-
         window.__tcfapi('getTCData', 2, (tcdata, success) => {
-
             const cmpAdagioBidders = new Map();
             cmpAdagioBidders.set(617 ,  "Adagio");
             cmpAdagioBidders.set(58 ,   "33Across");
@@ -76,7 +78,7 @@ function checkAdagioConsent() {
             cmpAdagioBidders.set(13 ,   "Sovrn");
             cmpAdagioBidders.set(25 ,   "Yahoo");
     
-            var inConsents, inLegitimates, stringResult = "", allConsentsTrue = true;
+            let inConsents, inLegitimates, stringResult = "", allConsentsTrue = true;
     
             for (let [key, value] of cmpAdagioBidders) {
                 if (tcdata.vendor.consents[key]) inConsents = "✅";
