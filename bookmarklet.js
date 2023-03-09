@@ -1,1 +1,1 @@
-javascript:(function(){var jsCode = document.createElement('script');jsCode.setAttribute('src', 'https://rawcdn.githack.com/opradg/adagio-checker/7a7cf11771d1fba310f9b807110be27fc8de04db/script.js');document.body.appendChild(jsCode);}());
+javascript:(function(){var jsCode = document.createElement('script');jsCode.setAttribute('src', 'https://raw.githubusercontent.com/opradg/adagio-checker/main/script.js');document.body.appendChild(jsCode);}());
