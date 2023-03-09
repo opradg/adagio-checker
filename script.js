@@ -48,8 +48,11 @@ function checkAdagioModule() {
 function checkAdagioLocalStorage() {
 
     // Is Adagio localstorage enabled
-    let localstorage = prebidObject.bidderSettings; //.adagio.storageAllowed;
-    if (localstorage.adagio === undefined) console.log("❌ Localstorage");
+    let localstorage = prebidObject.bidderSettings;
+    if (localstorage.adagio === undefined) {
+        if (parseInt(pbjs.version.charAt(1) < 7)) console.log("⚠️ Localstorage: Prebid version lower than 7");
+        else console.log("❌ Localstorage");
+    }
     else if (localstorage.adagio.storageAllowed === false) console.log("❌ Localstorage => storageAllowed: false");
     else console.log("✅ Localstorage");
 }
