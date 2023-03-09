@@ -3,18 +3,16 @@
 ************************************************************************************************************************************************************/
 
 let prebidObject = undefined;
-let isHubjs = false;
 
 checkPrebidVersion();
 
-if (prebidObject != undefined) {
-
+if (prebidObject !== undefined) {
     checkAdagioModule();
     checkAdagioLocalStorage();
-    checkAdagioConsent();
     checkAdagioAdUnitParams();
-
 }
+
+checkAdagioConsent();
 
 /************************************************************************************************************************************************************
     FUNCTIONS
@@ -23,29 +21,28 @@ if (prebidObject != undefined) {
 function checkPrebidVersion() {
 
     // Is Prebid.js detected, gives version
-    if (window.pbjs != undefined) {
-        prebidObject = window.pbjs;
-        console.log('✅ Prebid.js ('+ prebidObject.version + ')');
-    } 
-    else if (window.hubjs != undefined) {
-        prebidObject = window.hubjs;
-        isHubjs = true;
-        console.log('✅ Hub.js ('+ prebidObject.version + ')');
-    } 
+    let pbjsGlobals = window._pbjsGlobals;  
+    if (pbjsGlobals !== undefined) {
+        if (pbjsGlobals.includes('pbjs')) {
+            prebidObject = window['pbjs'];
+            console.log('✅ pbjs ('+ prebidObject.version + ')');
+        }
+        else {
+            prebidObject = window[pbjsGlobals[0]];
+            console.log('✅ ' + pbjsGlobals[0] + ' ('+ prebidObject.version + ')');
+        }
+    }
     else {
-        console.log('❌ Prebid.js or Hub.js not detected! window._pbjsGlobals: ' + window._pbjsGlobals);
+        console.log('❌ No Prebid.js detected! window._pbjsGlobals: ' + pbjsGlobals);
     }
 }
 
 function checkAdagioModule() {
 
     // Is Adagio bidder adapter detected, gives version
-    if (isHubjs) console.log("❓ Adagio adapter (Hubjs)");
-    else {
-        let adagioBidder = prebidObject.installedModules.includes("adagioBidAdapter");
-        if (adagioBidder === false) console.log("❌ Adagio module");
-        else console.log("✅ Adagio module");
-    }
+    let adagioBidder = prebidObject.installedModules.includes("adagioBidAdapter");
+    if (adagioBidder === false) console.log("❌ Adagio module");
+    else console.log("✅ Adagio module");
 }
 
 function checkAdagioLocalStorage() {
