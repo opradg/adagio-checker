@@ -2,6 +2,8 @@
     MAIN
 ************************************************************************************************************************************************************/
 
+console.clear();
+
 let prebidObject = undefined;
 
 checkPrebidVersion();
@@ -48,17 +50,15 @@ function checkAdagioModule() {
 function checkAdagioLocalStorage() {
 
     // Is global locastorage enabled
-    if (prebidObject.getConfig("deviceAccess") === true) console.log("✅ Localstorage => global access set to true");
-    else {
-        // Is Adagio localstorage enabled
-        let localstorage = prebidObject.bidderSettings;
-        if (localstorage.adagio === undefined) {
-            if (parseInt(prebidObject.version.charAt(1) < 7)) console.log("⚠️ Localstorage: Prebid version lower than 7");
-            else console.log("❌ Localstorage => bidderSettings.adagio.storageAllowed not set");
-        }
-        else if (localstorage.adagio.storageAllowed === false) console.log("❌ Localstorage => bidderSettings.adagio.storageAllowed: false");
-        else console.log("✅ Localstorage");
-    }
+    let deviceAccess = prebidObject.getConfig("deviceAccess");
+    let localStorage = prebidObject.bidderSettings;
+
+    if (localStorage.standard?.storageAllowed === true) console.log("✅ Localstorage => bidderSettings.standard set to true");
+    else if (localStorage.adagio?.storageAllowed === true) console.log("✅ Localstorage => bidderSettings.adagio set to true");
+    else if (localStorage.adagio?.storageAllowed === false) console.log("❌ Localstorage => bidderSettings.adagio set to false");
+    else if (prebidObject.getConfig("deviceAccess") === true) console.log("✅ Localstorage => global access set to true");
+    else if (parseInt(prebidObject.version.charAt(1) < 7)) console.log("⚠️ Localstorage: Prebid version lower than 7");
+    else console.log("❌ Localstorage not found: if detected in network, contact dev!");
 }
 
 function checkAdagioConsent() {
@@ -96,7 +96,7 @@ function checkAdagioConsent() {
             console.log(stringResult);
         });
     }
-    else console.log("❌ Consent Management Platform: __tcfapi function is not is not defined in the context");
+    else console.log("❌ Consent Management Platform: __tcfapi function is not is not defined in this context");
 
 }
 
