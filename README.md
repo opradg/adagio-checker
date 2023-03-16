@@ -21,30 +21,3 @@ On the targeted website, click on the bookmarklet. It will execute the code in t
 
 ## How-to video
 https://www.loom.com/share/5e4d8a7f3eac4464aaaeb4c3449ea42e
-
-## Example of result
-```
-✅ Prebid.js (v7.25.0)
-✅ Adagio module
-✅ Localstorage
-✅ Consent Management Platform
-   Adagio (617) => Consents: ✅ / Legitimates: ❌
-   33Across (58) => Consents: ✅ / Legitimates: ❌
-   Freewheel (285) => Consents: ✅ / Legitimates: ✅
-   Improve Digital (253) => Consents: ✅ / Legitimates: ✅
-   Index Exchange (10) => Consents: ✅ / Legitimates: ❌
-   OneTag (241) => Consents: ✅ / Legitimates: ❌
-   Pubmatic (76) => Consents: ✅ / Legitimates: ✅
-   Rubicon (52) => Consents: ✅ / Legitimates: ✅
-   Sovrn (13) => Consents: ✅ / Legitimates: ❌
-   Yahoo (25) => Consents: ✅ / Legitimates: ✅
-✅ Adagio adUnits => 4
-D_Q_StickyAd__ayManagerEnv__6 ({"banner":{"sizes":[[728,90]]}})
-{organizationId: '1334', site: 'newsnery-com', placement: 'StickyAd', useAdUnitCodeAsAdUnitElementId: true}
-D_Q_MediumRectangle_2__ayManagerEnv__8 ({"banner":{"sizes":[[300,250],[336,280]]}})
-{organizationId: '1334', site: 'newsnery-com', placement: 'DesktopMediumRectangle', useAdUnitCodeAsAdUnitElementId: true}
-D_Q_MediumRectangle_1__ayManagerEnv__9 ({"banner":{"sizes":[[300,250],[336,280]]}})
-{organizationId: '1334', site: 'newsnery-com', placement: 'DesktopMediumRectangle', useAdUnitCodeAsAdUnitElementId: true}
-D_Q_Leaderboard_1__ayManagerEnv__a ({"banner":{"sizes":[[728,90]]}})
-{organizationId: '1334', site: 'newsnery-com', placement: 'DesktopLeaderboard', useAdUnitCodeAsAdUnitElementId: true}
-```
