@@ -12,8 +12,9 @@ Checks if followings are detected:
 - Prebid.js
 - Adagio bidder adapter
 - Localstorage for Adagio
+- Supply chain object
+- AdUnits params for Adagio
 - Consent management platform (CMP) for Adagio & Co
-- AdUnit for Adagio
 
 ## How to add the bookmarklet?
 To avoid copy/pasting the code, create a new favorite page and in the `URL`section, add this code: [bookmarklet.js](https://github.com/opradg/adagio-checker/blob/main/bookmarklet.js).  
