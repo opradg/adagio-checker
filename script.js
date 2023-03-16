@@ -74,7 +74,7 @@ function checkAdagioLocalStorage() {
     else if (localStorage.adagio?.storageAllowed === true) console.log('✅ Localstorage => bidderSettings.adagio set to true');
     else if (localStorage.adagio?.storageAllowed === false) console.log('❌ Localstorage => bidderSettings.adagio set to false');
     else if (prebidObject.getConfig('deviceAccess') === true) console.log('✅ Localstorage => global access set to true');
-    else if (parseInt(prebidObject.version.charAt(1) < 7)) console.log('⚠️ Localstorage: Prebid version lower than 7');
+    else if (parseInt(prebidObject.version.charAt(1) < 7)) console.log('❓ Localstorage: Prebid version lower than 7');
     else console.log('❌ Localstorage not found: if detected in network, contact dev!');
 }
 
@@ -96,7 +96,7 @@ function checkSupplyChainObject() {
         console.log('✅ Supply chain object');
         console.log(adagioBid.schain);
     }
-    else console.log('⚠️ Supply chain object not found => if seller type PUBLISHER, no SCO');
+    else console.log('❓ Supply chain object not found => if website owned and managed, no SCO');
 }  
 
 function checkAdagioConsent() {
