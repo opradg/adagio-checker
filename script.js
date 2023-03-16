@@ -5,15 +5,13 @@
 console.clear();
 
 let prebidObject = undefined;
+let adagioAdapter = undefined;
 
 checkPrebidVersion();
-
-if (prebidObject !== undefined) {
-    checkAdagioModule();
-    checkAdagioLocalStorage();
-    checkAdagioAdUnitParams();
-}
-
+checkAdagioModule();
+checkAdagioLocalStorage();
+checkSupplyChainObject();
+checkAdagioAdUnitParams();
 checkAdagioConsent();
 
 /************************************************************************************************************************************************************
@@ -24,108 +22,140 @@ function checkPrebidVersion() {
 
     // Is Prebid.js detected, gives version
     let pbjsGlobals = window._pbjsGlobals;  
-    if (pbjsGlobals !== undefined) {
-        if (pbjsGlobals.includes('pbjs')) {
-            prebidObject = window['pbjs'];
-            console.log('✅ pbjs ('+ prebidObject.version + ')');
-        }
-        else {
-            prebidObject = window[pbjsGlobals[0]];
-            console.log('✅ ' + pbjsGlobals[0] + ' ('+ prebidObject.version + ')');
-        }
+
+    if (pbjsGlobals === undefined) {
+        console.log('❌ Prebid => window._pbjsGlobals: ' + pbjsGlobals);
+        return;
+    }
+
+    if (pbjsGlobals.includes('pbjs')) {
+        prebidObject = window['pbjs'];
+        console.log('✅ pbjs ('+ prebidObject.version + ')');
     }
     else {
-        console.log('❌ No Prebid.js => window._pbjsGlobals: ' + pbjsGlobals);
+        prebidObject = window[pbjsGlobals[0]];
+        console.log('✅ ' + pbjsGlobals[0] + ' ('+ prebidObject.version + ')');
     }
 }
 
 function checkAdagioModule() {
 
+    // TODO: bidderCode.toLowerCase().includes('adagio')
+
     // Is Adagio bidder adapter detected, gives version
-    let adagioBidder = prebidObject.installedModules.includes("adagioBidAdapter");
-    if (adagioBidder === false) console.log("❌ Adagio module");
-    else console.log("✅ Adagio module");
+    // if (prebidObject.installedModules.includes('adagioBidAdapter')) console.log('✅ Adagio module');
+    // else console.log('❌ Adagio module not found');
+
+    // const adagioBidAdapter = prebidObject.installedModules.filter(e => e.toLowerCase().includes('adagio'));
+    // if (adagioBidAdapter !== undefined) console.log('✅ Adagio module => ' + adagioBidAdapter);
+    // else console.log('❌ Adagio module not found');
+
+    // Is Adagio bidder adapter detected, gives version
+    adagioAdapter = window.ADAGIO;
+    if (adagioAdapter === undefined) console.log('❌ Adagio module => window.ADAGIO: ' + window.ADAGIO);
+    else {
+        console.log('✅ Adagio module');
+        console.log(adagioAdapter.versions);
+    }
 }
 
 function checkAdagioLocalStorage() {
 
+    if (prebidObject === undefined) {
+        console.log('❌ Localstorage => no pbjs found');
+        return;
+    }
+
     // Is global locastorage enabled
-    let deviceAccess = prebidObject.getConfig("deviceAccess");
+    let deviceAccess = prebidObject.getConfig('deviceAccess');
     let localStorage = prebidObject.bidderSettings;
 
-    if (localStorage.standard?.storageAllowed === true) console.log("✅ Localstorage => bidderSettings.standard set to true");
-    else if (localStorage.adagio?.storageAllowed === true) console.log("✅ Localstorage => bidderSettings.adagio set to true");
-    else if (localStorage.adagio?.storageAllowed === false) console.log("❌ Localstorage => bidderSettings.adagio set to false");
-    else if (prebidObject.getConfig("deviceAccess") === true) console.log("✅ Localstorage => global access set to true");
-    else if (parseInt(prebidObject.version.charAt(1) < 7)) console.log("⚠️ Localstorage: Prebid version lower than 7");
-    else console.log("❌ Localstorage not found: if detected in network, contact dev!");
+    if (localStorage.standard?.storageAllowed === true) console.log('✅ Localstorage => bidderSettings.standard set to true');
+    else if (localStorage.adagio?.storageAllowed === true) console.log('✅ Localstorage => bidderSettings.adagio set to true');
+    else if (localStorage.adagio?.storageAllowed === false) console.log('❌ Localstorage => bidderSettings.adagio set to false');
+    else if (prebidObject.getConfig('deviceAccess') === true) console.log('✅ Localstorage => global access set to true');
+    else if (parseInt(prebidObject.version.charAt(1) < 7)) console.log('⚠️ Localstorage: Prebid version lower than 7');
+    else console.log('❌ Localstorage not found: if detected in network, contact dev!');
 }
+
+function checkSupplyChainObject() {
+
+    if (prebidObject === undefined) {
+        console.log('❌ Supply chain object => no pbjs found');
+        return;
+    }
+    
+    // Find the first Adagio bidRequested event with an SCO
+    const adagioBid = prebidObject.getEvents()
+    .filter(e => e.eventType === 'bidRequested' && e.args.bidderCode.toLowerCase().includes('adagio'))
+    .map(e => e.args.bids)
+    .flat()
+    .find(r => r.schain)
+
+    if (adagioBid !== undefined) {
+        console.log('✅ Supply chain object');
+        console.log(adagioBid.schain);
+    }
+    else console.log('⚠️ Supply chain object not found => if seller type PUBLISHER, no SCO');
+}  
 
 function checkAdagioConsent() {
 
     // Gives the Consent Management strings values
-    if (typeof window.__tcfapi === "function") { 
-        window.__tcfapi('getTCData', 2, (tcdata, success) => {
-            const cmpAdagioBidders = new Map();
-            cmpAdagioBidders.set(617 ,  "Adagio");
-            cmpAdagioBidders.set(58 ,   "33Across");
-            cmpAdagioBidders.set(285,   "Freewheel");
-            cmpAdagioBidders.set(253 ,  "Improve Digital");
-            cmpAdagioBidders.set(10 ,   "Index Exchange");
-            cmpAdagioBidders.set(241 ,  "OneTag");
-            cmpAdagioBidders.set(76 ,   "Pubmatic");
-            cmpAdagioBidders.set(52 ,   "Rubicon");
-            cmpAdagioBidders.set(13 ,   "Sovrn");
-            cmpAdagioBidders.set(25 ,   "Yahoo");
-    
-            let inConsents, inLegitimates, stringResult = "", allConsentsTrue = true;
-    
-            for (let [key, value] of cmpAdagioBidders) {
-                if (tcdata.vendor.consents[key]) inConsents = "✅";
-                else { 
-                    inConsents = "❌";
-                    allConsentsTrue = false;
-                }
-                if (tcdata.vendor.legitimateInterests[key]) inLegitimates = "✅";
-                else inLegitimates = "❌";
-                stringResult += "   " + value + " (" + key + ")" + ' => Consents: ' + inConsents + ' / Legitimates: ' + inLegitimates + '\n';
-            };
-    
-            if (allConsentsTrue) console.log("✅ Consent Management Platform");
-            else console.log("❌ Consent Management Platform");
-            console.log(stringResult);
-        });
+    if (typeof window.__tcfapi !== 'function') {
+        onsole.log('❌ Consent Management Platform: __tcfapi function is not is not defined in this context');
+        return;
     }
-    else console.log("❌ Consent Management Platform: __tcfapi function is not is not defined in this context");
 
+    window.__tcfapi('getTCData', 2, (tcdata, success) => {
+        const cmpAdagioBidders = new Map();
+        cmpAdagioBidders.set(617 ,  'Adagio');
+        cmpAdagioBidders.set(58 ,   '33Across');
+        cmpAdagioBidders.set(285,   'Freewheel');
+        cmpAdagioBidders.set(253 ,  'Improve Digital');
+        cmpAdagioBidders.set(10 ,   'Index Exchange');
+        cmpAdagioBidders.set(241 ,  'OneTag');
+        cmpAdagioBidders.set(76 ,   'Pubmatic');
+        cmpAdagioBidders.set(52 ,   'Rubicon');
+        cmpAdagioBidders.set(13 ,   'Sovrn');
+        cmpAdagioBidders.set(25 ,   'Yahoo');
+
+        let inConsents, inLegitimates, stringResult = '', allConsentsTrue = true;
+
+        for (let [key, value] of cmpAdagioBidders) {
+            if (tcdata.vendor.consents[key]) inConsents = '✅';
+            else { 
+                inConsents = '❌';
+                allConsentsTrue = false;
+            }
+            if (tcdata.vendor.legitimateInterests[key]) inLegitimates = '✅';
+            else inLegitimates = '❌';
+            stringResult += '   ' + value + ' (' + key + ')' + ' => Consents: ' + inConsents + ' / Legitimates: ' + inLegitimates + '\n';
+        };
+
+        if (allConsentsTrue) console.log('✅ Consent Management Platform');
+        else console.log('❌ Consent Management Platform');
+        console.log(stringResult);
+    });
 }
 
 function checkAdagioAdUnitParams() {
-    
-    const adagioAdUnits = new Map();
 
-    // Are Adagio adUnit params detected and corrects
-    prebidObject.getEvents().forEach(event => {
-        if (event.eventType === "beforeRequestBids") {
-            event.args.forEach(arg => {
-                arg.bids.forEach(bid => {
-                    if (bid.bidder.toLowerCase().includes("adagio")) {
-                        adagioAdUnits.set(arg, bid);
-                    }
-                });
-            });
-        }
-    });
+    if (adagioAdapter === undefined) {
+        console.log('❌ Adagio adUnits => no Adagio bidder adapter found');
+        return;
+    }
 
-    // Display the Adagio params
-    if (adagioAdUnits.size > 0) {
-        console.log("✅ Adagio adUnits => " + adagioAdUnits.size);
-        for (let [key, value] of adagioAdUnits) {
-            console.log(key.code + " (" + JSON.stringify(key.mediaTypes) + ")");
-            console.log(value.params);
-        }
+    // Find the params for Adagio adUnits
+    const adagioAdUnits = adagioAdapter.pbjsAdUnits
+    .map(e => e.bids)
+    .flat();
+
+    if (adagioAdUnits !== undefined) {
+        console.log('✅ Adagio adUnits => ' + adagioAdUnits.length);
+        adagioAdUnits.forEach(adUnit => {
+            console.log(adUnit.params);
+        });
     }
-    else {
-        console.log("❌ No Adagio adUnit found.");
-    }
-}
+    else console.log('❌ No Adagio adUnit found.');
+}  
