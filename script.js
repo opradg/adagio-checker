@@ -28,6 +28,7 @@ function checkPrebidVersion() {
         return;
     }
 
+    // Sometimes, websites deal with multiple Prebids. If has pbjs, use it in priority
     if (pbjsGlobals.includes('pbjs')) {
         prebidObject = window['pbjs'];
         console.log('✅ pbjs ('+ prebidObject.version + ')');
@@ -39,16 +40,6 @@ function checkPrebidVersion() {
 }
 
 function checkAdagioModule() {
-
-    // TODO: bidderCode.toLowerCase().includes('adagio')
-
-    // Is Adagio bidder adapter detected, gives version
-    // if (prebidObject.installedModules.includes('adagioBidAdapter')) console.log('✅ Adagio module');
-    // else console.log('❌ Adagio module not found');
-
-    // const adagioBidAdapter = prebidObject.installedModules.filter(e => e.toLowerCase().includes('adagio'));
-    // if (adagioBidAdapter !== undefined) console.log('✅ Adagio module => ' + adagioBidAdapter);
-    // else console.log('❌ Adagio module not found');
 
     // Is Adagio bidder adapter detected, gives version
     adagioAdapter = window.ADAGIO;
@@ -73,7 +64,7 @@ function checkAdagioLocalStorage() {
     if (localStorage.standard?.storageAllowed === true) console.log('✅ Localstorage => bidderSettings.standard set to true');
     else if (localStorage.adagio?.storageAllowed === true) console.log('✅ Localstorage => bidderSettings.adagio set to true');
     else if (localStorage.adagio?.storageAllowed === false) console.log('❌ Localstorage => bidderSettings.adagio set to false');
-    else if (prebidObject.getConfig('deviceAccess') === true) console.log('✅ Localstorage => global access set to true');
+    else if (prebidObject.getConfig('deviceAccess') === true) console.log('❓ Localstorage => check network for localstorage (deviceAccess set to true)');
     else if (parseInt(prebidObject.version.charAt(1) < 7)) console.log('❓ Localstorage: Prebid version lower than 7');
     else console.log('❌ Localstorage not found: if detected in network, contact dev!');
 }
@@ -101,12 +92,12 @@ function checkSupplyChainObject() {
 
 function checkAdagioConsent() {
 
-    // Gives the Consent Management strings values
     if (typeof window.__tcfapi !== 'function') {
-        onsole.log('❌ Consent Management Platform: __tcfapi function is not is not defined in this context');
+        console.log('❌ Consent Management Platform: __tcfapi function is not is not defined');
         return;
     }
 
+    // Gives the Consent Management strings values
     window.__tcfapi('getTCData', 2, (tcdata, success) => {
         const cmpAdagioBidders = new Map();
         cmpAdagioBidders.set(617 ,  'Adagio');
