@@ -12,7 +12,8 @@ checkAdagioModule();
 checkAdagioLocalStorage();
 checkSupplyChainObject();
 checkAdagioAdUnitParams();
-checkAdagioConsent();
+checkAdagioCMP();
+checkConsentMetadata();
 
 /************************************************************************************************************************************************************
     FUNCTIONS
@@ -90,7 +91,7 @@ function checkSupplyChainObject() {
     else console.log('❓ Supply chain object not found => if website owned and managed, no SCO');
 }  
 
-function checkAdagioConsent() {
+function checkAdagioCMP() {
 
     if (typeof window.__tcfapi !== 'function') {
         console.log('❌ Consent Management Platform: __tcfapi function is not is not defined');
@@ -130,6 +131,8 @@ function checkAdagioConsent() {
     });
 }
 
+
+
 function checkAdagioAdUnitParams() {
 
     if (adagioAdapter === undefined) {
@@ -150,3 +153,33 @@ function checkAdagioAdUnitParams() {
     }
     else console.log('❌ No Adagio adUnit found.');
 }  
+
+function checkConsentMetadata() {
+
+    if (prebidObject === undefined) {
+        console.log('❌ Supply chain object => no pbjs found');
+        return;
+    }
+
+    let consentMetadata = prebidObject.getConsentMetadata();
+
+    if (consentMetadata !== undefined) {
+        console.log('✅ Consent metadata');
+        console.log(consentMetadata);
+    }
+    else {
+        console.log('❌ Consent metadata => getConsentMetada() not defined');
+    }
+
+    const adagioBid = prebidObject.getEvents()
+    .filter(e => e.eventType === 'bidRequested' && e.args.bidderCode.toLowerCase().includes('adagio'))
+    .map(e => e.args)
+    .flat()
+    .find(r => r.gdprConsent)
+
+    if (adagioBid !== undefined) {
+        console.log('✅ GDPR consent string');
+        console.log(adagioBid.gdprConsent);
+    }
+    else console.log('❌ GDPR consent string => if consent metadata GDRP true, contact dev');
+}
