@@ -76,7 +76,7 @@ function checkSupplyChainObject() {
         console.log('❌ Supply chain object => no pbjs found');
         return;
     }
-    else if (typeof  prebidObject.getEvents() !== 'function') {
+    else if (typeof prebidObject.getEvents !== 'function') {
         console.log('❌ Supply chain object => pbjs.getEvents() not a function');
         return;
     }
