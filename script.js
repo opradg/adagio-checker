@@ -76,6 +76,10 @@ function checkSupplyChainObject() {
         console.log('❌ Supply chain object => no pbjs found');
         return;
     }
+    else if (typeof  prebidObject.getEvents() !== 'function') {
+        console.log('❌ Supply chain object => pbjs.getEvents() not a function');
+        return;
+    }
     
     // Find the first Adagio bidRequested event with an SCO
     const adagioBid = prebidObject.getEvents()
