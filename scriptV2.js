@@ -163,6 +163,33 @@ function appendRow(status, name, details) {
     newRow.appendChild(detailsCell);
   }
 
+function jsonToHtml(json, indent = 2) {
+    const keys = Object.keys(json);
+    let html = '';
+    for (let i = 0; i < keys.length; i++) {
+        const key = keys[i];
+        const value = json[key];
+        const valueType = typeof value;
+        const isObject = valueType === 'object';
+        html += '<span class="json-key">' + key + '</span>: ';
+        if (isObject) {
+        html += '{<br/>';
+        html += jsonToHtml(value, indent + 2);
+        html += '&nbsp;'.repeat(indent) + '}';
+        } else if (valueType === 'string') {
+        html += '<span class="json-string">"' + value + '"</span>';
+        } else {
+        html += '<span class="json-other">' + value + '</span>';
+        }
+        if (i < keys.length - 1) {
+        html += ',';
+        }
+        html += '<br/>';
+        html += '&nbsp;'.repeat(indent);
+    }
+    return html;
+}
+
 function check() {
     checkPrebidVersion();
     checkAdagioModule();
