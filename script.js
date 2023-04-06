@@ -550,14 +550,14 @@ function checkAdagioCMP() {
         cmpAdagioBidders.set(25 ,   'Yahoo');
         let inConsents, inLegitimates, stringResult = '', allConsentsTrue = true;
         for (let [key, value] of cmpAdagioBidders) {
-            if (tcdata.vendor.consents[key]) inConsents = '✅';
+            if (tcdata.vendor.consents[key]) inConsents = `<kbd style="color:rgb(48 158 133);background-color:rgb(226 248 243);">OK</kbd>`;
             else { 
-                inConsents = '❌';
+                inConsents = `<kbd style="color:rgb(179 49 90);background-color:rgb(253 226 235);">KO</kbd>`;
                 allConsentsTrue = false;
             }
-            if (tcdata.vendor.legitimateInterests[key]) inLegitimates = '✅';
-            else inLegitimates = '❌';
-            stringResult += '   ' + value + ' (' + key + ')' + ' => Consents: ' + inConsents + ' / Legitimates: ' + inLegitimates + '<br>';
+            if (tcdata.vendor.legitimateInterests[key]) inLegitimates = `<kbd style="color:rgb(48 158 133);background-color:rgb(226 248 243);">OK</kbd>`;
+            else inLegitimates = `<kbd style="color:rgb(179 49 90);background-color:rgb(253 226 235);">KO</kbd>`;
+            stringResult += '<code>' + value + ' (' + key + ')</code>' + ': Consents: ' + inConsents + ', Legitimates: ' + inLegitimates + '<br>';
         };
         if (allConsentsTrue) appendConsentsRow('green', 'Consent Management Platform', stringResult);
         else appendConsentsRow('red', 'Consent Management Platform', stringResult);
@@ -573,7 +573,9 @@ function checkAdagioAdUnitParams() {
     // Find the params for Adagio adUnits
     const adagioAdUnits = adagioAdapter.pbjsAdUnits;
     if (adagioAdUnits !== undefined) {
-        appendCheckerRow('green', 'Adagio adUnits', `<kbd>${adagioAdUnits.length}</kbd> adUnit(s) found`);
+
+        if (adagioAdUnits.length !== 0) appendCheckerRow('green', 'Adagio adUnits', `<kbd>${adagioAdUnits.length}</kbd> adUnit(s) found`);
+        else appendCheckerRow('red', 'Adagio adUnits', `<kbd>${adagioAdUnits.length}</kbd> adUnit(s) found`);
         appendAdUnitsRow(adagioAdUnits);
     }
     else appendCheckerRow('red', 'Adagio adUnits', '<kbd>0</kbd> Adagio adUnit found: <code>ADAGIO.pbjsAdUnits</code>');
