@@ -1,8 +1,9 @@
 // Creates the global pbjs and adagio variables
-let prebidObject = undefined;
-let adagioAdapter = undefined;
+let prebidObject, adagioAdapter;
 let iframe, iframeDoc;
 let activeTab;
+let organizationId = undefined;
+let siteName = undefined;
 
 createOverlay();
 
@@ -67,6 +68,14 @@ function buildHtml() {
     ma2a.classList.add('outline');
     mli2a.appendChild(ma2a);
 
+    // create second unordered list inside navigation
+    const mli3a = iframeDoc.createElement('li');
+    const ma3a = iframeDoc.createElement('button');
+    ma3a.textContent = 'Datadog';
+    ma3a.addEventListener("click", () => switchTab(ma3a, 'datadog-container'));
+    ma3a.classList.add('outline');
+    mli3a.appendChild(ma3a);
+
     const li2a = iframeDoc.createElement('li');
     const a2a = iframeDoc.createElement('button');
     a2a.textContent = 'Checker';
@@ -89,6 +98,7 @@ function buildHtml() {
     
     li2c.appendChild(a2c);
     ul2.appendChild(mli2a);
+    ul2.appendChild(mli3a);
     ul2.appendChild(li2a);
     ul2.appendChild(li2a);
     ul2.appendChild(li2b);
@@ -102,6 +112,7 @@ function buildHtml() {
     iframeDoc.head.appendChild(picoStyle);
     iframeDoc.body.appendChild(nav);
     createManagerDiv();
+    createDatadogDiv();
     createCheckerDiv();
     createAdUnitsDiv();
     createConsentsDiv();
@@ -110,13 +121,14 @@ function buildHtml() {
 function createManagerDiv() {
     // create main container element
     const mainContainer = iframeDoc.createElement('div');
-    // mainContainer.classList.add('container-fluid');
     mainContainer.setAttribute('id', 'manager-container');
     mainContainer.style.display = "none";
     mainContainer.style.paddingTop = '5rem';
+    mainContainer.style.paddingBottom = '0';
 
     // create the iframe
     const managerIframe = iframeDoc.createElement('iframe');
+    managerIframe.setAttribute('id', 'manager-iframe');
     managerIframe.setAttribute('src', 'https://app.adagio.io/');
     managerIframe.style.width = '100%';
     managerIframe.style.height = '100%';
@@ -126,24 +138,44 @@ function createManagerDiv() {
     iframeDoc.body.appendChild(mainContainer);
 }
 
+function createDatadogDiv() {
+  // create main container element
+  const mainContainer = iframeDoc.createElement('div');
+  mainContainer.setAttribute('id', 'datadog-container');
+  mainContainer.style.display = "none";
+  mainContainer.style.paddingTop = '5rem';
+  mainContainer.style.paddingBottom = '0';
+
+  // create the iframe
+  const datadogIframe = iframeDoc.createElement('iframe');
+  datadogIframe.setAttribute('id', 'datadog-iframe');
+  datadogIframe.setAttribute('src', 'https://app.datadoghq.com/');
+  datadogIframe.style.width = '100%';
+  datadogIframe.style.height = '100%';
+
+  // append the container to the body
+  mainContainer.appendChild(datadogIframe);
+  iframeDoc.body.appendChild(mainContainer);
+}
+
 function createCheckerDiv() {
     // create main container element
     const mainContainer = iframeDoc.createElement('main');
     mainContainer.classList.add('container-fluid');
     mainContainer.setAttribute('id', 'checker-container');
+    mainContainer.style.paddingTop = '5rem';
+    mainContainer.style.paddingBottom = '0';
 
     // create headings container
     const headings = iframeDoc.createElement('div');
     headings.classList.add('headings');
 
-    const br1 = iframeDoc.createElement('br');
-    const br2 = iframeDoc.createElement('br');
+    const br = iframeDoc.createElement('br');
     const h2 = iframeDoc.createElement('h2');
     h2.textContent = 'Integration checker';
     const h3 = iframeDoc.createElement('h3');
     h3.textContent = 'Expectations for a proper Adagio integration';
-    headings.appendChild(br1);
-    headings.appendChild(br2);
+    headings.appendChild(br);
     headings.appendChild(h2);
     headings.appendChild(h3);
 
@@ -183,19 +215,19 @@ function createAdUnitsDiv() {
     mainContainer.classList.add('container-fluid');
     mainContainer.setAttribute('id', 'adunits-container');
     mainContainer.style.display = "none";
+    mainContainer.style.paddingTop = '5rem';
+    mainContainer.style.paddingBottom = '0';
 
     // create headings container
     const headings = iframeDoc.createElement('div');
     headings.classList.add('headings');
 
-    const br1 = iframeDoc.createElement('br');
-    const br2 = iframeDoc.createElement('br');
+    const br = iframeDoc.createElement('br');
     const h2 = iframeDoc.createElement('h2');
     h2.textContent = 'AdUnits';
     const h3 = iframeDoc.createElement('h3');
     h3.textContent = 'AdUnits list for Adagio';
-    headings.appendChild(br1);
-    headings.appendChild(br2);
+    headings.appendChild(br);
     headings.appendChild(h2);
     headings.appendChild(h3);
 
@@ -240,19 +272,19 @@ function createConsentsDiv() {
     mainContainer.classList.add('container-fluid');
     mainContainer.setAttribute('id', 'consents-container');
     mainContainer.style.display = "none";
+    mainContainer.style.paddingTop = '5rem';
+    mainContainer.style.paddingBottom = '0';
 
     // create headings container
     const headings = iframeDoc.createElement('div');
     headings.classList.add('headings');
 
-    const br1 = iframeDoc.createElement('br');
-    const br2 = iframeDoc.createElement('br');
+    const br = iframeDoc.createElement('br');
     const h2 = iframeDoc.createElement('h2');
     h2.textContent = 'Consents';
     const h3 = iframeDoc.createElement('h3');
     h3.textContent = 'Expectations for consents compliance';
-    headings.appendChild(br1);
-    headings.appendChild(br2);
+    headings.appendChild(br);
     headings.appendChild(h2);
     headings.appendChild(h3);
 
@@ -297,13 +329,23 @@ function switchTab(tab, container) {
 
             case 'manager-container':
                 iframeDoc.getElementById('manager-container').style.display = "";
+                iframeDoc.getElementById('datadog-container').style.display = "none";
                 iframeDoc.getElementById('checker-container').style.display = "none";
                 iframeDoc.getElementById('adunits-container').style.display = "none";
                 iframeDoc.getElementById('consents-container').style.display = "none";
                 break;
 
+            case 'datadog-container':
+              iframeDoc.getElementById('manager-container').style.display = "none";
+              iframeDoc.getElementById('datadog-container').style.display = "";
+              iframeDoc.getElementById('checker-container').style.display = "none";
+              iframeDoc.getElementById('adunits-container').style.display = "none";
+              iframeDoc.getElementById('consents-container').style.display = "none";
+              break;
+
             case 'checker-container':
                 iframeDoc.getElementById('manager-container').style.display = "none";
+                iframeDoc.getElementById('datadog-container').style.display = "none";
                 iframeDoc.getElementById('checker-container').style.display = "";
                 iframeDoc.getElementById('adunits-container').style.display = "none";
                 iframeDoc.getElementById('consents-container').style.display = "none";
@@ -311,6 +353,7 @@ function switchTab(tab, container) {
 
             case 'adunits-container':
                 iframeDoc.getElementById('manager-container').style.display = "none";
+                iframeDoc.getElementById('datadog-container').style.display = "none";
                 iframeDoc.getElementById('checker-container').style.display = "none";
                 iframeDoc.getElementById('adunits-container').style.display = "";
                 iframeDoc.getElementById('consents-container').style.display = "none";
@@ -318,6 +361,7 @@ function switchTab(tab, container) {
 
             case 'consents-container':
                 iframeDoc.getElementById('manager-container').style.display = "none";
+                iframeDoc.getElementById('datadog-container').style.display = "none";
                 iframeDoc.getElementById('checker-container').style.display = "none";
                 iframeDoc.getElementById('adunits-container').style.display = "none";
                 iframeDoc.getElementById('consents-container').style.display = "";
@@ -397,6 +441,19 @@ function appendAdUnitsRow(adUnits) {
         }
 
         for (const bid in adUnit.bids) {
+            if (organizationId === undefined) {
+              organizationId = adUnit.bids[bid].params['organizationId'];
+              siteName = adUnit.bids[bid].params['site'];
+              if (organizationId !== undefined && siteName !== undefined) {
+                const managerIframe = iframeDoc.getElementById('manager-iframe');
+                const datadogIframe = iframeDoc.getElementById('datadog-iframe');
+                const managerUrl = `https://app.adagio.io/publishers/${organizationId}/dashboards/41?filters=inventoryWebsiteName=${siteName}`;
+                const datadogUrl = `https://app.datadoghq.com/dashboard/7g6-prj-mtf/-csm-funnel?tpl_var_organization%5B0%5D=${organizationId}`;
+                // console.log(managerUrl);
+                managerIframe.setAttribute('src', managerUrl);
+                datadogIframe.setAttribute('src', datadogUrl);
+              }
+            }
             parametersCell.innerHTML += `<code>${JSON.stringify(adUnit.bids[bid].params)}</code><br>`;
         }
     
@@ -597,3 +654,5 @@ function checkConsentMetadata() {
     if (adagioBid !== undefined) appendConsentsRow('green', 'GDPR consent string', `<code>${JSON.stringify(adagioBid.gdprConsent)}</code>`);
     else appendConsentsRow('red', 'GDPR consent string', 'If consent metadata GDRP true, contact dev');
 }
+
+
