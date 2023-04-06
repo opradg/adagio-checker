@@ -13,9 +13,9 @@ function createOverlay() {
     iframe.classList.add('adagio-overlay');
     iframe.style.position = "fixed";
     iframe.style.top = "10px";
-    iframe.style.left = "10px";
-    iframe.style.width = "600px";
-    iframe.style.height = "350px";
+    iframe.style.right = "10px";
+    iframe.style.width = "700px";
+    iframe.style.height = "450px";
     iframe.style.zIndex = "9999";
     iframe.style.backgroundColor = "transparent";
     iframe.style.border = "none";
@@ -51,6 +51,7 @@ function buildHtml() {
     // create first unordered list inside navigation
     const ul1 = iframeDoc.createElement('ul');
     const li1 = iframeDoc.createElement('li');
+    const a1s = iframeDoc.createElement('a')
     const strong1 = iframeDoc.createElement('strong');
     strong1.textContent = 'Adagio.io';
     li1.appendChild(strong1);
@@ -177,14 +178,19 @@ function createAdUnitsDiv() {
     th1.textContent = 'Code';
     const th2 = iframeDoc.createElement('th');
     th2.setAttribute('scope', 'col');
-    th2.textContent = 'Media types';
+    th2.textContent = 'Mediatypes';
     const th3 = iframeDoc.createElement('th');
     th3.setAttribute('scope', 'col');
-    th3.textContent = 'Parameters';
+    th3.textContent = 'Sizes';
+    const th4 = iframeDoc.createElement('th');
+    th4.setAttribute('scope', 'col');
+    th4.textContent = 'Params';
     tr.appendChild(th1);
     tr.appendChild(th2);
     tr.appendChild(th3);
+    tr.appendChild(th4);
     thead.appendChild(tr);
+
     const tbody = iframeDoc.createElement('tbody');
     tbody.setAttribute('id', 'adunits-tbody');
     table.appendChild(thead);
@@ -212,9 +218,9 @@ function createConsentsDiv() {
     const br1 = iframeDoc.createElement('br');
     const br2 = iframeDoc.createElement('br');
     const h2 = iframeDoc.createElement('h2');
-    h2.textContent = 'Integration checker';
+    h2.textContent = 'Consents';
     const h3 = iframeDoc.createElement('h3');
-    h3.textContent = 'Expectations for a proper Adagio integration';
+    h3.textContent = 'Expectations for consents compliance';
     headings.appendChild(br1);
     headings.appendChild(br2);
     headings.appendChild(h2);
@@ -336,45 +342,80 @@ function appendAdUnitsRow(adUnits) {
         // Create the cells
         const codeCell = iframeDoc.createElement('td');
         const mediatypesCell = iframeDoc.createElement('td');
+        const sizesCell = iframeDoc.createElement('td');
         const parametersCell = iframeDoc.createElement('td');
     
         // Fill the cells
         codeCell.innerHTML = `<code>${adUnit.code}</code>`;
 
         for (const mediaType in adUnit.mediaTypes) {
-            mediatypesCell.innerHTML += `<code>${mediaType}</code>: `;
+            mediatypesCell.innerHTML += `<code>${mediaType}</code>`;
             adUnit.mediaTypes[mediaType].sizes.forEach(size => {
-                mediatypesCell.innerHTML += `<code>${JSON.stringify(size)}</code>`;
+                sizesCell.innerHTML += `<code>${JSON.stringify(size)}</code>`;
             });
         }
 
         for (const bid in adUnit.bids) {
-
-            for (const param in adUnit.bids[bid].params) {
-                parametersCell.innerHTML += `<code>${param}</code>: `;
-                parametersCell.innerHTML += `<code>${adUnit.bids[bid].params[param]}</code><br>`;
-            }
-            /*bid.params.forEach(param => {
-                parametersCell.innerHTML += `<code>${JSON.stringify(param)}</code>`;
-            });*/
+            parametersCell.innerHTML += `<code>${JSON.stringify(adUnit.bids[bid].params)}</code><br>`;
         }
     
         // Add the cells
         newRow.appendChild(codeCell);
         newRow.appendChild(mediatypesCell);
+        newRow.appendChild(sizesCell);
         newRow.appendChild(parametersCell);
         tableBody.appendChild(newRow);
     });
+}
+
+function appendConsentsRow(status, name, details) {
+
+    // get the tbody element
+    const tableBody = iframeDoc.getElementById('consents-tbody');
+
+    // Create the row
+    const newRow = iframeDoc.createElement('tr');
+  
+    // Create the cells
+    const statusCell = iframeDoc.createElement('td');
+    const nameCell = iframeDoc.createElement('td');
+    const detailsCell = iframeDoc.createElement('td');
+  
+    // Fill the cells
+    nameCell.innerHTML = name;
+    detailsCell.innerHTML = details
+  
+    // Style status
+    switch (status) {
+      case 'green':
+        statusCell.innerHTML = `<kbd style="color:rgb(48 158 133);background-color:rgb(226 248 243);">OK</kbd>`;
+        break;
+      case 'red':
+        statusCell.innerHTML = `<kbd style="color:rgb(179 49 90);background-color:rgb(253 226 235);">KO</kbd>`;
+        
+        break;  
+      case 'yellow':
+        statusCell.innerHTML = `<kbd style="color:rgb(180 130 59);background-color:rgb(253 243 228)";>!?</kbd>`;
+        break;  
+      default:
+        console.log('No badge found.')
+    }
+  
+    // Add the cells
+    tableBody.appendChild(newRow);
+    newRow.appendChild(statusCell);
+    newRow.appendChild(nameCell);
+    newRow.appendChild(detailsCell);
 }
 
 function check() {
     checkPrebidVersion();
     checkAdagioModule();
     checkAdagioLocalStorage();
-    // checkSupplyChainObject();
-    // checkAdagioCMP();
+    checkSupplyChainObject();
+    checkAdagioCMP();
     checkAdagioAdUnitParams();
-    // checkConsentMetadata();
+    checkConsentMetadata();
 }
 
 /*************************************************************************************************************************************************************************************************************************************
@@ -429,11 +470,11 @@ function checkAdagioLocalStorage() {
   
 function checkSupplyChainObject() {
     if (prebidObject === undefined) {
-      appendCheckerRow('red', 'Supply chain object', 'No Prebid.js found');
+      appendConsentsRow('red', 'Supply chain object', 'No Prebid.js found');
       return;
     }
     else if (typeof prebidObject.getEvents !== 'function') {
-        appendCheckerRow('red', 'Supply chain object', `<code>${pbjsGlobals}.getEvents()</code> not a function`);
+        appendConsentsRow('red', 'Supply chain object', `<code>${pbjsGlobals}.getEvents()</code> not a function`);
         return;
     }
     // Find the first Adagio bidRequested event with an SCO
@@ -443,14 +484,14 @@ function checkSupplyChainObject() {
     .flat()
     .find(r => r.schain)
     if (adagioBid !== undefined) {
-        appendCheckerRow('green', 'Supply chain object', `<code>${JSON.stringify(adagioBid.schain)}</code>`);
+        appendConsentsRow('green', 'Supply chain object', `<code>${JSON.stringify(adagioBid.schain)}</code>`);
     }
-    else appendCheckerRow('yellow', 'Supply chain object', 'If website is owned and managed, no SCO');
+    else appendConsentsRow('yellow', 'Supply chain object', 'If website is owned and managed, no SCO');
 } 
   
 function checkAdagioCMP() {
     if (typeof window.__tcfapi !== 'function') {
-        appendCheckerRow('red', 'Consent Management Platform', '__tcfapi function is not is not defined');
+        appendConsentsRow('red', 'Consent Management Platform', '__tcfapi function is not is not defined');
         return;
     }
     // Gives the Consent Management strings values
@@ -477,8 +518,8 @@ function checkAdagioCMP() {
             else inLegitimates = '❌';
             stringResult += '   ' + value + ' (' + key + ')' + ' => Consents: ' + inConsents + ' / Legitimates: ' + inLegitimates + '<br>';
         };
-        if (allConsentsTrue) appendCheckerRow('green', 'Consent Management Platform', stringResult);
-        else appendCheckerRow('red', 'Consent Management Platform', stringResult);
+        if (allConsentsTrue) appendConsentsRow('green', 'Consent Management Platform', stringResult);
+        else appendConsentsRow('red', 'Consent Management Platform', stringResult);
     });
 }
   
@@ -491,7 +532,7 @@ function checkAdagioAdUnitParams() {
     // Find the params for Adagio adUnits
     const adagioAdUnits = adagioAdapter.pbjsAdUnits;
     if (adagioAdUnits !== undefined) {
-        appendCheckerRow('green', 'Adagio adUnits', `<kbd>${adagioAdapter.pbjsAdUnits.length}</kbd> adUnit(s) found`);
+        appendCheckerRow('green', 'Adagio adUnits', `<kbd>${adagioAdUnits.length}</kbd> adUnit(s) found`);
         appendAdUnitsRow(adagioAdUnits);
     }
     else appendCheckerRow('red', 'Adagio adUnits', '<kbd>0</kbd> Adagio adUnit found: <code>ADAGIO.pbjsAdUnits</code>');
@@ -499,17 +540,17 @@ function checkAdagioAdUnitParams() {
   
 function checkConsentMetadata() {
     if (prebidObject === undefined) {
-        appendCheckerRow('red', 'Supply chain object', 'No pbjs found');
+        appendConsentsRow('red', 'Supply chain object', 'No pbjs found');
         return;
     }
     let consentMetadata = prebidObject.getConsentMetadata();
-    if (consentMetadata !== undefined) appendCheckerRow('green', 'Supply chain object', jsonToHtml(consentMetadata));
-    else appendCheckerRow('red', 'Supply chain object', `${pbjsGlobals}.getConsentMetada() not defined`);
+    if (consentMetadata !== undefined) appendConsentsRow('green', 'Supply chain object', `<code>${JSON.stringify(consentMetadata)}</code>`);
+    else appendConsentsRow('red', 'Supply chain object', `${pbjsGlobals}.getConsentMetada() not defined`);
     const adagioBid = prebidObject.getEvents()
     .filter(e => e.eventType === 'bidRequested' && e.args.bidderCode.toLowerCase().includes('adagio'))
     .map(e => e.args)
     .flat()
     .find(r => r.gdprConsent)
-    if (adagioBid !== undefined) appendCheckerRow('green', 'GDPR consent string', jsonToHtml(adagioBid.gdprConsent));
-    else appendCheckerRow('red', 'GDPR consent string', 'If consent metadata GDRP true, contact dev');
+    if (adagioBid !== undefined) appendConsentsRow('green', 'GDPR consent string', `<code>${JSON.stringify(adagioBid.gdprConsent)}</code>`);
+    else appendConsentsRow('red', 'GDPR consent string', 'If consent metadata GDRP true, contact dev');
 }
