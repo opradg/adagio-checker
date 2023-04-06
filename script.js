@@ -39,6 +39,7 @@ function buildHtml() {
     // create navigation element
     const nav = iframeDoc.createElement('nav');
     nav.classList.add('container-fluid');
+    nav.setAttribute('id', 'adagio-nav');
     nav.style.zIndex = '99';
     nav.style.position = 'fixed';
     nav.style.top = '0';
@@ -59,6 +60,13 @@ function buildHtml() {
 
     // create second unordered list inside navigation
     const ul2 = iframeDoc.createElement('ul');
+    const mli2a = iframeDoc.createElement('li');
+    const ma2a = iframeDoc.createElement('button');
+    ma2a.textContent = 'Manager';
+    ma2a.addEventListener("click", () => switchTab(ma2a, 'manager-container'));
+    ma2a.classList.add('outline');
+    mli2a.appendChild(ma2a);
+
     const li2a = iframeDoc.createElement('li');
     const a2a = iframeDoc.createElement('button');
     a2a.textContent = 'Checker';
@@ -80,6 +88,8 @@ function buildHtml() {
     a2c.classList.add('outline');
     
     li2c.appendChild(a2c);
+    ul2.appendChild(mli2a);
+    ul2.appendChild(li2a);
     ul2.appendChild(li2a);
     ul2.appendChild(li2b);
     ul2.appendChild(li2c);
@@ -91,9 +101,29 @@ function buildHtml() {
     // append main containers to iframeDoc body
     iframeDoc.head.appendChild(picoStyle);
     iframeDoc.body.appendChild(nav);
+    createManagerDiv();
     createCheckerDiv();
     createAdUnitsDiv();
     createConsentsDiv();
+}
+
+function createManagerDiv() {
+    // create main container element
+    const mainContainer = iframeDoc.createElement('div');
+    // mainContainer.classList.add('container-fluid');
+    mainContainer.setAttribute('id', 'manager-container');
+    mainContainer.style.display = "none";
+    mainContainer.style.paddingTop = '5rem';
+
+    // create the iframe
+    const managerIframe = iframeDoc.createElement('iframe');
+    managerIframe.setAttribute('src', 'https://app.adagio.io/');
+    managerIframe.style.width = '100%';
+    managerIframe.style.height = '100%';
+
+    // append the container to the body
+    mainContainer.appendChild(managerIframe);
+    iframeDoc.body.appendChild(mainContainer);
 }
 
 function createCheckerDiv() {
@@ -264,19 +294,30 @@ function switchTab(tab, container) {
         activeTab = tab;
 
         switch (container) {
+
+            case 'manager-container':
+                iframeDoc.getElementById('manager-container').style.display = "";
+                iframeDoc.getElementById('checker-container').style.display = "none";
+                iframeDoc.getElementById('adunits-container').style.display = "none";
+                iframeDoc.getElementById('consents-container').style.display = "none";
+                break;
+
             case 'checker-container':
+                iframeDoc.getElementById('manager-container').style.display = "none";
                 iframeDoc.getElementById('checker-container').style.display = "";
                 iframeDoc.getElementById('adunits-container').style.display = "none";
                 iframeDoc.getElementById('consents-container').style.display = "none";
                 break;
 
             case 'adunits-container':
+                iframeDoc.getElementById('manager-container').style.display = "none";
                 iframeDoc.getElementById('checker-container').style.display = "none";
                 iframeDoc.getElementById('adunits-container').style.display = "";
                 iframeDoc.getElementById('consents-container').style.display = "none";
                 break;
 
             case 'consents-container':
+                iframeDoc.getElementById('manager-container').style.display = "none";
                 iframeDoc.getElementById('checker-container').style.display = "none";
                 iframeDoc.getElementById('adunits-container').style.display = "none";
                 iframeDoc.getElementById('consents-container').style.display = "";
