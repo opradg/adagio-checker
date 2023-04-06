@@ -14,7 +14,7 @@ function createOverlay() {
     iframe.style.top = "20px";
     iframe.style.left = "20px";
     iframe.style.width = "600px";
-    iframe.style.height = "700px";
+    iframe.style.height = "350px";
     iframe.style.zIndex = "9999";
     iframe.style.backgroundColor = "transparent";
     iframe.style.border = "none";
@@ -22,6 +22,7 @@ function createOverlay() {
 
     // get the iframe document object
     iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+    iframeDoc.body.style.fontSize = "12px";
     buildHtml(iframeDoc);
     check();
 }
@@ -33,12 +34,22 @@ function buildHtml(iframeDoc) {
     picoStyle.setAttribute('rel', 'stylesheet');
     picoStyle.setAttribute('href', 'https://unpkg.com/@picocss/pico@1.5.7/css/pico.min.css');
 
-    // create main container element
-    const mainContainer = iframeDoc.createElement('main');
-    mainContainer.classList.add('container');
-
     // create navigation element
     const nav = iframeDoc.createElement('nav');
+    nav.classList.add('container-fluid');
+    
+    nav.style.zIndex = '99';
+    nav.style.position = 'fixed';
+    nav.style.top = '0';
+    nav.style.right = '0';
+    nav.style.left = '0';
+    nav.style.padding = '0 var(--spacing)';
+    nav.style.backgroundColor = 'var(--card-background-color)';
+    nav.style.boxShadow = 'var(--card-box-shadow)';
+
+    // create main container element
+    const mainContainer = iframeDoc.createElement('main');
+    mainContainer.classList.add('container-fluid');
 
     // create first unordered list inside navigation
     const ul1 = iframeDoc.createElement('ul');
@@ -81,14 +92,15 @@ function buildHtml(iframeDoc) {
     // create headings container
     const headings = iframeDoc.createElement('div');
     headings.classList.add('headings');
-    const divider = iframeDoc.createElement('hr');
-    const breakLine = iframeDoc.createElement('br');
+
+    const br1 = iframeDoc.createElement('br');
+    const br2 = iframeDoc.createElement('br');
     const h2 = iframeDoc.createElement('h2');
     h2.textContent = 'Integration checker';
     const h3 = iframeDoc.createElement('h3');
     h3.textContent = 'Expectations for a proper Adagio integration';
-    headings.appendChild(divider);
-    headings.appendChild(breakLine);
+    headings.appendChild(br1);
+    headings.appendChild(br2);
     headings.appendChild(h2);
     headings.appendChild(h3);
 
@@ -115,12 +127,12 @@ function buildHtml(iframeDoc) {
     table.appendChild(tbody);
 
     // append navigation, headings, and table to main container
-    mainContainer.appendChild(nav);
     mainContainer.appendChild(headings);
     mainContainer.appendChild(table);
 
     // append main container to iframeDoc body
     iframeDoc.head.appendChild(picoStyle);
+    iframeDoc.body.appendChild(nav);
     iframeDoc.body.appendChild(mainContainer);
 }
 
@@ -144,13 +156,14 @@ function appendRow(status, name, details) {
     // Style status
     switch (status) {
       case 'green':
-        statusCell.innerHTML = `<kbd>OK</kbd>`;
+        statusCell.innerHTML = `<kbd style="color:rgb(48 158 133);background-color:rgb(226 248 243);">OK</kbd>`;
         break;
       case 'red':
-        statusCell.innerHTML = `<kbd>KO</kbd>`;
+        statusCell.innerHTML = `<kbd style="color:rgb(179 49 90);background-color:rgb(253 226 235);">KO</kbd>`;
+        
         break;  
       case 'yellow':
-        statusCell.innerHTML = `<kbd>!?</kbd>`;
+        statusCell.innerHTML = `<kbd style="color:rgb(180 130 59);background-color:rgb(253 243 228)";>!?</kbd>`;
         break;  
       default:
         "No badge found."
@@ -161,7 +174,7 @@ function appendRow(status, name, details) {
     newRow.appendChild(statusCell);
     newRow.appendChild(nameCell);
     newRow.appendChild(detailsCell);
-  }
+}
 
 function jsonToHtml(json, indent = 2) {
     const keys = Object.keys(json);
@@ -209,12 +222,12 @@ function checkPrebidVersion() {
     // Is Prebid.js detected? If so, give version.
     const pbjsGlobals = window._pbjsGlobals;
     if (pbjsGlobals === undefined) {
-      appendRow('red', 'Prebid', `window._pbjsGlobals: ${pbjsGlobals}`);
+      appendRow('red', 'Prebid', `<code>window._pbjsGlobals</code>: <code>${pbjsGlobals}</code>`);
       return;
     }
     // Sometimes, websites deal with multiple Prebids. If there's a pbjs global, use it in priority.
     prebidObject = window[pbjsGlobals.includes('pbjs') ? 'pbjs' : pbjsGlobals[0]];
-    appendRow('green', 'Prebid', `window._pbjsGlobals: ${pbjsGlobals}`);
+    appendRow('green', 'Prebid', `<code>window._pbjsGlobals</code>: ${pbjsGlobals}`);
 }
   
 function checkAdagioModule() {
