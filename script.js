@@ -523,8 +523,26 @@ function checkAdagioLocalStorage() {
       appendCheckerRow('red', 'Localstorage', 'Not found. If detected on network, contact dev!');
     }
 }
+
+function checkAdagioAdUnitParams() {
+  
+  if (adagioAdapter === undefined) {
+      appendCheckerRow('red', 'Adagio adUnits', 'No Adagio bidder adapter found');
+      return;
+  }
+  // Find the params for Adagio adUnits
+  const adagioAdUnits = adagioAdapter.pbjsAdUnits;
+  if (adagioAdUnits !== undefined) {
+
+      if (adagioAdUnits.length !== 0) appendCheckerRow('green', 'Adagio adUnits', `<kbd>${adagioAdUnits.length}</kbd> adUnit(s) found`);
+      else appendCheckerRow('red', 'Adagio adUnits', `<kbd>${adagioAdUnits.length}</kbd> adUnit(s) found`);
+      appendAdUnitsRow(adagioAdUnits);
+  }
+  else appendCheckerRow('red', 'Adagio adUnits', '<kbd>0</kbd> Adagio adUnit found: <code>ADAGIO.pbjsAdUnits</code>');
+}
   
 function checkSupplyChainObject() {
+
     if (prebidObject === undefined) {
       appendCheckerRow('red', 'Supply chain object', 'No Prebid.js found');
       appendConsentsRow('red', 'Supply chain object', 'No Prebid.js found');
@@ -580,12 +598,17 @@ function checkAdagioCMP() {
 
         for (let [key, value] of cmpAdagioBidders) {
 
-            if (tcdata.vendor.consents[key]) inConsents = `<kbd style="color:rgb(48 158 133);background-color:rgb(226 248 243);">OK</kbd>`;
+            const consent = tcdata.vendor.consents[key];
+            const legitimate = tcdata.vendor.legitimateInterests[key];
+
+            if (key === 617 && (consent || legitimate)) adagioFound = true;
+
+            if (consent) inConsents = `<kbd style="color:rgb(48 158 133);background-color:rgb(226 248 243);">OK</kbd>`;
             else { 
                 inConsents = `<kbd style="color:rgb(179 49 90);background-color:rgb(253 226 235);">KO</kbd>`;
                 allConsentsTrue = false;
             }
-            if (tcdata.vendor.legitimateInterests[key]) inLegitimates = `<kbd style="color:rgb(48 158 133);background-color:rgb(226 248 243);">OK</kbd>`;
+            if (legitimate) inLegitimates = `<kbd style="color:rgb(48 158 133);background-color:rgb(226 248 243);">OK</kbd>`;
             else inLegitimates = `<kbd style="color:rgb(179 49 90);background-color:rgb(253 226 235);">KO</kbd>`;
             stringResult += '<code>' + value + ' (' + key + ')</code>' + ': Consents: ' + inConsents + ', Legitimates: ' + inLegitimates + '<br>';
         };
@@ -593,46 +616,33 @@ function checkAdagioCMP() {
           appendCheckerRow('green', 'Consent Management Platform', 'All consents <code>true</code>');
           appendConsentsRow('green', 'Consent Management Platform', stringResult);
         }
-        else {
-          appendCheckerRow('red', 'Consent Management Platform', 'One or many consents <code>false</code>');
+        else if (!adagioFound) {
+          appendCheckerRow('red', 'Consent Management Platform', 'Adagio consent <code>false</code>');
           appendConsentsRow('red', 'Consent Management Platform', stringResult);
+        }
+        else {
+          appendCheckerRow('yellow', 'Consent Management Platform', 'One or many consents <code>false</code>');
+          appendConsentsRow('yellow', 'Consent Management Platform', stringResult);
         }
     });
 }
   
-function checkAdagioAdUnitParams() {
-  
-    if (adagioAdapter === undefined) {
-        appendCheckerRow('red', 'Adagio adUnits', 'No Adagio bidder adapter found');
-        return;
-    }
-    // Find the params for Adagio adUnits
-    const adagioAdUnits = adagioAdapter.pbjsAdUnits;
-    if (adagioAdUnits !== undefined) {
-
-        if (adagioAdUnits.length !== 0) appendCheckerRow('green', 'Adagio adUnits', `<kbd>${adagioAdUnits.length}</kbd> adUnit(s) found`);
-        else appendCheckerRow('red', 'Adagio adUnits', `<kbd>${adagioAdUnits.length}</kbd> adUnit(s) found`);
-        appendAdUnitsRow(adagioAdUnits);
-    }
-    else appendCheckerRow('red', 'Adagio adUnits', '<kbd>0</kbd> Adagio adUnit found: <code>ADAGIO.pbjsAdUnits</code>');
-}  
-  
 function checkConsentMetadata() {
     if (prebidObject === undefined) {
-        appendConsentsRow('red', 'Supply chain object', 'No pbjs found');
+        appendConsentsRow('red', 'Consent metadata', 'No pbjs found');
         return;
     }
     else if (typeof prebidObject.getConsentMetadata !== 'function') {
-      appendCheckerRow('red', 'Supply chain object', `<code>${pbjsGlobals}.getConsentMetadata()</code> not a function`);
-      appendConsentsRow('red', 'Supply chain object', `<code>${pbjsGlobals}.getConsentMetadata()</code> not a function`);
+      appendCheckerRow('red', 'Consent metadata', `<code>${pbjsGlobals}.getConsentMetadata()</code> not a function`);
+      appendConsentsRow('red', 'Consent metadata', `<code>${pbjsGlobals}.getConsentMetadata()</code> not a function`);
       return;
     }
 
     let consentMetadata = prebidObject.getConsentMetadata();
 
     if (consentMetadata !== undefined) {
-      appendCheckerRow('green', 'Supply chain object', `<code>Consent metadata found</code>`);
-      appendConsentsRow('green', 'Supply chain object', `<code>${JSON.stringify(consentMetadata)}</code>`);
+      appendCheckerRow('green', 'Consent metadata', 'Consent metadata found');
+      appendConsentsRow('green', 'Consent metadata', `<code>${JSON.stringify(consentMetadata)}</code>`);
     }
 
     const adagioBid = prebidObject.getEvents()
