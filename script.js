@@ -468,9 +468,9 @@ function check() {
     checkPrebidVersion();
     checkAdagioModule();
     checkAdagioLocalStorage();
+    checkAdagioAdUnitParams();
     checkSupplyChainObject();
     checkAdagioCMP();
-    checkAdagioAdUnitParams();
     checkConsentMetadata();
 }
 
@@ -526,10 +526,12 @@ function checkAdagioLocalStorage() {
   
 function checkSupplyChainObject() {
     if (prebidObject === undefined) {
+      appendCheckerRow('red', 'Supply chain object', 'No Prebid.js found');
       appendConsentsRow('red', 'Supply chain object', 'No Prebid.js found');
       return;
     }
     else if (typeof prebidObject.getEvents !== 'function') {
+        appendCheckerRow('red', 'Supply chain object', `<code>${pbjsGlobals}.getEvents()</code> not a function`);
         appendConsentsRow('red', 'Supply chain object', `<code>${pbjsGlobals}.getEvents()</code> not a function`);
         return;
     }
@@ -540,14 +542,19 @@ function checkSupplyChainObject() {
     .flat()
     .find(r => r.schain)
     if (adagioBid !== undefined) {
+        appendCheckerRow('green', 'Supply chain object', 'SCO found');
         appendConsentsRow('green', 'Supply chain object', `<code>${JSON.stringify(adagioBid.schain)}</code>`);
     }
-    else appendConsentsRow('yellow', 'Supply chain object', 'If website is owned and managed, no SCO');
+    else {
+      appendCheckerRow('yellow', 'Supply chain object', 'If website is owned and managed, no SCO');
+      appendConsentsRow('yellow', 'Supply chain object', 'If website is owned and managed, no SCO');
+    }
 } 
   
 function checkAdagioCMP() {
     if (typeof window.__tcfapi !== 'function') {
-        appendConsentsRow('red', 'Consent Management Platform', '__tcfapi function is not is not defined');
+        appendCheckerRow('red', 'Consent Management Platform', '<code>window.__tcfapi</code> function is not is not defined');
+        appendConsentsRow('red', 'Consent Management Platform', '<code>window.__tcfapi</code> function is not is not defined');
         return;
     }
     // Gives the Consent Management strings values
@@ -565,8 +572,14 @@ function checkAdagioCMP() {
         cmpAdagioBidders.set(45 ,   'Smart Adserver');
         cmpAdagioBidders.set(13 ,   'Sovrn');
         cmpAdagioBidders.set(25 ,   'Yahoo');
-        let inConsents, inLegitimates, stringResult = '', allConsentsTrue = true;
+
+        let inConsents, inLegitimates;
+        let stringResult = '';
+        let allConsentsTrue = true;
+        let adagioFound = false;
+
         for (let [key, value] of cmpAdagioBidders) {
+
             if (tcdata.vendor.consents[key]) inConsents = `<kbd style="color:rgb(48 158 133);background-color:rgb(226 248 243);">OK</kbd>`;
             else { 
                 inConsents = `<kbd style="color:rgb(179 49 90);background-color:rgb(253 226 235);">KO</kbd>`;
@@ -576,8 +589,14 @@ function checkAdagioCMP() {
             else inLegitimates = `<kbd style="color:rgb(179 49 90);background-color:rgb(253 226 235);">KO</kbd>`;
             stringResult += '<code>' + value + ' (' + key + ')</code>' + ': Consents: ' + inConsents + ', Legitimates: ' + inLegitimates + '<br>';
         };
-        if (allConsentsTrue) appendConsentsRow('green', 'Consent Management Platform', stringResult);
-        else appendConsentsRow('red', 'Consent Management Platform', stringResult);
+        if (allConsentsTrue) {
+          appendCheckerRow('green', 'Consent Management Platform', 'All consents <code>true</code>');
+          appendConsentsRow('green', 'Consent Management Platform', stringResult);
+        }
+        else {
+          appendCheckerRow('red', 'Consent Management Platform', 'One or many consents <code>false</code>');
+          appendConsentsRow('red', 'Consent Management Platform', stringResult);
+        }
     });
 }
   
@@ -603,16 +622,31 @@ function checkConsentMetadata() {
         appendConsentsRow('red', 'Supply chain object', 'No pbjs found');
         return;
     }
+    else if (typeof prebidObject.getConsentMetadata !== 'function') {
+      appendCheckerRow('red', 'Supply chain object', `<code>${pbjsGlobals}.getConsentMetadata()</code> not a function`);
+      appendConsentsRow('red', 'Supply chain object', `<code>${pbjsGlobals}.getConsentMetadata()</code> not a function`);
+      return;
+    }
+
     let consentMetadata = prebidObject.getConsentMetadata();
-    if (consentMetadata !== undefined) appendConsentsRow('green', 'Supply chain object', `<code>${JSON.stringify(consentMetadata)}</code>`);
-    else appendConsentsRow('red', 'Supply chain object', `${pbjsGlobals}.getConsentMetada() not defined`);
+
+    if (consentMetadata !== undefined) {
+      appendCheckerRow('green', 'Supply chain object', `<code>Consent metadata found</code>`);
+      appendConsentsRow('green', 'Supply chain object', `<code>${JSON.stringify(consentMetadata)}</code>`);
+    }
+
     const adagioBid = prebidObject.getEvents()
     .filter(e => e.eventType === 'bidRequested' && e.args.bidderCode.toLowerCase().includes('adagio'))
     .map(e => e.args)
     .flat()
     .find(r => r.gdprConsent)
-    if (adagioBid !== undefined) appendConsentsRow('green', 'GDPR consent string', `<code>${JSON.stringify(adagioBid.gdprConsent)}</code>`);
-    else appendConsentsRow('red', 'GDPR consent string', 'If consent metadata GDRP true, contact dev');
+
+    if (adagioBid !== undefined) {
+      appendCheckerRow('green', 'GDPR consent string', `GDPR string found`);
+      appendConsentsRow('green', 'GDPR consent string', `<code>${JSON.stringify(adagioBid.gdprConsent)}</code>`);
+    }
+    else {
+      appendCheckerRow('red', 'GDPR consent string', `GDPR string not found. If consent metadata GDRP true, contact dev`);
+      appendConsentsRow('red', 'GDPR consent string', 'GDPR string not found. If consent metadata GDRP true, contact dev');
+    }
 }
-
-
