@@ -68,14 +68,6 @@ function buildHtml() {
     ma2a.classList.add('outline');
     mli2a.appendChild(ma2a);
 
-    // create second unordered list inside navigation
-    const mli3a = iframeDoc.createElement('li');
-    const ma3a = iframeDoc.createElement('button');
-    ma3a.textContent = 'Datadog';
-    ma3a.addEventListener("click", () => switchTab(ma3a, 'datadog-container'));
-    ma3a.classList.add('outline');
-    mli3a.appendChild(ma3a);
-
     const li2a = iframeDoc.createElement('li');
     const a2a = iframeDoc.createElement('button');
     a2a.textContent = 'Checker';
@@ -98,7 +90,6 @@ function buildHtml() {
     
     li2c.appendChild(a2c);
     ul2.appendChild(mli2a);
-    ul2.appendChild(mli3a);
     ul2.appendChild(li2a);
     ul2.appendChild(li2a);
     ul2.appendChild(li2b);
@@ -112,7 +103,6 @@ function buildHtml() {
     iframeDoc.head.appendChild(picoStyle);
     iframeDoc.body.appendChild(nav);
     createManagerDiv();
-    createDatadogDiv();
     createCheckerDiv();
     createAdUnitsDiv();
     createConsentsDiv();
@@ -136,26 +126,6 @@ function createManagerDiv() {
     // append the container to the body
     mainContainer.appendChild(managerIframe);
     iframeDoc.body.appendChild(mainContainer);
-}
-
-function createDatadogDiv() {
-  // create main container element
-  const mainContainer = iframeDoc.createElement('div');
-  mainContainer.setAttribute('id', 'datadog-container');
-  mainContainer.style.display = "none";
-  mainContainer.style.paddingTop = '5rem';
-  mainContainer.style.paddingBottom = '0';
-
-  // create the iframe
-  const datadogIframe = iframeDoc.createElement('iframe');
-  datadogIframe.setAttribute('id', 'datadog-iframe');
-  datadogIframe.setAttribute('src', 'https://app.datadoghq.com/');
-  datadogIframe.style.width = '100%';
-  datadogIframe.style.height = '100%';
-
-  // append the container to the body
-  mainContainer.appendChild(datadogIframe);
-  iframeDoc.body.appendChild(mainContainer);
 }
 
 function createCheckerDiv() {
@@ -329,23 +299,13 @@ function switchTab(tab, container) {
 
             case 'manager-container':
                 iframeDoc.getElementById('manager-container').style.display = "";
-                iframeDoc.getElementById('datadog-container').style.display = "none";
                 iframeDoc.getElementById('checker-container').style.display = "none";
                 iframeDoc.getElementById('adunits-container').style.display = "none";
                 iframeDoc.getElementById('consents-container').style.display = "none";
                 break;
 
-            case 'datadog-container':
-              iframeDoc.getElementById('manager-container').style.display = "none";
-              iframeDoc.getElementById('datadog-container').style.display = "";
-              iframeDoc.getElementById('checker-container').style.display = "none";
-              iframeDoc.getElementById('adunits-container').style.display = "none";
-              iframeDoc.getElementById('consents-container').style.display = "none";
-              break;
-
             case 'checker-container':
                 iframeDoc.getElementById('manager-container').style.display = "none";
-                iframeDoc.getElementById('datadog-container').style.display = "none";
                 iframeDoc.getElementById('checker-container').style.display = "";
                 iframeDoc.getElementById('adunits-container').style.display = "none";
                 iframeDoc.getElementById('consents-container').style.display = "none";
@@ -353,7 +313,6 @@ function switchTab(tab, container) {
 
             case 'adunits-container':
                 iframeDoc.getElementById('manager-container').style.display = "none";
-                iframeDoc.getElementById('datadog-container').style.display = "none";
                 iframeDoc.getElementById('checker-container').style.display = "none";
                 iframeDoc.getElementById('adunits-container').style.display = "";
                 iframeDoc.getElementById('consents-container').style.display = "none";
@@ -361,7 +320,6 @@ function switchTab(tab, container) {
 
             case 'consents-container':
                 iframeDoc.getElementById('manager-container').style.display = "none";
-                iframeDoc.getElementById('datadog-container').style.display = "none";
                 iframeDoc.getElementById('checker-container').style.display = "none";
                 iframeDoc.getElementById('adunits-container').style.display = "none";
                 iframeDoc.getElementById('consents-container').style.display = "";
@@ -448,10 +406,10 @@ function appendAdUnitsRow(adUnits) {
                 const managerIframe = iframeDoc.getElementById('manager-iframe');
                 const datadogIframe = iframeDoc.getElementById('datadog-iframe');
                 const managerUrl = `https://app.adagio.io/publishers/${organizationId}/dashboards/41?filters=inventoryWebsiteName=${siteName}`;
-                const datadogUrl = `https://app.datadoghq.com/dashboard/7g6-prj-mtf/-csm-funnel?tpl_var_organization%5B0%5D=${organizationId}`;
+                // const datadogUrl = `https://app.datadoghq.com/dashboard/7g6-prj-mtf/-csm-funnel?tpl_var_organization%5B0%5D=${organizationId}`;
                 // console.log(managerUrl);
                 managerIframe.setAttribute('src', managerUrl);
-                datadogIframe.setAttribute('src', datadogUrl);
+                // datadogIframe.setAttribute('src', datadogUrl);
               }
             }
             parametersCell.innerHTML += `<code>${JSON.stringify(adUnit.bids[bid].params)}</code><br>`;
@@ -597,12 +555,14 @@ function checkAdagioCMP() {
         const cmpAdagioBidders = new Map();
         cmpAdagioBidders.set(617 ,  'Adagio');
         cmpAdagioBidders.set(58 ,   '33Across');
-        cmpAdagioBidders.set(285,   'Freewheel');
         cmpAdagioBidders.set(253 ,  'Improve Digital');
         cmpAdagioBidders.set(10 ,   'Index Exchange');
+        cmpAdagioBidders.set(285,   'Freewheel');
         cmpAdagioBidders.set(241 ,  'OneTag');
+        cmpAdagioBidders.set(69 ,   'OpenX');
         cmpAdagioBidders.set(76 ,   'Pubmatic');
         cmpAdagioBidders.set(52 ,   'Rubicon');
+        cmpAdagioBidders.set(45 ,   'Smart Adserver');
         cmpAdagioBidders.set(13 ,   'Sovrn');
         cmpAdagioBidders.set(25 ,   'Yahoo');
         let inConsents, inLegitimates, stringResult = '', allConsentsTrue = true;
