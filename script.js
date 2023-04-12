@@ -121,23 +121,12 @@ function createOverlay() {
     iframe.style.border = "none";
     iframe.style.borderRadius = "10px";
     iframe.style.boxShadow = "rgba(0, 0, 0, 0.35) 0px 5px 15px";
+	iframe.style.resize = 'both';
+    iframe.style.direction = 'rtl';
     window.document.body.appendChild(iframe);
 
     // get the iframe document object
     iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-
-    // set some refresh animation css
-    const keyframes = `@keyframes rotation {
-    	from {
-    		transform: rotate(0deg);
-    	}
-    	to {
-    		transform: rotate(360deg);
-    	}
-    	}`;
-    const style = iframeDoc.createElement("style");
-    style.appendChild(iframeDoc.createTextNode(keyframes));
-    iframeDoc.head.appendChild(style);
 }
 
 function buildNavBar() {
