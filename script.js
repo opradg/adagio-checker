@@ -11,12 +11,13 @@ let adagioAdapter = undefined;
 // Prebid events, bids and adUnits
 let prebidEvents = undefined;
 let prebidBidRequested = undefined;
+let prebidAdagioBidRequested = undefined;
 let prebidBids = undefined;
 let prebidBidders = undefined;
 let prebidAdUnitsCode = undefined;
 let prebidAdagioAdUnitsCode = undefined;
 let adagioBidsRequested = undefined;
-let adagioAdUnitsCode = [];
+let adagioPbjsAdUnitsCode = [];
 let prebidAdagioParams = undefined;
 // Active tab (from button html element)
 let activeTab = undefined;
@@ -124,6 +125,19 @@ function createOverlay() {
 
     // get the iframe document object
     iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+
+	// set some refresh animation css
+	/* const keyframes = `@keyframes rotation {
+		from {
+			transform: rotate(0deg);
+		}
+		to {
+			transform: rotate(360deg);
+		}
+		}`;
+	const style = iframeDoc.createElement("style");
+	style.appendChild(iframeDoc.createTextNode(keyframes));
+	iframeDoc.head.appendChild(style);*/
 }
 
 function buildNavBar() {
@@ -193,7 +207,7 @@ function buildRefreshButton(name, svg, isactive) {
   button.setAttribute('title', name);
   if (!isactive) button.disabled = true;
   button.innerHTML = svg;
-  button.addEventListener('click', () => refreshTables(button));
+  button.addEventListener('click', () => refreshTables());
   button.classList.add('outline');
   button.style.borderColor = 'transparent';
   button.style.padding = '0.3em';
@@ -219,7 +233,7 @@ function buildHtml() {
     ul.appendChild(buildTabButton(ADAGIOTABSNAME.ADUNITS, ADAGIOSVG.ADUNITS, false));
     ul.appendChild(buildTabButton(ADAGIOTABSNAME.CONSENTS, ADAGIOSVG.CONSENTS, false));
     ul.appendChild(buildOverlayButton('Show adunits overlay', ADAGIOSVG.EYECLOSED, false));
-    ul.appendChild(buildRefreshButton('Refresh', ADAGIOSVG.REFRESH, false));
+    ul.appendChild(buildRefreshButton('Refresh', ADAGIOSVG.REFRESH, true));
 
     // append unordered lists to navigation
     nav.appendChild(ul);
@@ -611,26 +625,19 @@ function appendConsentsRow(status, name, details) {
     newRow.appendChild(detailsCell);
 }
 
-function refreshTables(refreshButton) {
+function refreshTables() {
 
-  const refreshIcon = refreshButton.querySelector("svg");
-  const keyframes = `@keyframes rotation {
-    from {
-      transform: rotate(0deg);
-    }
-    to {
-      transform: rotate(360deg);
-    }
-  }`;
-  const style = iframeDoc.createElement("style");
-  style.appendChild(iframeDoc.createTextNode(keyframes));
-  iframeDoc.head.appendChild(style);
+	// refreshIcon.style.animation = "rotation 0.5s linear";
+	console.log('ok');
 
-  refreshIcon.style.animation = "rotation 0.5s linear";
-  setTimeout(() => {
-    refreshIcon.style.animation = "";
-  }, 10000);
-  window.location.reload();
+	const checkertbody = iframeDoc.getElementById(`${ADAGIOTABSNAME.CHECKER.toLowerCase().replace(' ', '-')}-tbody`);
+	const checkeradunits = iframeDoc.getElementById(`${ADAGIOTABSNAME.ADUNITS.toLowerCase().replace(' ', '-')}-tbody`);
+	const checkerconsents = iframeDoc.getElementById(`${ADAGIOTABSNAME.CONSENTS.toLowerCase().replace(' ', '-')}-tbody`);
+	checkertbody.innerHTML = '';
+	checkeradunits.innerHTML = '';
+	checkerconsents.innerHTML = '';
+
+	check();
 }
 
 function displayAdunits(eyeButton) {
@@ -773,15 +780,15 @@ function checkAdagioAdUnitParams() {
 		appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.ADUNITS, ADAGIOERRORS.PREBIDNOTFOUND);
 	}
 	else {
-    // Gets bidrequest arguments
+		// Gets bidrequest arguments
 		prebidBidRequested = prebidEvents.filter(e => e.eventType === 'bidRequested').map(e => e.args);
-    // Gets list of bidders out of bidrequested
+		// Gets list of bidders out of bidrequested
 		prebidBidders = [...new Set(prebidBidRequested.map(e => e.bidderCode))].sort();
-    // Gets flat list of bids
+		// Gets flat list of bids
 		prebidBids = prebidBidRequested.map(e => e.bids).flat();
-    // Gets the Adagio bids requested
-    prebidAdagioBidRequested = prebidBids.filter(e => e.bidder.toLowerCase().includes('adagio'));
-    // Fill the Adunits table with all the requested bids
+		// Gets the Adagio bids requested
+		prebidAdagioBidRequested = prebidBids.filter(e => e.bidder.toLowerCase().includes('adagio'));
+		// Fill the Adunits table with all the requested bids
 		appendAdUnitsRow(prebidBidders, prebidBids);
 		// Find the params for Adagio adUnits and update manager URL
 		prebidAdagioParams = prebidAdagioBidRequested.map(e => e.params);
@@ -795,29 +802,33 @@ function checkAdagioAdUnitParams() {
 				prebidAdUnitsCode.add(adUnit.adUnitCode);
 			}
 		}
-    // Find adUnitsCodes found in Adagio bid requested
-    prebidAdagioAdUnitsCode = prebidAdagioBidRequested.map(e => e.adUnitCode);
-    // Find adUnitsCode found in ADAGIO object (adCall received)
-    if (adagioAdapter !== undefined) adagioAdUnitsCode = adagioAdapter.pbjsAdUnits.map(e => e.code);
+		// Find adUnitsCodes found in Adagio bid requested
+		prebidAdagioAdUnitsCode = prebidAdagioBidRequested.map(e => e.adUnitCode);
+		// Find adUnitsCode found in ADAGIO object (adCall received)
+		let adagioAdUnitsCode = '';
+		if (adagioAdapter !== undefined) adagioAdUnitsCode = adagioAdapter.adUnits;
+		if (adagioAdapter !== undefined) adagioPbjsAdUnitsCode = adagioAdapter.pbjsAdUnits.map(e => e.code);
 
-    const totalPrebidAdUnitsCode = prebidAdUnitsCode.size;
-    const totalPrebidAdagioAdUnitsCode = prebidAdagioAdUnitsCode.length;
-    const totalAdagioAdUnitsCode = adagioAdUnitsCode.length;
-    console.log(totalPrebidAdUnitsCode +', ' + totalPrebidAdagioAdUnitsCode + ', ' + totalAdagioAdUnitsCode);
-    console.log(prebidAdUnitsCode);
-    console.log(prebidAdagioAdUnitsCode);
-    console.log(adagioAdUnitsCode);
+		const totalPrebidAdUnitsCode = prebidAdUnitsCode.size;
+		const totalPrebidAdagioAdUnitsCode = prebidAdagioAdUnitsCode.length;
+		const totalAdagioAdUnitsCode = adagioAdUnitsCode.length;
+		const totalAdagioPbjsAdUnitsCode = adagioPbjsAdUnitsCode.length;
+		console.log(totalPrebidAdUnitsCode +', ' + totalPrebidAdagioAdUnitsCode + ', ' + totalAdagioAdUnitsCode + ', ' + totalAdagioPbjsAdUnitsCode);
+		console.log(prebidAdUnitsCode);
+		console.log(prebidAdagioAdUnitsCode);
+		console.log(adagioAdUnitsCode);
+		console.log(adagioPbjsAdUnitsCode);
 
-    if (totalPrebidAdUnitsCode === 0) {
-      appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.ADUNITS, `<kbd>${totalPrebidAdUnitsCode}</kbd> adUnits(s) found`);
-    }
-    else if (totalPrebidAdUnitsCode > 0 && totalPrebidAdagioAdUnitsCode === 0) {
-      appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.ADUNITS, `Adagio called for <kbd>${totalPrebidAdagioAdUnitsCode}</kbd> adUnit(s) out of <kbd>${totalPrebidAdUnitsCode}</kbd> adUnits(s) found`);
-    }
-    else if (totalPrebidAdUnitsCode > 0 && totalPrebidAdagioAdUnitsCode > 0) {
-      if (totalPrebidAdUnitsCode > totalPrebidAdagioAdUnitsCode) appendCheckerRow(STATUSBADGES.CHECK, ADAGIOCHECK.ADUNITS, `Adagio called for <kbd>${totalPrebidAdagioAdUnitsCode}</kbd> adUnit(s) out of <kbd>${totalPrebidAdUnitsCode}</kbd> adUnits(s) found`);
-      else appendCheckerRow(STATUSBADGES.OK, ADAGIOCHECK.ADUNITS, `Adagio called for <kbd>${totalPrebidAdagioAdUnitsCode}</kbd> adUnit(s) out of <kbd>${totalPrebidAdUnitsCode}</kbd> adUnits(s) found`);
-    }
+		if (totalPrebidAdUnitsCode === 0) {
+		appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.ADUNITS, `<kbd>${totalPrebidAdUnitsCode}</kbd> adUnits(s) found`);
+		}
+		else if (totalPrebidAdUnitsCode > 0 && totalPrebidAdagioAdUnitsCode === 0) {
+		appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.ADUNITS, `Adagio called for <kbd>${totalPrebidAdagioAdUnitsCode}</kbd> adUnit(s) out of <kbd>${totalPrebidAdUnitsCode}</kbd> adUnits(s) found`);
+		}
+		else if (totalPrebidAdUnitsCode > 0 && totalPrebidAdagioAdUnitsCode > 0) {
+		if (totalPrebidAdUnitsCode > totalPrebidAdagioAdUnitsCode) appendCheckerRow(STATUSBADGES.CHECK, ADAGIOCHECK.ADUNITS, `Adagio called for <kbd>${totalPrebidAdagioAdUnitsCode}</kbd> adUnit(s) out of <kbd>${totalPrebidAdUnitsCode}</kbd> adUnits(s) found`);
+		else appendCheckerRow(STATUSBADGES.OK, ADAGIOCHECK.ADUNITS, `Adagio called for <kbd>${totalPrebidAdagioAdUnitsCode}</kbd> adUnit(s) out of <kbd>${totalPrebidAdUnitsCode}</kbd> adUnits(s) found`);
+		}
 	}
 }
   
