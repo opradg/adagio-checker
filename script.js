@@ -2,25 +2,35 @@
  * Global variables
  ************************************************************************************************************************************************************************************************************************************/
 // Overlay iframe html object, and iframe document
-let iframe = undefined;
-let iframeDoc = undefined;
+let overlayFrame = undefined;
+let buttonFrame = undefined;
+let overlayFrameDoc = undefined;
+let buttonFrameDoc = undefined;
+// Overlay current state
+let overlayVisible = true;
 // Prebid.js object, and window.ADAGIO object and events
 let pbjsGlobals = undefined;
 let prebidObject = undefined;
 let adagioAdapter = undefined;
 // Prebid events, bids and adUnits
 let prebidEvents = undefined;
-let prebidBidRequested = undefined;
-let prebidAdagioBidRequested = undefined;
+let prebidBidsRequested = undefined;
+let prebidAdagioBidsRequested = undefined;
 let prebidBids = undefined;
 let prebidBidders = undefined;
-let prebidAdUnitsCode = undefined;
-let prebidAdagioAdUnitsCode = undefined;
+let prebidAdUnitsCodes = undefined;
+let prebidAdagioAdUnitsCodes = undefined;
 let adagioBidsRequested = undefined;
 let adagioPbjsAdUnitsCode = [];
 let prebidAdagioParams = undefined;
+let totalPrebidAdUnitsCodes = 0;
+let totalPrebidAdagioAdUnitsCode = 0;
+let totalAdagioAdUnitsCodes = 0;
+let totalAdagioPbjsAdUnitsCodes = 0;
 // Active tab (from button html element)
 let activeTab = undefined;
+// Variables for draggable iframe
+let isDragging = false;
 
 /*************************************************************************************************************************************************************************************************************************************
  * Enums
@@ -77,10 +87,10 @@ const ADAGIOERRORS = Object.freeze({
     ADAPTERNOTFOUND: 'Adagio adapter not found'
 });
 
-const ADAGIOLINKS = Object.freeze({
+const ADAGIOLINKS = {
     WEBSITE: 'https://adagio.io/',
     MANAGER: 'https://app.adagio.io/'
-});
+};
 
 const ADAGIOPARAMS = {
     ORGANIZATIONID: null,
@@ -95,11 +105,13 @@ const ADAGIOPARAMS = {
  ************************************************************************************************************************************************************************************************************************************/
 
 createOverlay();
-buildHtml();
+buildOverlayHtml();
+buildAdagioButton();
 createManagerDiv();
 createCheckerDiv();
 createAdUnitsDiv();
 createConsentsDiv();
+makeIframeDraggable();
 check();
 
 /*************************************************************************************************************************************************************************************************************************************
@@ -108,30 +120,75 @@ check();
 
 function createOverlay() {
 
-    // create a new iframe element
-    iframe = window.document.createElement('iframe');
-    iframe.classList.add('adagio-overlay');
-    iframe.style.position = "fixed";
-    iframe.style.top = "10px";
-    iframe.style.right = "10px";
-    iframe.style.width = "700px";
-    iframe.style.height = "450px";
-    iframe.style.zIndex = "9999";
-    iframe.style.backgroundColor = "transparent";
-    iframe.style.border = "none";
-    iframe.style.borderRadius = "10px";
-    iframe.style.boxShadow = "rgba(0, 0, 0, 0.35) 0px 5px 15px";
-	iframe.style.resize = 'both';
-    iframe.style.direction = 'rtl';
-    window.document.body.appendChild(iframe);
+	// create a new button element
+    buttonFrame = window.document.createElement('iframe');
+    buttonFrame.style.position = "fixed";
+    buttonFrame.style.top = "10px";
+    buttonFrame.style.right = "10px";
+    buttonFrame.style.width = "45px";
+    buttonFrame.style.height = "45px";
+    buttonFrame.style.zIndex = "9999";
+    buttonFrame.style.backgroundColor = "rgb(47, 55, 87)";
+    buttonFrame.style.border = "none";
+    buttonFrame.style.borderRadius = "10px";
+    buttonFrame.style.boxShadow = "rgba(0, 0, 0, 0.35) 0px 5px 15px";
+    window.document.body.appendChild(buttonFrame);
 
-    // get the iframe document object
-    iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+	// create a new iframe element
+	overlayFrame = window.document.createElement('iframe');
+	overlayFrame.classList.add('adagio-overlay');
+	overlayFrame.style.position = "fixed";
+	overlayFrame.style.top = "10px";
+	overlayFrame.style.left = "10px";
+	overlayFrame.style.width = "700px";
+	overlayFrame.style.height = "450px";
+	overlayFrame.style.zIndex = "9999";
+	overlayFrame.style.backgroundColor = "transparent";
+	overlayFrame.style.border = "none";
+	overlayFrame.style.borderRadius = "10px";
+	overlayFrame.style.boxShadow = "rgba(0, 0, 0, 0.35) 0px 5px 15px";
+	overlayFrame.style.resize = 'both';
+	window.document.body.appendChild(overlayFrame);
+
+	if (!overlayVisible) overlayFrame.style.display = 'none';
+	else buttonFrame.style.opacity = '0.4';
+
+	// get the iframe document objects
+    buttonFrameDoc = buttonFrame.contentDocument || buttonFrame.contentWindow.document;
+	overlayFrameDoc = overlayFrame.contentDocument || overlayFrame.contentWindow.document;
+}
+
+function buildOverlayHtml() {
+
+    // append pico style
+    const picoStyle = overlayFrameDoc.createElement('link');
+    picoStyle.setAttribute('rel', 'stylesheet');
+    picoStyle.setAttribute('href', 'https://unpkg.com/@picocss/pico@1.5.7/css/pico.min.css');
+
+    // create navigation element
+    const nav = buildNavBar();
+    nav.appendChild(buildAdagioLogo());
+
+    // create second unordered list inside navigation
+    const ul = overlayFrameDoc.createElement('ul');
+    ul.appendChild(buildTabButton(ADAGIOTABSNAME.MANAGER, ADAGIOSVG.MANAGER, false));
+    ul.appendChild(buildTabButton(ADAGIOTABSNAME.CHECKER, ADAGIOSVG.CHECKER, true));
+    ul.appendChild(buildTabButton(ADAGIOTABSNAME.ADUNITS, ADAGIOSVG.ADUNITS, false));
+    ul.appendChild(buildTabButton(ADAGIOTABSNAME.CONSENTS, ADAGIOSVG.CONSENTS, false));
+    ul.appendChild(buildOverlayButton('Show adunits overlay', ADAGIOSVG.EYECLOSED, false));
+    ul.appendChild(buildRefreshButton('Refresh', ADAGIOSVG.REFRESH, true));
+
+    // append unordered lists to navigation
+    nav.appendChild(ul);
+
+    // append main containers to iframeDoc body
+    overlayFrameDoc.head.appendChild(picoStyle);
+    overlayFrameDoc.body.appendChild(nav);
 }
 
 function buildNavBar() {
     // create navigation element
-    const nav = iframeDoc.createElement('nav');
+    const nav = overlayFrameDoc.createElement('nav');
     nav.classList.add('container-fluid');
     nav.setAttribute('id', 'adagio-nav');
     nav.style.zIndex = '99';
@@ -146,10 +203,32 @@ function buildNavBar() {
 }
 
 function buildAdagioButton() {
+    // button to hide and show the iframe
+    const a = buttonFrameDoc.createElement('a');
+    a.innerHTML = ADAGIOSVG.LOGO;
+	a.style.fill = 'white';
+	buttonFrameDoc.body.appendChild(a);
+
+	buttonFrameDoc.querySelector('html').style.cursor = 'pointer';
+	buttonFrameDoc.querySelector('html').addEventListener('click', () => {
+		if (overlayVisible) {
+			overlayVisible = false;
+        	overlayFrame.style.display = 'none';
+			buttonFrame.style.opacity = '';
+		}
+		else {
+			overlayVisible = true;
+        	overlayFrame.style.display = '';
+			buttonFrame.style.opacity = '0.4';
+		}
+	});
+}
+
+function buildAdagioLogo() {
     // create first unordered list inside navigation
-    const ul = iframeDoc.createElement('ul');
-    const li = iframeDoc.createElement('li');
-    const a = iframeDoc.createElement('a');
+    const ul = overlayFrameDoc.createElement('ul');
+    const li = overlayFrameDoc.createElement('li');
+    const a = overlayFrameDoc.createElement('a');
     a.setAttribute('href', ADAGIOLINKS.WEBSITE);
     a.setAttribute('target', '_blank');
     a.innerHTML = ADAGIOSVG.LOGO;
@@ -161,8 +240,8 @@ function buildAdagioButton() {
 function buildTabButton(name, svg, isactive) {
 
     const tabName = name.toLowerCase().replace(' ', '-');
-    const li = iframeDoc.createElement('li');
-    const tabButton = iframeDoc.createElement('button');
+    const li = overlayFrameDoc.createElement('li');
+    const tabButton = overlayFrameDoc.createElement('button');
     tabButton.setAttribute('id', `${tabName}-button`)
     tabButton.innerHTML = svg;
     tabButton.innerHTML += ` ${name} `;
@@ -176,8 +255,8 @@ function buildTabButton(name, svg, isactive) {
 
 function buildOverlayButton(name, svg, isactive) {
 
-    const li = iframeDoc.createElement('li');
-    const button = iframeDoc.createElement('button');
+    const li = overlayFrameDoc.createElement('li');
+    const button = overlayFrameDoc.createElement('button');
     button.setAttribute('title', name);
     if (!isactive) button.disabled = true;
     button.innerHTML = svg;
@@ -191,8 +270,8 @@ function buildOverlayButton(name, svg, isactive) {
 
 function buildRefreshButton(name, svg, isactive) {
 
-    const li = iframeDoc.createElement('li');
-    const button = iframeDoc.createElement('button');
+    const li = overlayFrameDoc.createElement('li');
+    const button = overlayFrameDoc.createElement('button');
     button.setAttribute('title', name);
     if (!isactive) button.disabled = true;
     button.innerHTML = svg;
@@ -204,47 +283,19 @@ function buildRefreshButton(name, svg, isactive) {
     return li;
 }
 
-function buildHtml() {
-
-    // append pico style
-    const picoStyle = iframeDoc.createElement('link');
-    picoStyle.setAttribute('rel', 'stylesheet');
-    picoStyle.setAttribute('href', 'https://unpkg.com/@picocss/pico@1.5.7/css/pico.min.css');
-
-    // create navigation element
-    const nav = buildNavBar();
-    nav.appendChild(buildAdagioButton());
-
-    // create second unordered list inside navigation
-    const ul = iframeDoc.createElement('ul');
-    ul.appendChild(buildTabButton(ADAGIOTABSNAME.MANAGER, ADAGIOSVG.MANAGER, false));
-    ul.appendChild(buildTabButton(ADAGIOTABSNAME.CHECKER, ADAGIOSVG.CHECKER, true));
-    ul.appendChild(buildTabButton(ADAGIOTABSNAME.ADUNITS, ADAGIOSVG.ADUNITS, false));
-    ul.appendChild(buildTabButton(ADAGIOTABSNAME.CONSENTS, ADAGIOSVG.CONSENTS, false));
-    ul.appendChild(buildOverlayButton('Show adunits overlay', ADAGIOSVG.EYECLOSED, false));
-    ul.appendChild(buildRefreshButton('Refresh', ADAGIOSVG.REFRESH, true));
-
-    // append unordered lists to navigation
-    nav.appendChild(ul);
-
-    // append main containers to iframeDoc body
-    iframeDoc.head.appendChild(picoStyle);
-    iframeDoc.body.appendChild(nav);
-}
-
 function createManagerDiv() {
     // build id name
     const tabName = ADAGIOTABSNAME.MANAGER.toLowerCase().replace(' ', '-');
 
     // create main container element
-    const mainContainer = iframeDoc.createElement('div');
+    const mainContainer = overlayFrameDoc.createElement('div');
     mainContainer.setAttribute('id', `${tabName}-container`);
     mainContainer.style.display = "none";
     mainContainer.style.paddingTop = '3rem';
     mainContainer.style.paddingBottom = '0';
 
     // create the iframe
-    const managerIframe = iframeDoc.createElement('iframe');
+    const managerIframe = overlayFrameDoc.createElement('iframe');
     managerIframe.setAttribute('id', `${tabName}-iframe`);
     managerIframe.setAttribute('src', ADAGIOLINKS.MANAGER);
     managerIframe.setAttribute('aria-busy', 'true')
@@ -253,7 +304,7 @@ function createManagerDiv() {
 
     // append the container to the body
     mainContainer.appendChild(managerIframe);
-    iframeDoc.body.appendChild(mainContainer);
+    overlayFrameDoc.body.appendChild(mainContainer);
 }
 
 function createCheckerDiv() {
@@ -261,41 +312,41 @@ function createCheckerDiv() {
     const tabName = ADAGIOTABSNAME.CHECKER.toLowerCase().replace(' ', '-');
 
     // create main container element
-    const mainContainer = iframeDoc.createElement('main');
+    const mainContainer = overlayFrameDoc.createElement('main');
     mainContainer.classList.add('container-fluid');
     mainContainer.setAttribute('id', `${tabName}-container`);
     mainContainer.style.paddingTop = '5rem';
     mainContainer.style.paddingBottom = '0';
 
     // create headings container
-    const headings = iframeDoc.createElement('div');
+    const headings = overlayFrameDoc.createElement('div');
     headings.classList.add('headings');
 
-    const h2 = iframeDoc.createElement('h2');
+    const h2 = overlayFrameDoc.createElement('h2');
     h2.textContent = 'Integration checker';
-    const h3 = iframeDoc.createElement('h3');
+    const h3 = overlayFrameDoc.createElement('h3');
     h3.textContent = 'Expectations for a proper Adagio integration';
     headings.appendChild(h2);
     headings.appendChild(h3);
 
     // create table element
-    const table = iframeDoc.createElement('table');
-    const thead = iframeDoc.createElement('thead');
-    const tr = iframeDoc.createElement('tr');
-    const th1 = iframeDoc.createElement('th');
+    const table = overlayFrameDoc.createElement('table');
+    const thead = overlayFrameDoc.createElement('thead');
+    const tr = overlayFrameDoc.createElement('tr');
+    const th1 = overlayFrameDoc.createElement('th');
     th1.setAttribute('scope', 'col');
     th1.textContent = 'Status';
-    const th2 = iframeDoc.createElement('th');
+    const th2 = overlayFrameDoc.createElement('th');
     th2.setAttribute('scope', 'col');
     th2.textContent = 'Name';
-    const th3 = iframeDoc.createElement('th');
+    const th3 = overlayFrameDoc.createElement('th');
     th3.setAttribute('scope', 'col');
     th3.textContent = 'Details';
     tr.appendChild(th1);
     tr.appendChild(th2);
     tr.appendChild(th3);
     thead.appendChild(tr);
-    const tbody = iframeDoc.createElement('tbody');
+    const tbody = overlayFrameDoc.createElement('tbody');
     tbody.setAttribute('id', `${tabName}-tbody`);
     table.appendChild(thead);
     table.appendChild(tbody);
@@ -305,7 +356,7 @@ function createCheckerDiv() {
     mainContainer.appendChild(table);
 
     // append the container to the body
-    iframeDoc.body.appendChild(mainContainer);
+    overlayFrameDoc.body.appendChild(mainContainer);
 }
 
 function createAdUnitsDiv() {
@@ -313,7 +364,7 @@ function createAdUnitsDiv() {
     const tabName = ADAGIOTABSNAME.ADUNITS.toLowerCase().replace(' ', '-');
 
     // create main container element
-    const mainContainer = iframeDoc.createElement('main');
+    const mainContainer = overlayFrameDoc.createElement('main');
     mainContainer.classList.add('container-fluid');
     mainContainer.setAttribute('id', `${tabName}-container`);
     mainContainer.style.display = "none";
@@ -321,17 +372,17 @@ function createAdUnitsDiv() {
     mainContainer.style.paddingBottom = '0';
 
     // create headings container
-    const headings = iframeDoc.createElement('div');
+    const headings = overlayFrameDoc.createElement('div');
     headings.classList.add('headings');
-    const h2 = iframeDoc.createElement('h2');
+    const h2 = overlayFrameDoc.createElement('h2');
     h2.textContent = 'AdUnits';
-    const h3 = iframeDoc.createElement('h3');
+    const h3 = overlayFrameDoc.createElement('h3');
     h3.textContent = 'Bid requested for each adUnit and by bidders';
     headings.appendChild(h2);
     headings.appendChild(h3);
 
     // create the alert article
-    /*const alertContainer = iframeDoc.createElement('article');
+    const alertContainer = overlayFrameDoc.createElement('article');
     alertContainer.style.padding = '1em';
     alertContainer.style.marginLeft = '';
     alertContainer.style.marginRight = '';
@@ -339,39 +390,34 @@ function createAdUnitsDiv() {
     alertContainer.style.marginBottom = '1em';
     alertContainer.style.color = COLOR.YELLOWTEXT;
     alertContainer.style.backgroundColor = COLOR.YELLOWBACKGROUND;
-    const alertTextDivTitle = iframeDoc.createElement('div');
-    alertTextDivTitle.style.display = 'flex';
-    alertTextDivTitle.style.alignItems = 'center';
-    alertTextDivTitle.innerHTML += ADAGIOSVG.INFO;
-    alertTextDivTitle.innerHTML += '&nbsp;&nbsp;This is a test';
-    const alertTextDiv = iframeDoc.createElement('div');
-    alertTextDiv.innerHTML += 'This is another test with a second line';
-    alertContainer.appendChild(alertTextDivTitle);
-    alertContainer.appendChild(alertTextDiv);*/
+
+	const alertTextDiv = overlayFrameDoc.createElement('div');
+	alertTextDiv.setAttribute('id', `${tabName}-alert`);
+	alertContainer.appendChild(alertTextDiv);
 
     // create bidder filter
-    const bidderFilter = iframeDoc.createElement('details');
+    const bidderFilter = overlayFrameDoc.createElement('details');
     bidderFilter.setAttribute('role', 'list');
-    const selectFilter = iframeDoc.createElement('summary');
+    const selectFilter = overlayFrameDoc.createElement('summary');
     selectFilter.setAttribute('aria-haspopup', 'listbox');
     selectFilter.textContent = 'Filter requested bids by bidders';
-    const ulFilter = iframeDoc.createElement('ul');
+    const ulFilter = overlayFrameDoc.createElement('ul');
     ulFilter.setAttribute('role', 'listbox');
     ulFilter.setAttribute('id', 'bidderFilter');
     bidderFilter.appendChild(selectFilter);
     bidderFilter.appendChild(ulFilter);
 
     // create table element
-    const table = iframeDoc.createElement('table');
-    const thead = iframeDoc.createElement('thead');
-    const tr = iframeDoc.createElement('tr');
-    const th1 = iframeDoc.createElement('th');
+    const table = overlayFrameDoc.createElement('table');
+    const thead = overlayFrameDoc.createElement('thead');
+    const tr = overlayFrameDoc.createElement('tr');
+    const th1 = overlayFrameDoc.createElement('th');
     th1.setAttribute('scope', 'col');
     th1.textContent = 'Code';
-    const th2 = iframeDoc.createElement('th');
+    const th2 = overlayFrameDoc.createElement('th');
     th2.setAttribute('scope', 'col');
     th2.textContent = 'Mediatypes';
-    const th3 = iframeDoc.createElement('th');
+    const th3 = overlayFrameDoc.createElement('th');
     th3.setAttribute('scope', 'col');
     th3.textContent = 'Bidder params';
     tr.appendChild(th1);
@@ -379,19 +425,19 @@ function createAdUnitsDiv() {
     tr.appendChild(th3);
     thead.appendChild(tr);
 
-    const tbody = iframeDoc.createElement('tbody');
+    const tbody = overlayFrameDoc.createElement('tbody');
     tbody.setAttribute('id', `${tabName}-tbody`);
     table.appendChild(thead);
     table.appendChild(tbody);
 
     // append navigation, headings, and table to main container
     mainContainer.appendChild(headings);
-    // mainContainer.appendChild(alertContainer);
+    mainContainer.appendChild(alertContainer);
     mainContainer.appendChild(bidderFilter);
     mainContainer.appendChild(table);
 
     // append the container to the body
-    iframeDoc.body.appendChild(mainContainer);
+    overlayFrameDoc.body.appendChild(mainContainer);
 }
 
 function createConsentsDiv() {
@@ -399,7 +445,7 @@ function createConsentsDiv() {
     const tabName = ADAGIOTABSNAME.CONSENTS.toLowerCase().replace(' ', '-');
 
     // create main container element
-    const mainContainer = iframeDoc.createElement('main');
+    const mainContainer = overlayFrameDoc.createElement('main');
     mainContainer.classList.add('container-fluid');
     mainContainer.setAttribute('id', `${tabName}-container`);
     mainContainer.style.display = "none";
@@ -407,34 +453,34 @@ function createConsentsDiv() {
     mainContainer.style.paddingBottom = '0';
 
     // create headings container
-    const headings = iframeDoc.createElement('div');
+    const headings = overlayFrameDoc.createElement('div');
     headings.classList.add('headings');
 
-    const h2 = iframeDoc.createElement('h2');
+    const h2 = overlayFrameDoc.createElement('h2');
     h2.textContent = 'Consents';
-    const h3 = iframeDoc.createElement('h3');
+    const h3 = overlayFrameDoc.createElement('h3');
     h3.textContent = 'Expectations for consents compliance';
     headings.appendChild(h2);
     headings.appendChild(h3);
 
     // create table element
-    const table = iframeDoc.createElement('table');
-    const thead = iframeDoc.createElement('thead');
-    const tr = iframeDoc.createElement('tr');
-    const th1 = iframeDoc.createElement('th');
+    const table = overlayFrameDoc.createElement('table');
+    const thead = overlayFrameDoc.createElement('thead');
+    const tr = overlayFrameDoc.createElement('tr');
+    const th1 = overlayFrameDoc.createElement('th');
     th1.setAttribute('scope', 'col');
     th1.textContent = 'Status';
-    const th2 = iframeDoc.createElement('th');
+    const th2 = overlayFrameDoc.createElement('th');
     th2.setAttribute('scope', 'col');
     th2.textContent = 'Name';
-    const th3 = iframeDoc.createElement('th');
+    const th3 = overlayFrameDoc.createElement('th');
     th3.setAttribute('scope', 'col');
     th3.textContent = 'Details';
     tr.appendChild(th1);
     tr.appendChild(th2);
     tr.appendChild(th3);
     thead.appendChild(tr);
-    const tbody = iframeDoc.createElement('tbody');
+    const tbody = overlayFrameDoc.createElement('tbody');
     tbody.setAttribute('id', `${tabName}-tbody`);
     table.appendChild(thead);
     table.appendChild(tbody);
@@ -444,17 +490,17 @@ function createConsentsDiv() {
     mainContainer.appendChild(table);
 
     // append the container to the body
-    iframeDoc.body.appendChild(mainContainer);
+    overlayFrameDoc.body.appendChild(mainContainer);
 }
 
 function switchTab(tabName) {
     // switch visible div and button outline
     if (tabName !== activeTab) {
 		goTopPage();
-        const activeTabButton = iframeDoc.getElementById(`${activeTab}-button`);
-        const activeTabContainer = iframeDoc.getElementById(`${activeTab}-container`);
-        const targetTabButton = iframeDoc.getElementById(`${tabName}-button`);
-        const targetTabContainer = iframeDoc.getElementById(`${tabName}-container`);
+        const activeTabButton = overlayFrameDoc.getElementById(`${activeTab}-button`);
+        const activeTabContainer = overlayFrameDoc.getElementById(`${activeTab}-container`);
+        const targetTabButton = overlayFrameDoc.getElementById(`${tabName}-button`);
+        const targetTabContainer = overlayFrameDoc.getElementById(`${tabName}-container`);
         targetTabButton.classList.remove('outline');
         activeTabButton.classList.add('outline');
         targetTabContainer.style.display = "";
@@ -464,23 +510,20 @@ function switchTab(tabName) {
 }
 
 function goTopPage() {
-
-	iframeDoc.body.scrollTop = 0;
-	// $('html, body').animate({ scrollTop: 0 }, 'fast');
-
+	overlayFrameDoc.body.scrollTop = 0;
 }
 
 function appendCheckerRow(status, name, details) {
     // build id name
     const tabName = ADAGIOTABSNAME.CHECKER.toLowerCase().replace(' ', '-');
     // get the tbody element
-    const tableBody = iframeDoc.getElementById(`${tabName}-tbody`);
+    const tableBody = overlayFrameDoc.getElementById(`${tabName}-tbody`);
     // Create the row
-    const newRow = iframeDoc.createElement('tr');
+    const newRow = overlayFrameDoc.createElement('tr');
     // Create the cells
-    const statusCell = iframeDoc.createElement('td');
-    const nameCell = iframeDoc.createElement('td');
-    const detailsCell = iframeDoc.createElement('td');
+    const statusCell = overlayFrameDoc.createElement('td');
+    const nameCell = overlayFrameDoc.createElement('td');
+    const detailsCell = overlayFrameDoc.createElement('td');
     // Fill the cells
     statusCell.innerHTML = status;
     nameCell.innerHTML = name;
@@ -496,13 +539,24 @@ function appendAdUnitsRow(bidders, bids) {
 
     // check if Adagio is detected and get bidder name
     let adagioId = '';
-    if (prebidAdagioBidRequested.length > 0) adagioId = prebidAdagioBidRequested[0].bidder;
+    if (prebidAdagioBidsRequested.length > 0) adagioId = prebidAdagioBidsRequested[0].bidder;
 
     // build id name
     const tabName = ADAGIOTABSNAME.ADUNITS.toLowerCase().replace(' ', '-');
-    // fill the bid table
-    const tableBody = iframeDoc.getElementById(`${tabName}-tbody`);
+    // gets working element element
+    const tableBody = overlayFrameDoc.getElementById(`${tabName}-tbody`);
+	const alertTextDiv = overlayFrameDoc.getElementById(`${tabName}-alert`);
 
+	// fill the article section
+	alertTextDiv.innerHTML = '<small>Adunit(s) found:</small>';
+	if (prebidAdUnitsCodes !== undefined && totalPrebidAdUnitsCodes > 0) {
+		for (const adUnitCode of prebidAdUnitsCodes) {
+			alertTextDiv.innerHTML += `<small> <code>${adUnitCode}</code>;</small>`;
+		};
+	}
+	else alertTextDiv.innerHTML += `<small><kbd> 0</kbd></small>`;
+
+	// fill the table section
     bids.forEach(bid => {
 
         const adUnitCode = bid.adUnitCode;
@@ -510,7 +564,7 @@ function appendAdUnitsRow(bidders, bids) {
         const bidderId = bid.bidder;
 
         // Create the row
-        const newRow = iframeDoc.createElement('tr');
+        const newRow = overlayFrameDoc.createElement('tr');
         newRow.classList.add(`${bidderId.replace(' ', '-')}-bid`);
         // hides the row if adagio found
         if (adagioId !== '' && adagioId !== bidderId) {
@@ -518,10 +572,10 @@ function appendAdUnitsRow(bidders, bids) {
         }
 
         // Create the cells
-        const codeCell = iframeDoc.createElement('td');
-        const mediatypesCell = iframeDoc.createElement('td');
-        const bidderIdCell = iframeDoc.createElement('td');
-        const bidderParamButton = iframeDoc.createElement('kbd');
+        const codeCell = overlayFrameDoc.createElement('td');
+        const mediatypesCell = overlayFrameDoc.createElement('td');
+        const bidderIdCell = overlayFrameDoc.createElement('td');
+        const bidderParamButton = overlayFrameDoc.createElement('kbd');
         bidderParamButton.addEventListener("click", () => createBidderParamsModal(bid));
         bidderParamButton.style.cursor = 'pointer';
 
@@ -543,13 +597,13 @@ function appendAdUnitsRow(bidders, bids) {
     });
 
     // fill the filter dropdown list
-    const bidderFilter = iframeDoc.getElementById('bidderFilter');
+    const bidderFilter = overlayFrameDoc.getElementById('bidderFilter');
 
     bidders.forEach(bidder => {
 
-        const libidder = iframeDoc.createElement('li');
-        const labbidder = iframeDoc.createElement('label');
-        const inputbidder = iframeDoc.createElement('input');
+        const libidder = overlayFrameDoc.createElement('li');
+        const labbidder = overlayFrameDoc.createElement('label');
+        const inputbidder = overlayFrameDoc.createElement('input');
         inputbidder.setAttribute('type', 'checkbox');
         inputbidder.setAttribute('id', `${bidder.replace(' ', '-')}-bidder`);
         bidderFilter.appendChild(libidder);
@@ -557,7 +611,7 @@ function appendAdUnitsRow(bidders, bids) {
         labbidder.appendChild(inputbidder);
         labbidder.innerHTML += `<code>${bidder}</code>`;
 
-        const newInput = iframeDoc.getElementById(`${bidder.replace(' ', '-')}-bidder`);
+        const newInput = overlayFrameDoc.getElementById(`${bidder.replace(' ', '-')}-bidder`);
         if (adagioId !== '' && adagioId !== bidder) newInput.checked = false;
         else newInput.checked = true;
         newInput.addEventListener('click', function() {
@@ -569,7 +623,7 @@ function appendAdUnitsRow(bidders, bids) {
 function toggleBidRow(inputbidder, bidder) {
 
     // Depending on checkbox, hide or show bidrequested for the bidder
-    const bidderRows = iframeDoc.getElementsByClassName(`${bidder.replace(' ', '-')}-bid`);
+    const bidderRows = overlayFrameDoc.getElementsByClassName(`${bidder.replace(' ', '-')}-bid`);
     for (const bidderRow of bidderRows) {
         if (inputbidder.checked === false) {
             bidderRow.style.display = 'none';
@@ -584,15 +638,15 @@ function appendConsentsRow(status, name, details) {
     // build id name
     const tabName = ADAGIOTABSNAME.CONSENTS.toLowerCase().replace(' ', '-');
     // get the tbody element
-    const tableBody = iframeDoc.getElementById(`${tabName}-tbody`);
+    const tableBody = overlayFrameDoc.getElementById(`${tabName}-tbody`);
 
     // Create the row
-    const newRow = iframeDoc.createElement('tr');
+    const newRow = overlayFrameDoc.createElement('tr');
 
     // Create the cells
-    const statusCell = iframeDoc.createElement('td');
-    const nameCell = iframeDoc.createElement('td');
-    const detailsCell = iframeDoc.createElement('td');
+    const statusCell = overlayFrameDoc.createElement('td');
+    const nameCell = overlayFrameDoc.createElement('td');
+    const detailsCell = overlayFrameDoc.createElement('td');
 
     // Fill the cells
     nameCell.innerHTML = name;
@@ -623,9 +677,9 @@ function appendConsentsRow(status, name, details) {
 
 function refreshTables() {
 	goTopPage();
-    const checkertbody = iframeDoc.getElementById(`${ADAGIOTABSNAME.CHECKER.toLowerCase().replace(' ', '-')}-tbody`);
-    const checkeradunits = iframeDoc.getElementById(`${ADAGIOTABSNAME.ADUNITS.toLowerCase().replace(' ', '-')}-tbody`);
-    const checkerconsents = iframeDoc.getElementById(`${ADAGIOTABSNAME.CONSENTS.toLowerCase().replace(' ', '-')}-tbody`);
+    const checkertbody = overlayFrameDoc.getElementById(`${ADAGIOTABSNAME.CHECKER.toLowerCase().replace(' ', '-')}-tbody`);
+    const checkeradunits = overlayFrameDoc.getElementById(`${ADAGIOTABSNAME.ADUNITS.toLowerCase().replace(' ', '-')}-tbody`);
+    const checkerconsents = overlayFrameDoc.getElementById(`${ADAGIOTABSNAME.CONSENTS.toLowerCase().replace(' ', '-')}-tbody`);
     checkertbody.innerHTML = '';
     checkeradunits.innerHTML = '';
     checkerconsents.innerHTML = '';
@@ -651,27 +705,27 @@ function displayAdunits(eyeButton) {
 
 function createBidderParamsModal(bid) {
 
-    const dialog = iframeDoc.createElement('dialog');
+    const dialog = overlayFrameDoc.createElement('dialog');
     dialog.setAttribute('open', true);
 
-    const article = iframeDoc.createElement('article');
-    const header = iframeDoc.createElement('header');
+    const article = overlayFrameDoc.createElement('article');
+    const header = overlayFrameDoc.createElement('header');
     header.textContent = bid.bidder;
-    const closeLink = iframeDoc.createElement('a');
+    const closeLink = overlayFrameDoc.createElement('a');
     closeLink.setAttribute('aria-label', 'Close');
     closeLink.classList.add('close');
     closeLink.addEventListener("click", () => {
         dialog.remove();
     });
 
-    const paragraph = iframeDoc.createElement('p');
+    const paragraph = overlayFrameDoc.createElement('p');
     paragraph.innerHTML = `<pre><code class="language-json">${JSON.stringify(bid, null, 2)}</code></pre>`;
 
     article.appendChild(header);
     header.appendChild(closeLink);
     article.appendChild(paragraph);
     dialog.appendChild(article);
-    iframeDoc.body.appendChild(dialog);
+    overlayFrameDoc.body.appendChild(dialog);
 }
 
 function updateManagerFilters(params) {
@@ -689,8 +743,62 @@ function updateManagerFilters(params) {
 
     // build id name
     const tabName = ADAGIOTABSNAME.MANAGER.toLowerCase().replace(' ', '-');
-    const managerIframe = iframeDoc.getElementById(`${tabName}-iframe`);
+    const managerIframe = overlayFrameDoc.getElementById(`${tabName}-iframe`);
     managerIframe.setAttribute('src', managerURL);
+}
+
+function makeIframeDraggable() {
+
+	// Gets elements IDs
+	const navbar = overlayFrameDoc.getElementById('adagio-nav');
+	let targetElement = undefined;
+
+	// Set up start x, y
+	let startX = 0;
+	let startY = 0;
+
+	navbar.addEventListener('mousedown', startDragging);
+	navbar.addEventListener('mouseup', stopDragging);
+	navbar.addEventListener("mouseover", updateCursor);
+	overlayFrame.addEventListener('mouseup', stopDragging);
+
+	function updateCursor(e) {
+		targetElement = e.target.tagName;
+		if (targetElement === 'NAV' || targetElement === 'UL' || targetElement === 'LI') {
+			navbar.style.cursor = 'grab';
+		}
+		else navbar.style.cursor = 'default';
+	}
+
+	function startDragging(e) {
+		targetElement = e.target.tagName;
+		if (targetElement === 'NAV' || targetElement === 'UL' || targetElement === 'LI') {
+			isDragging = true;
+			navbar.style.cursor = 'grabbing';
+			overlayFrame.style.opacity = '0.4';
+			startX = e.clientX;
+			startY = e.clientY;
+		}
+	}
+
+	function stopDragging() {
+		isDragging = false;
+		navbar.style.cursor = 'grab';
+		overlayFrame.style.opacity = '';
+	}
+
+	overlayFrameDoc.addEventListener('mousemove', function(e) {
+		if (!isDragging) {
+			return;
+		}
+		const deltaX = e.clientX - startX;
+		const deltaY = e.clientY - startY;
+		const iframeRect = overlayFrame.getBoundingClientRect();
+		const iframeX = iframeRect.left;
+		const iframeY = iframeRect.top;
+		overlayFrame.style.left = iframeX + deltaX + 'px';
+		overlayFrame.style.top = iframeY + deltaY + 'px';
+	});
 }
 
 /*************************************************************************************************************************************************************************************************************************************
@@ -767,52 +875,48 @@ function checkAdagioAdUnitParams() {
         appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.ADUNITS, ADAGIOERRORS.PREBIDNOTFOUND);
     } else {
         // Gets bidrequest arguments
-        prebidBidRequested = prebidEvents.filter(e => e.eventType === 'bidRequested').map(e => e.args);
+        prebidBidsRequested = prebidEvents.filter(e => e.eventType === 'bidRequested').map(e => e.args);
         // Gets list of bidders out of bidrequested
-        prebidBidders = [...new Set(prebidBidRequested.map(e => e.bidderCode))].sort();
+        prebidBidders = [...new Set(prebidBidsRequested.map(e => e.bidderCode))].sort();
         // Gets flat list of bids
-        prebidBids = prebidBidRequested.map(e => e.bids).flat();
+        prebidBids = prebidBidsRequested.map(e => e.bids).flat();
         // Gets the Adagio bids requested
-        prebidAdagioBidRequested = prebidBids.filter(e => e.bidder.toLowerCase().includes('adagio'));
-        // Fill the Adunits table with all the requested bids
-        appendAdUnitsRow(prebidBidders, prebidBids);
+        prebidAdagioBidsRequested = prebidBids.filter(e => e.bidder.toLowerCase().includes('adagio'));
         // Find the params for Adagio adUnits and update manager URL
-        prebidAdagioParams = prebidAdagioBidRequested.map(e => e.params);
+        prebidAdagioParams = prebidAdagioBidsRequested.map(e => e.params);
         if (prebidAdagioParams.length !== 0) updateManagerFilters(prebidAdagioParams[0]);
 
         // Find every adUnitsCode declared through bid requested
-        prebidAdUnitsCode = new Set();
-        const bidRequested = prebidBidRequested.map(e => e.bids);
+        prebidAdUnitsCodes = new Set();
+        const bidRequested = prebidBidsRequested.map(e => e.bids);
         for (const bid of bidRequested) {
             for (const adUnit of bid) {
-                prebidAdUnitsCode.add(adUnit.adUnitCode);
+                prebidAdUnitsCodes.add(adUnit.adUnitCode);
             }
         }
         // Find adUnitsCodes found in Adagio bid requested
-        prebidAdagioAdUnitsCode = prebidAdagioBidRequested.map(e => e.adUnitCode);
+        prebidAdagioAdUnitsCodes = [...new Set(prebidAdagioBidsRequested.map(e => e.adUnitCode))];
         // Find adUnitsCode found in ADAGIO object (adCall received)
-        let adagioAdUnitsCode = '';
-        if (adagioAdapter !== undefined) adagioAdUnitsCode = adagioAdapter.adUnits;
+        let adagioAdUnitsCodes = '';
+        if (adagioAdapter !== undefined) adagioAdUnitsCodes = adagioAdapter.adUnits;
         if (adagioAdapter !== undefined) adagioPbjsAdUnitsCode = adagioAdapter.pbjsAdUnits.map(e => e.code);
 
-        const totalPrebidAdUnitsCode = prebidAdUnitsCode.size;
-        const totalPrebidAdagioAdUnitsCode = prebidAdagioAdUnitsCode.length;
-        const totalAdagioAdUnitsCode = adagioAdUnitsCode.length;
-        const totalAdagioPbjsAdUnitsCode = adagioPbjsAdUnitsCode.length;
-        console.log(totalPrebidAdUnitsCode + ', ' + totalPrebidAdagioAdUnitsCode + ', ' + totalAdagioAdUnitsCode + ', ' + totalAdagioPbjsAdUnitsCode);
-        console.log(prebidAdUnitsCode);
-        console.log(prebidAdagioAdUnitsCode);
-        console.log(adagioAdUnitsCode);
-        console.log(adagioPbjsAdUnitsCode);
-
-        if (totalPrebidAdUnitsCode === 0) {
-            appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.ADUNITS, `<kbd>${totalPrebidAdUnitsCode}</kbd> adUnits(s) found`);
-        } else if (totalPrebidAdUnitsCode > 0 && totalPrebidAdagioAdUnitsCode === 0) {
-            appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.ADUNITS, `Adagio called for <kbd>${totalPrebidAdagioAdUnitsCode}</kbd> adUnit(s) out of <kbd>${totalPrebidAdUnitsCode}</kbd> adUnits(s) found`);
-        } else if (totalPrebidAdUnitsCode > 0 && totalPrebidAdagioAdUnitsCode > 0) {
-            if (totalPrebidAdUnitsCode > totalPrebidAdagioAdUnitsCode) appendCheckerRow(STATUSBADGES.CHECK, ADAGIOCHECK.ADUNITS, `Adagio called for <kbd>${totalPrebidAdagioAdUnitsCode}</kbd> adUnit(s) out of <kbd>${totalPrebidAdUnitsCode}</kbd> adUnits(s) found`);
-            else appendCheckerRow(STATUSBADGES.OK, ADAGIOCHECK.ADUNITS, `Adagio called for <kbd>${totalPrebidAdagioAdUnitsCode}</kbd> adUnit(s) out of <kbd>${totalPrebidAdUnitsCode}</kbd> adUnits(s) found`);
+        totalPrebidAdUnitsCodes = prebidAdUnitsCodes.size;
+        totalPrebidAdagioAdUnitsCode = prebidAdagioAdUnitsCodes.length;
+        totalAdagioAdUnitsCodes = adagioAdUnitsCodes.length;
+        totalAdagioPbjsAdUnitsCodes = adagioPbjsAdUnitsCode.length;
+ 
+        if (totalPrebidAdUnitsCodes === 0) {
+            appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.ADUNITS, `<kbd>${totalPrebidAdUnitsCodes}</kbd> adUnits(s) found`);
+        } else if (totalPrebidAdUnitsCodes > 0 && totalPrebidAdagioAdUnitsCode === 0) {
+            appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.ADUNITS, `Adagio called for <kbd>${totalPrebidAdagioAdUnitsCode}</kbd> adUnit(s) out of <kbd>${totalPrebidAdUnitsCodes}</kbd> adUnits(s) found`);
+        } else if (totalPrebidAdUnitsCodes > 0 && totalPrebidAdagioAdUnitsCode > 0) {
+            if (totalPrebidAdUnitsCodes > totalPrebidAdagioAdUnitsCode) appendCheckerRow(STATUSBADGES.CHECK, ADAGIOCHECK.ADUNITS, `Adagio called for <kbd>${totalPrebidAdagioAdUnitsCode}</kbd> adUnit(s) out of <kbd>${totalPrebidAdUnitsCodes}</kbd> adUnits(s) found`);
+            else appendCheckerRow(STATUSBADGES.OK, ADAGIOCHECK.ADUNITS, `Adagio called for <kbd>${totalPrebidAdagioAdUnitsCode}</kbd> adUnit(s) out of <kbd>${totalPrebidAdUnitsCodes}</kbd> adUnits(s) found`);
         }
+
+		// Fill the Adunits table with all the requested bids
+		appendAdUnitsRow(prebidBidders, prebidBids);
     }
 }
 
