@@ -174,6 +174,19 @@ function getPrebidWrappers() {
         prebidWrapper = pbjsGlobals.includes('pbjs') ? 'pbjs' : pbjsGlobals[0];
         prebidObject = window[prebidWrapper];
     }
+    // In some configurations, the wrapper is inside iframes
+    else {
+        const iframes = document.getElementsByTagName("iframe");
+        for (let i = 0; i < iframes.length; i++) { 
+            try {
+                const overlayFrameDoc = iframes[i].contentWindow;
+                if (overlayFrameDoc._pbjsGlobals !== undefined) {
+
+                }
+            } catch (error) {
+            }
+        }
+    }
 }
 
 function buildOverlayHtml() {
@@ -1139,6 +1152,9 @@ function checkConsentMetadata() {
         appendCheckerRow(STATUSBADGES.OK, 'Consent metadata', stringBuilder);
         // appendCheckerRow(STATUSBADGES.OK, 'Consent metadata', `<code>${JSON.stringify(consentMetadata)}</code>`);
         // appendConsentsRow(STATUSBADGES.OK, 'Consent metadata', `<code>${JSON.stringify(consentMetadata)}</code>`);
+    }
+    else {
+        appendCheckerRow(STATUSBADGES.KO, 'Consent metadata', `<code>${prebidWrapper}.getConsentMetadata()</code>: <code>undefined</code>`);
     }
 
     const adagioBid = prebidObject.getEvents()
