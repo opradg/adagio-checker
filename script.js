@@ -39,16 +39,16 @@ let isDragging = false;
  ************************************************************************************************************************************************************************************************************************************/
 
 const ADAGIOSVG = Object.freeze({
-    LOGO:       '<svg viewBox="0 0 101 92" style="height:1.5em;"><path d="M97 88.598H84.91l-33.473-72.96-.817-1.707-6.398 13.836 28.143 60.916h-12.2l-.106-.237-21.82-47.743-6.428 13.9 15.978 34.08H35.59l-9.802-21.056-9.698 20.97H4L43.109 4H57.89L97 88.598Z"></path></svg>',
-    MANAGER:    '<svg viewBox="0 0 24 24" style="height:1.2em;"><path d="M23 8c0 1.1-.9 2-2 2-.18 0-.35-.02-.51-.07l-3.56 3.55c.05.16.07.34.07.52 0 1.1-.9 2-2 2s-2-.9-2-2c0-.18.02-.36.07-.52l-2.55-2.55c-.16.05-.34.07-.52.07s-.36-.02-.52-.07l-4.55 4.56c.05.16.07.33.07.51 0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2c.18 0 .35.02.51.07l4.56-4.55C8.02 9.36 8 9.18 8 9c0-1.1.9-2 2-2s2 .9 2 2c0 .18-.02.36-.07.52l2.55 2.55c.16-.05.34-.07.52-.07s.36.02.52.07l3.55-3.56C19.02 8.35 19 8.18 19 8c0-1.1.9-2 2-2s2 .9 2 2z"></path></svg>',
-    CHECKER:    '<svg viewBox="0 0 24 24" style="height:1.2em;"><path d="M19 15v4H5v-4h14m1-2H4c-.55 0-1 .45-1 1v6c0 .55.45 1 1 1h16c.55 0 1-.45 1-1v-6c0-.55-.45-1-1-1zM7 18.5c-.82 0-1.5-.67-1.5-1.5s.68-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM19 5v4H5V5h14m1-2H4c-.55 0-1 .45-1 1v6c0 .55.45 1 1 1h16c.55 0 1-.45 1-1V4c0-.55-.45-1-1-1zM7 8.5c-.82 0-1.5-.67-1.5-1.5S6.18 5.5 7 5.5s1.5.68 1.5 1.5S7.83 8.5 7 8.5z"></path></svg>',
-    ADUNITS:    '<svg viewBox="0 0 24 24" style="height:1.2em;"><path d="M17 1H7c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-2-2-2zM7 4V3h10v1H7zm0 14V6h10v12H7zm0 3v-1h10v1H7z"></path><path d="M16 7H8v2h8V7z"></path></svg>',
-    CONSENTS:   '<svg viewBox="0 0 24 24" style="height:1.2em;"><path d="M13.17 4 18 8.83V20H6V4h7.17M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm-2 12c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm4 3.43c0-.81-.48-1.53-1.22-1.85-.85-.37-1.79-.58-2.78-.58-.99 0-1.93.21-2.78.58C8.48 15.9 8 16.62 8 17.43V18h8v-.57z"></path></svg>',
-    PREBID:     '<svg viewBox="0 0 24 24" style="height:1.2em"><g><g><g><path d="M19.973 4.724H.746A.743.743 0 0 1 0 3.978c0-.414.331-.746.746-.746H19.89c.415 0 .746.332.746.746.083.414-.248.746-.663.746z"/></g><g><path d="M27.35 8.868H4.391a.743.743 0 0 1-.745-.746c0-.414.331-.746.745-.746H27.35c.415 0 .746.332.746.746a.743.743 0 0 1-.746.746z"/></g><g><path d="M25.029 21.3H2.072a.743.743 0 0 1-.746-.747c0-.414.332-.745.746-.745h22.957c.414 0 .746.331.746.745 0 .332-.332.746-.746.746z"/></g><g><path d="M17.238 13.012H2.984a.743.743 0 0 1-.746-.746c0-.415.331-.746.746-.746h14.254c.415 0 .746.331.746.746a.743.743 0 0 1-.746.746z"/></g><g><path d="M23.371 17.155H7.045a.743.743 0 0 1-.746-.745c0-.415.331-.746.746-.746H23.37c.415 0 .746.331.746.746 0 .331-.331.745-.746.745z"/></g></g></g></svg>',
-    EYEOPENED:  '<svg viewBox="0 0 24 24" style="height:1.2em;"><path d="M6.30147 15.5771C4.77832 14.2684 3.6904 12.7726 3.18002 12C3.6904 11.2274 4.77832 9.73158 6.30147 8.42294C7.87402 7.07185 9.81574 6 12 6C14.1843 6 16.1261 7.07185 17.6986 8.42294C19.2218 9.73158 20.3097 11.2274 20.8201 12C20.3097 12.7726 19.2218 14.2684 17.6986 15.5771C16.1261 16.9282 14.1843 18 12 18C9.81574 18 7.87402 16.9282 6.30147 15.5771ZM12 4C9.14754 4 6.75717 5.39462 4.99812 6.90595C3.23268 8.42276 2.00757 10.1376 1.46387 10.9698C1.05306 11.5985 1.05306 12.4015 1.46387 13.0302C2.00757 13.8624 3.23268 15.5772 4.99812 17.0941C6.75717 18.6054 9.14754 20 12 20C14.8525 20 17.2429 18.6054 19.002 17.0941C20.7674 15.5772 21.9925 13.8624 22.5362 13.0302C22.947 12.4015 22.947 11.5985 22.5362 10.9698C21.9925 10.1376 20.7674 8.42276 19.002 6.90595C17.2429 5.39462 14.8525 4 12 4ZM10 12C10 10.8954 10.8955 10 12 10C13.1046 10 14 10.8954 14 12C14 13.1046 13.1046 14 12 14C10.8955 14 10 13.1046 10 12ZM12 8C9.7909 8 8.00004 9.79086 8.00004 12C8.00004 14.2091 9.7909 16 12 16C14.2092 16 16 14.2091 16 12C16 9.79086 14.2092 8 12 8Z"></path></svg>',
-    EYECLOSED:  '<svg viewBox="0 0 24 24" style="height:1.2em;"><path d="M19.7071 5.70711C20.0976 5.31658 20.0976 4.68342 19.7071 4.29289C19.3166 3.90237 18.6834 3.90237 18.2929 4.29289L14.032 8.55382C13.4365 8.20193 12.7418 8 12 8C9.79086 8 8 9.79086 8 12C8 12.7418 8.20193 13.4365 8.55382 14.032L4.29289 18.2929C3.90237 18.6834 3.90237 19.3166 4.29289 19.7071C4.68342 20.0976 5.31658 20.0976 5.70711 19.7071L9.96803 15.4462C10.5635 15.7981 11.2582 16 12 16C14.2091 16 16 14.2091 16 12C16 11.2582 15.7981 10.5635 15.4462 9.96803L19.7071 5.70711ZM12.518 10.0677C12.3528 10.0236 12.1792 10 12 10C10.8954 10 10 10.8954 10 12C10 12.1792 10.0236 12.3528 10.0677 12.518L12.518 10.0677ZM11.482 13.9323L13.9323 11.482C13.9764 11.6472 14 11.8208 14 12C14 13.1046 13.1046 14 12 14C11.8208 14 11.6472 13.9764 11.482 13.9323ZM15.7651 4.8207C14.6287 4.32049 13.3675 4 12 4C9.14754 4 6.75717 5.39462 4.99812 6.90595C3.23268 8.42276 2.00757 10.1376 1.46387 10.9698C1.05306 11.5985 1.05306 12.4015 1.46387 13.0302C1.92276 13.7326 2.86706 15.0637 4.21194 16.3739L5.62626 14.9596C4.4555 13.8229 3.61144 12.6531 3.18002 12C3.6904 11.2274 4.77832 9.73158 6.30147 8.42294C7.87402 7.07185 9.81574 6 12 6C12.7719 6 13.5135 6.13385 14.2193 6.36658L15.7651 4.8207ZM12 18C11.2282 18 10.4866 17.8661 9.78083 17.6334L8.23496 19.1793C9.37136 19.6795 10.6326 20 12 20C14.8525 20 17.2429 18.6054 19.002 17.0941C20.7674 15.5772 21.9925 13.8624 22.5362 13.0302C22.947 12.4015 22.947 11.5985 22.5362 10.9698C22.0773 10.2674 21.133 8.93627 19.7881 7.62611L18.3738 9.04043C19.5446 10.1771 20.3887 11.3469 20.8201 12C20.3097 12.7726 19.2218 14.2684 17.6986 15.5771C16.1261 16.9282 14.1843 18 12 18Z"></path></svg>',
-    REFRESH:    '<svg viewBox="0 0 24 24" style="height:1.2em;"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"></path></svg>',
-    INFO:       '<svg viewBox="0 0 416.979 416.979" style="height:1.2em;"><path d="M356.004,61.156c-81.37-81.47-213.377-81.551-294.848-0.182c-81.47,81.371-81.552,213.379-0.181,294.85 c81.369,81.47,213.378,81.551,294.849,0.181C437.293,274.636,437.375,142.626,356.004,61.156z M237.6,340.786 c0,3.217-2.607,5.822-5.822,5.822h-46.576c-3.215,0-5.822-2.605-5.822-5.822V167.885c0-3.217,2.607-5.822,5.822-5.822h46.576 c3.215,0,5.822,2.604,5.822,5.822V340.786z M208.49,137.901c-18.618,0-33.766-15.146-33.766-33.765 c0-18.617,15.147-33.766,33.766-33.766c18.619,0,33.766,15.148,33.766,33.766C242.256,122.755,227.107,137.901,208.49,137.901z"></path></svg>'
+    LOGO: '<svg viewBox="0 0 101 92" style="height:1.5em;"><path d="M97 88.598H84.91l-33.473-72.96-.817-1.707-6.398 13.836 28.143 60.916h-12.2l-.106-.237-21.82-47.743-6.428 13.9 15.978 34.08H35.59l-9.802-21.056-9.698 20.97H4L43.109 4H57.89L97 88.598Z"></path></svg>',
+    MANAGER: '<svg viewBox="0 0 24 24" style="height:1.2em;"><path d="M23 8c0 1.1-.9 2-2 2-.18 0-.35-.02-.51-.07l-3.56 3.55c.05.16.07.34.07.52 0 1.1-.9 2-2 2s-2-.9-2-2c0-.18.02-.36.07-.52l-2.55-2.55c-.16.05-.34.07-.52.07s-.36-.02-.52-.07l-4.55 4.56c.05.16.07.33.07.51 0 1.1-.9 2-2 2s-2-.9-2-2 .9-2 2-2c.18 0 .35.02.51.07l4.56-4.55C8.02 9.36 8 9.18 8 9c0-1.1.9-2 2-2s2 .9 2 2c0 .18-.02.36-.07.52l2.55 2.55c.16-.05.34-.07.52-.07s.36.02.52.07l3.55-3.56C19.02 8.35 19 8.18 19 8c0-1.1.9-2 2-2s2 .9 2 2z"></path></svg>',
+    CHECKER: '<svg viewBox="0 0 24 24" style="height:1.2em;"><path d="M19 15v4H5v-4h14m1-2H4c-.55 0-1 .45-1 1v6c0 .55.45 1 1 1h16c.55 0 1-.45 1-1v-6c0-.55-.45-1-1-1zM7 18.5c-.82 0-1.5-.67-1.5-1.5s.68-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM19 5v4H5V5h14m1-2H4c-.55 0-1 .45-1 1v6c0 .55.45 1 1 1h16c.55 0 1-.45 1-1V4c0-.55-.45-1-1-1zM7 8.5c-.82 0-1.5-.67-1.5-1.5S6.18 5.5 7 5.5s1.5.68 1.5 1.5S7.83 8.5 7 8.5z"></path></svg>',
+    ADUNITS: '<svg viewBox="0 0 24 24" style="height:1.2em;"><path d="M17 1H7c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-2-2-2zM7 4V3h10v1H7zm0 14V6h10v12H7zm0 3v-1h10v1H7z"></path><path d="M16 7H8v2h8V7z"></path></svg>',
+    CONSENTS: '<svg viewBox="0 0 24 24" style="height:1.2em;"><path d="M13.17 4 18 8.83V20H6V4h7.17M14 2H6c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V8l-6-6zm-2 12c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2zm4 3.43c0-.81-.48-1.53-1.22-1.85-.85-.37-1.79-.58-2.78-.58-.99 0-1.93.21-2.78.58C8.48 15.9 8 16.62 8 17.43V18h8v-.57z"></path></svg>',
+    PREBID: '<svg viewBox="0 0 24 24" style="height:1.2em"><g><g><g><path d="M19.973 4.724H.746A.743.743 0 0 1 0 3.978c0-.414.331-.746.746-.746H19.89c.415 0 .746.332.746.746.083.414-.248.746-.663.746z"/></g><g><path d="M27.35 8.868H4.391a.743.743 0 0 1-.745-.746c0-.414.331-.746.745-.746H27.35c.415 0 .746.332.746.746a.743.743 0 0 1-.746.746z"/></g><g><path d="M25.029 21.3H2.072a.743.743 0 0 1-.746-.747c0-.414.332-.745.746-.745h22.957c.414 0 .746.331.746.745 0 .332-.332.746-.746.746z"/></g><g><path d="M17.238 13.012H2.984a.743.743 0 0 1-.746-.746c0-.415.331-.746.746-.746h14.254c.415 0 .746.331.746.746a.743.743 0 0 1-.746.746z"/></g><g><path d="M23.371 17.155H7.045a.743.743 0 0 1-.746-.745c0-.415.331-.746.746-.746H23.37c.415 0 .746.331.746.746 0 .331-.331.745-.746.745z"/></g></g></g></svg>',
+    EYEOPENED: '<svg viewBox="0 0 24 24" style="height:1.2em;"><path d="M6.30147 15.5771C4.77832 14.2684 3.6904 12.7726 3.18002 12C3.6904 11.2274 4.77832 9.73158 6.30147 8.42294C7.87402 7.07185 9.81574 6 12 6C14.1843 6 16.1261 7.07185 17.6986 8.42294C19.2218 9.73158 20.3097 11.2274 20.8201 12C20.3097 12.7726 19.2218 14.2684 17.6986 15.5771C16.1261 16.9282 14.1843 18 12 18C9.81574 18 7.87402 16.9282 6.30147 15.5771ZM12 4C9.14754 4 6.75717 5.39462 4.99812 6.90595C3.23268 8.42276 2.00757 10.1376 1.46387 10.9698C1.05306 11.5985 1.05306 12.4015 1.46387 13.0302C2.00757 13.8624 3.23268 15.5772 4.99812 17.0941C6.75717 18.6054 9.14754 20 12 20C14.8525 20 17.2429 18.6054 19.002 17.0941C20.7674 15.5772 21.9925 13.8624 22.5362 13.0302C22.947 12.4015 22.947 11.5985 22.5362 10.9698C21.9925 10.1376 20.7674 8.42276 19.002 6.90595C17.2429 5.39462 14.8525 4 12 4ZM10 12C10 10.8954 10.8955 10 12 10C13.1046 10 14 10.8954 14 12C14 13.1046 13.1046 14 12 14C10.8955 14 10 13.1046 10 12ZM12 8C9.7909 8 8.00004 9.79086 8.00004 12C8.00004 14.2091 9.7909 16 12 16C14.2092 16 16 14.2091 16 12C16 9.79086 14.2092 8 12 8Z"></path></svg>',
+    EYECLOSED: '<svg viewBox="0 0 24 24" style="height:1.2em;"><path d="M19.7071 5.70711C20.0976 5.31658 20.0976 4.68342 19.7071 4.29289C19.3166 3.90237 18.6834 3.90237 18.2929 4.29289L14.032 8.55382C13.4365 8.20193 12.7418 8 12 8C9.79086 8 8 9.79086 8 12C8 12.7418 8.20193 13.4365 8.55382 14.032L4.29289 18.2929C3.90237 18.6834 3.90237 19.3166 4.29289 19.7071C4.68342 20.0976 5.31658 20.0976 5.70711 19.7071L9.96803 15.4462C10.5635 15.7981 11.2582 16 12 16C14.2091 16 16 14.2091 16 12C16 11.2582 15.7981 10.5635 15.4462 9.96803L19.7071 5.70711ZM12.518 10.0677C12.3528 10.0236 12.1792 10 12 10C10.8954 10 10 10.8954 10 12C10 12.1792 10.0236 12.3528 10.0677 12.518L12.518 10.0677ZM11.482 13.9323L13.9323 11.482C13.9764 11.6472 14 11.8208 14 12C14 13.1046 13.1046 14 12 14C11.8208 14 11.6472 13.9764 11.482 13.9323ZM15.7651 4.8207C14.6287 4.32049 13.3675 4 12 4C9.14754 4 6.75717 5.39462 4.99812 6.90595C3.23268 8.42276 2.00757 10.1376 1.46387 10.9698C1.05306 11.5985 1.05306 12.4015 1.46387 13.0302C1.92276 13.7326 2.86706 15.0637 4.21194 16.3739L5.62626 14.9596C4.4555 13.8229 3.61144 12.6531 3.18002 12C3.6904 11.2274 4.77832 9.73158 6.30147 8.42294C7.87402 7.07185 9.81574 6 12 6C12.7719 6 13.5135 6.13385 14.2193 6.36658L15.7651 4.8207ZM12 18C11.2282 18 10.4866 17.8661 9.78083 17.6334L8.23496 19.1793C9.37136 19.6795 10.6326 20 12 20C14.8525 20 17.2429 18.6054 19.002 17.0941C20.7674 15.5772 21.9925 13.8624 22.5362 13.0302C22.947 12.4015 22.947 11.5985 22.5362 10.9698C22.0773 10.2674 21.133 8.93627 19.7881 7.62611L18.3738 9.04043C19.5446 10.1771 20.3887 11.3469 20.8201 12C20.3097 12.7726 19.2218 14.2684 17.6986 15.5771C16.1261 16.9282 14.1843 18 12 18Z"></path></svg>',
+    REFRESH: '<svg viewBox="0 0 24 24" style="height:1.2em;"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"></path></svg>',
+    INFO: '<svg viewBox="0 0 416.979 416.979" style="height:1.2em;"><path d="M356.004,61.156c-81.37-81.47-213.377-81.551-294.848-0.182c-81.47,81.371-81.552,213.379-0.181,294.85 c81.369,81.47,213.378,81.551,294.849,0.181C437.293,274.636,437.375,142.626,356.004,61.156z M237.6,340.786 c0,3.217-2.607,5.822-5.822,5.822h-46.576c-3.215,0-5.822-2.605-5.822-5.822V167.885c0-3.217,2.607-5.822,5.822-5.822h46.576 c3.215,0,5.822,2.604,5.822,5.822V340.786z M208.49,137.901c-18.618,0-33.766-15.146-33.766-33.765 c0-18.617,15.147-33.766,33.766-33.766c18.619,0,33.766,15.148,33.766,33.766C242.256,122.755,227.107,137.901,208.49,137.901z"></path></svg>'
 });
 
 const ADAGIOTABSNAME = Object.freeze({
@@ -126,7 +126,7 @@ check();
 
 function createOverlay() {
 
-	// create a new button element
+    // create a new button element
     buttonFrame = window.document.createElement('iframe');
     buttonFrame.style.position = "fixed";
     buttonFrame.style.top = "10px";
@@ -141,33 +141,33 @@ function createOverlay() {
     buttonFrame.style.display = "block";
     window.document.body.appendChild(buttonFrame);
 
-	// create a new iframe element
-	overlayFrame = window.document.createElement('iframe');
-	overlayFrame.classList.add('adagio-overlay');
-	overlayFrame.style.position = "fixed";
-	overlayFrame.style.top = "10px";
-	overlayFrame.style.left = "10px";
-	overlayFrame.style.width = "700px";
-	overlayFrame.style.height = "450px";
-	overlayFrame.style.zIndex = "999999999";
-	overlayFrame.style.backgroundColor = "transparent";
-	overlayFrame.style.border = "none";
-	overlayFrame.style.borderRadius = "10px";
-	overlayFrame.style.boxShadow = "rgba(0, 0, 0, 0.35) 0px 5px 15px";
-	overlayFrame.style.resize = 'both';
+    // create a new iframe element
+    overlayFrame = window.document.createElement('iframe');
+    overlayFrame.classList.add('adagio-overlay');
+    overlayFrame.style.position = "fixed";
+    overlayFrame.style.top = "10px";
+    overlayFrame.style.left = "10px";
+    overlayFrame.style.width = "700px";
+    overlayFrame.style.height = "450px";
+    overlayFrame.style.zIndex = "999999999";
+    overlayFrame.style.backgroundColor = "transparent";
+    overlayFrame.style.border = "none";
+    overlayFrame.style.borderRadius = "10px";
+    overlayFrame.style.boxShadow = "rgba(0, 0, 0, 0.35) 0px 5px 15px";
+    overlayFrame.style.resize = 'both';
     overlayFrame.style.display = "block";
-	window.document.body.appendChild(overlayFrame);
+    window.document.body.appendChild(overlayFrame);
 
-	if (!overlayVisible) overlayFrame.style.display = 'none';
-	else buttonFrame.style.opacity = '0.4';
+    if (!overlayVisible) overlayFrame.style.display = 'none';
+    else buttonFrame.style.opacity = '0.4';
 
-	// get the iframe document objects
+    // get the iframe document objects
     buttonFrameDoc = buttonFrame.contentDocument || buttonFrame.contentWindow.document;
-	overlayFrameDoc = overlayFrame.contentDocument || overlayFrame.contentWindow.document;
+    overlayFrameDoc = overlayFrame.contentDocument || overlayFrame.contentWindow.document;
 
-	// set the background color
-	// overlayFrameDoc.body.style.setProperty('--primary', 'rgb(246, 247, 248)');
-	// overlayFrameDoc.body.style.setProperty('--primary-hover', 'rgb(246, 247, 248)');
+    // set the background color
+    // overlayFrameDoc.body.style.setProperty('--primary', 'rgb(246, 247, 248)');
+    // overlayFrameDoc.body.style.setProperty('--primary-hover', 'rgb(246, 247, 248)');
 }
 
 function getPrebidWrappers() {
@@ -186,7 +186,7 @@ function getPrebidWrappers() {
     // In some configurations, the wrapper is inside iframes
     else {
         const iframes = document.getElementsByTagName("iframe");
-        for (let iframe of iframes) { 
+        for (let iframe of iframes) {
             try {
                 const overlayFrameDoc = iframe.contentWindow;
                 if (overlayFrameDoc._pbjsGlobals !== undefined) {
@@ -249,22 +249,22 @@ function buildAdagioButton() {
     // button to hide and show the iframe
     const a = buttonFrameDoc.createElement('a');
     a.innerHTML = ADAGIOSVG.LOGO;
-	a.style.fill = 'white';
-	buttonFrameDoc.body.appendChild(a);
+    a.style.fill = 'white';
+    buttonFrameDoc.body.appendChild(a);
 
-	buttonFrameDoc.querySelector('html').style.cursor = 'pointer';
-	buttonFrameDoc.querySelector('html').addEventListener('click', () => {
-		if (overlayVisible) {
-			overlayVisible = false;
-        	overlayFrame.style.display = 'none';
-			buttonFrame.style.opacity = '';
-		}
-		else {
-			overlayVisible = true;
-        	overlayFrame.style.display = '';
-			buttonFrame.style.opacity = '0.4';
-		}
-	});
+    buttonFrameDoc.querySelector('html').style.cursor = 'pointer';
+    buttonFrameDoc.querySelector('html').addEventListener('click', () => {
+        if (overlayVisible) {
+            overlayVisible = false;
+            overlayFrame.style.display = 'none';
+            buttonFrame.style.opacity = '';
+        }
+        else {
+            overlayVisible = true;
+            overlayFrame.style.display = '';
+            buttonFrame.style.opacity = '0.4';
+        }
+    });
 }
 
 function buildAdagioLogo() {
@@ -352,7 +352,7 @@ function buildPrebidButton(name, svg, isactive) {
     button.addEventListener("click", () => {
         dialog.setAttribute('open', true);
     });
-    
+
     // Append elements
     li.appendChild(button);
     button.appendChild(badge);
@@ -363,7 +363,7 @@ function buildPrebidButton(name, svg, isactive) {
     article.appendChild(paragraph);
 
     // Fill the modal with the list Prebid wrappers found
-    for (let i = 0; i < nbWrappers; i++){
+    for (let i = 0; i < nbWrappers; i++) {
         // Create the radio button for the current wrapper item
         const item = pbjsGlobals[i];
         const wrapperItem = overlayFrameDoc.createElement('div');
@@ -381,18 +381,18 @@ function buildPrebidButton(name, svg, isactive) {
             itemInput.checked = true;
         }
 
-        itemInput.addEventListener("click", function() {
+        itemInput.addEventListener("click", function () {
             if (itemInput.checked) {
                 prebidWrapper = itemInput.value;
                 prebidObject = window[prebidWrapper];
                 refreshTables();
             }
         });
-    
+
         // Append the wrapper item
         paragraph.appendChild(wrapperItem);
         wrapperItem.appendChild(itemInput);
-        wrapperItem.appendChild(itemLabel);       
+        wrapperItem.appendChild(itemLabel);
     }
 
     return li;
@@ -536,9 +536,9 @@ function createAdUnitsDiv() {
     alertContainer.style.color = COLOR.YELLOWTEXT;
     alertContainer.style.backgroundColor = COLOR.YELLOWBACKGROUND;
 
-	const alertTextDiv = overlayFrameDoc.createElement('div');
-	alertTextDiv.setAttribute('id', `${tabName}-alert`);
-	alertContainer.appendChild(alertTextDiv);
+    const alertTextDiv = overlayFrameDoc.createElement('div');
+    alertTextDiv.setAttribute('id', `${tabName}-alert`);
+    alertContainer.appendChild(alertTextDiv);
 
     // create bidder filter
     const bidderFilter = overlayFrameDoc.createElement('details');
@@ -641,7 +641,7 @@ function createConsentsDiv() {
 function switchTab(tabName) {
     // switch visible div and button outline
     if (tabName !== activeTab) {
-		goTopPage();
+        goTopPage();
         const activeTabButton = overlayFrameDoc.getElementById(`${activeTab}-button`);
         const activeTabContainer = overlayFrameDoc.getElementById(`${activeTab}-container`);
         const targetTabButton = overlayFrameDoc.getElementById(`${tabName}-button`);
@@ -655,7 +655,7 @@ function switchTab(tabName) {
 }
 
 function goTopPage() {
-	overlayFrameDoc.body.scrollTop = 0;
+    overlayFrameDoc.body.scrollTop = 0;
 }
 
 function appendCheckerRow(status, name, details) {
@@ -690,18 +690,18 @@ function appendAdUnitsRow(bidders, bids) {
     const tabName = ADAGIOTABSNAME.ADUNITS.toLowerCase().replace(' ', '-');
     // gets working element element
     const tableBody = overlayFrameDoc.getElementById(`${tabName}-tbody`);
-	const alertTextDiv = overlayFrameDoc.getElementById(`${tabName}-alert`);
+    const alertTextDiv = overlayFrameDoc.getElementById(`${tabName}-alert`);
 
-	// fill the article section
-	alertTextDiv.innerHTML = '<small>Adunit(s) found:</small>';
-	if (prebidAdUnitsCodes !== undefined && totalPrebidAdUnitsCodes > 0) {
-		for (const adUnitCode of prebidAdUnitsCodes) {
-			alertTextDiv.innerHTML += `<small> <code>${adUnitCode}</code>;</small>`;
-		};
-	}
-	else alertTextDiv.innerHTML += `<small><kbd> 0</kbd></small>`;
+    // fill the article section
+    alertTextDiv.innerHTML = '<small>Adunit(s) found:</small>';
+    if (prebidAdUnitsCodes !== undefined && totalPrebidAdUnitsCodes > 0) {
+        for (const adUnitCode of prebidAdUnitsCodes) {
+            alertTextDiv.innerHTML += `<small> <code>${adUnitCode}</code>;</small>`;
+        };
+    }
+    else alertTextDiv.innerHTML += `<small><kbd> 0</kbd></small>`;
 
-	// fill the table section
+    // fill the table section
     bids.forEach(bid => {
 
         const adUnitCode = bid.adUnitCode;
@@ -759,7 +759,7 @@ function appendAdUnitsRow(bidders, bids) {
         const newInput = overlayFrameDoc.getElementById(`${bidder.replace(' ', '-')}-bidder`);
         if (adagioId !== '' && adagioId !== bidder) newInput.checked = false;
         else newInput.checked = true;
-        newInput.addEventListener('click', function() {
+        newInput.addEventListener('click', function () {
             toggleBidRow(newInput, bidder);
         });
     });
@@ -806,7 +806,7 @@ function appendConsentsRow(bidderName, bidderConsent, bidderLegitimate) {
 }
 
 function refreshTables() {
-	goTopPage();
+    goTopPage();
     const checkertbody = overlayFrameDoc.getElementById(`${ADAGIOTABSNAME.CHECKER.toLowerCase().replace(' ', '-')}-tbody`);
     const checkeradunits = overlayFrameDoc.getElementById(`${ADAGIOTABSNAME.ADUNITS.toLowerCase().replace(' ', '-')}-tbody`);
     const checkerconsents = overlayFrameDoc.getElementById(`${ADAGIOTABSNAME.CONSENTS.toLowerCase().replace(' ', '-')}-tbody`);
@@ -821,7 +821,7 @@ function displayAdunits(eyeButton) {
     /*
      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path fill-rule="evenodd" clip-rule="evenodd" d="M19.7071 5.70711C20.0976 5.31658 20.0976 4.68342 19.7071 4.29289C19.3166 3.90237 18.6834 3.90237 18.2929 4.29289L14.032 8.55382C13.4365 8.20193 12.7418 8 12 8C9.79086 8 8 9.79086 8 12C8 12.7418 8.20193 13.4365 8.55382 14.032L4.29289 18.2929C3.90237 18.6834 3.90237 19.3166 4.29289 19.7071C4.68342 20.0976 5.31658 20.0976 5.70711 19.7071L9.96803 15.4462C10.5635 15.7981 11.2582 16 12 16C14.2091 16 16 14.2091 16 12C16 11.2582 15.7981 10.5635 15.4462 9.96803L19.7071 5.70711ZM12.518 10.0677C12.3528 10.0236 12.1792 10 12 10C10.8954 10 10 10.8954 10 12C10 12.1792 10.0236 12.3528 10.0677 12.518L12.518 10.0677ZM11.482 13.9323L13.9323 11.482C13.9764 11.6472 14 11.8208 14 12C14 13.1046 13.1046 14 12 14C11.8208 14 11.6472 13.9764 11.482 13.9323ZM15.7651 4.8207C14.6287 4.32049 13.3675 4 12 4C9.14754 4 6.75717 5.39462 4.99812 6.90595C3.23268 8.42276 2.00757 10.1376 1.46387 10.9698C1.05306 11.5985 1.05306 12.4015 1.46387 13.0302C1.92276 13.7326 2.86706 15.0637 4.21194 16.3739L5.62626 14.9596C4.4555 13.8229 3.61144 12.6531 3.18002 12C3.6904 11.2274 4.77832 9.73158 6.30147 8.42294C7.87402 7.07185 9.81574 6 12 6C12.7719 6 13.5135 6.13385 14.2193 6.36658L15.7651 4.8207ZM12 18C11.2282 18 10.4866 17.8661 9.78083 17.6334L8.23496 19.1793C9.37136 19.6795 10.6326 20 12 20C14.8525 20 17.2429 18.6054 19.002 17.0941C20.7674 15.5772 21.9925 13.8624 22.5362 13.0302C22.947 12.4015 22.947 11.5985 22.5362 10.9698C22.0773 10.2674 21.133 8.93627 19.7881 7.62611L18.3738 9.04043C19.5446 10.1771 20.3887 11.3469 20.8201 12C20.3097 12.7726 19.2218 14.2684 17.6986 15.5771C16.1261 16.9282 14.1843 18 12 18Z" fill="#000000"></path> </g></svg>
     */
-     adagioPbjsAdUnitsCode.forEach(adagioAdUnit => {
+    adagioPbjsAdUnitsCode.forEach(adagioAdUnit => {
         for (const bid in adagioAdUnit.bids) {
             const adUnitElementId = adagioAdUnit.bids[bid].params['adUnitElementId'];
             const originalDiv = window.document.getElementById(adUnitElementId);
@@ -881,56 +881,56 @@ function updateManagerFilters(params) {
 
 function makeIframeDraggable() {
 
-	// Gets elements IDs
-	const navbar = overlayFrameDoc.getElementById('adagio-nav');
-	let targetElement = undefined;
+    // Gets elements IDs
+    const navbar = overlayFrameDoc.getElementById('adagio-nav');
+    let targetElement = undefined;
 
-	// Set up start x, y
-	let startX = 0;
-	let startY = 0;
+    // Set up start x, y
+    let startX = 0;
+    let startY = 0;
 
-	navbar.addEventListener('mousedown', startDragging);
-	navbar.addEventListener('mouseup', stopDragging);
-	navbar.addEventListener("mouseover", updateCursor);
-	overlayFrame.addEventListener('mouseup', stopDragging);
+    navbar.addEventListener('mousedown', startDragging);
+    navbar.addEventListener('mouseup', stopDragging);
+    navbar.addEventListener("mouseover", updateCursor);
+    overlayFrame.addEventListener('mouseup', stopDragging);
 
-	function updateCursor(e) {
-		targetElement = e.target.tagName;
-		if (targetElement === 'NAV' || targetElement === 'UL' || targetElement === 'LI') {
-			navbar.style.cursor = 'grab';
-		}
-		else navbar.style.cursor = 'default';
-	}
+    function updateCursor(e) {
+        targetElement = e.target.tagName;
+        if (targetElement === 'NAV' || targetElement === 'UL' || targetElement === 'LI') {
+            navbar.style.cursor = 'grab';
+        }
+        else navbar.style.cursor = 'default';
+    }
 
-	function startDragging(e) {
-		targetElement = e.target.tagName;
-		if (targetElement === 'NAV' || targetElement === 'UL' || targetElement === 'LI') {
-			isDragging = true;
-			navbar.style.cursor = 'grabbing';
-			overlayFrame.style.opacity = '0.4';
-			startX = e.clientX;
-			startY = e.clientY;
-		}
-	}
+    function startDragging(e) {
+        targetElement = e.target.tagName;
+        if (targetElement === 'NAV' || targetElement === 'UL' || targetElement === 'LI') {
+            isDragging = true;
+            navbar.style.cursor = 'grabbing';
+            overlayFrame.style.opacity = '0.4';
+            startX = e.clientX;
+            startY = e.clientY;
+        }
+    }
 
-	function stopDragging() {
-		isDragging = false;
-		navbar.style.cursor = 'grab';
-		overlayFrame.style.opacity = '';
-	}
+    function stopDragging() {
+        isDragging = false;
+        navbar.style.cursor = 'grab';
+        overlayFrame.style.opacity = '';
+    }
 
-	overlayFrameDoc.addEventListener('mousemove', function(e) {
-		if (!isDragging) {
-			return;
-		}
-		const deltaX = e.clientX - startX;
-		const deltaY = e.clientY - startY;
-		const iframeRect = overlayFrame.getBoundingClientRect();
-		const iframeX = iframeRect.left;
-		const iframeY = iframeRect.top;
-		overlayFrame.style.left = iframeX + deltaX + 'px';
-		overlayFrame.style.top = iframeY + deltaY + 'px';
-	});
+    overlayFrameDoc.addEventListener('mousemove', function (e) {
+        if (!isDragging) {
+            return;
+        }
+        const deltaX = e.clientX - startX;
+        const deltaY = e.clientY - startY;
+        const iframeRect = overlayFrame.getBoundingClientRect();
+        const iframeX = iframeRect.left;
+        const iframeY = iframeRect.top;
+        overlayFrame.style.left = iframeX + deltaX + 'px';
+        overlayFrame.style.top = iframeY + deltaY + 'px';
+    });
 }
 
 /*************************************************************************************************************************************************************************************************************************************
@@ -1033,7 +1033,7 @@ function checkAdagioAdUnitParams() {
         totalPrebidAdagioAdUnitsCode = prebidAdagioAdUnitsCodes.length;
         totalAdagioAdUnitsCodes = adagioAdUnitsCodes.length;
         totalAdagioPbjsAdUnitsCodes = adagioPbjsAdUnitsCode.length;
- 
+
         if (totalPrebidAdUnitsCodes === 0) {
             appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.ADUNITS, `<kbd>${totalPrebidAdUnitsCodes}</kbd> adUnits(s) found`);
         } else if (totalPrebidAdUnitsCodes > 0 && totalPrebidAdagioAdUnitsCode === 0) {
@@ -1044,10 +1044,10 @@ function checkAdagioAdUnitParams() {
             }
             else {
                 appendCheckerRow(STATUSBADGES.OK, ADAGIOCHECK.ADUNITS, `Adagio called for <kbd>${totalPrebidAdagioAdUnitsCode}</kbd> adUnit(s) out of <kbd>${totalPrebidAdUnitsCodes}</kbd> adUnits(s) found`);
-            }    
+            }
         }
-		// Fill the Adunits table with all the requested bids
-		appendAdUnitsRow(prebidBidders, prebidBids);
+        // Fill the Adunits table with all the requested bids
+        appendAdUnitsRow(prebidBidders, prebidBids);
     }
 }
 
@@ -1063,12 +1063,15 @@ function checkAdagioUserSync() {
             appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.USERSYNC, `<code>${prebidWrapper}.getConfig('userSync')</code>: <code>${prebidUserSync}</code>`);
         }
         else {
-            const adagioUserSync = prebidObject.getConfig('userSync').userIds.find(e => e.name === 'adagio');
-            if (adagioUserSync !== undefined) {
-                appendCheckerRow(STATUSBADGES.OK, ADAGIOCHECK.USERSYNC, `<code>${JSON.stringify(adagioUserSync)}</code>`);
+            const prebidUserSyncIframe = prebidUserSync?.filterSettings?.iframe;
+            if (prebidUserSyncIframe === undefined) {
+                appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.USERSYNC, `<code>${prebidWrapper}.getConfig('userSync').filterSettings.iframe</code>: <code>${prebidUserSyncIframe}</code>`);
+            }
+            else if ((prebidUserSyncIframe?.bidders.includes('adagio') || prebidUserSyncIframe?.bidders.includes('*')) && prebidUserSyncIframe?.filter === 'include') {
+                appendCheckerRow(STATUSBADGES.OK, ADAGIOCHECK.USERSYNC, `<code>${JSON.stringify(prebidUserSyncIframe)}</code>`);
             }
             else {
-                appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.USERSYNC, `<code>${prebidWrapper}.getConfig('userSync').userIds.find(e => e.name === 'adagio')</code>: <code>${adagioUserSync}</code>`);
+                appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.USERSYNC, `<code>${JSON.stringify(prebidUserSyncIframe)}</code>`);
             }
         }
     }
