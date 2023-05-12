@@ -138,6 +138,7 @@ function createOverlay() {
     buttonFrame.style.border = "none";
     buttonFrame.style.borderRadius = "10px";
     buttonFrame.style.boxShadow = "rgba(0, 0, 0, 0.35) 0px 5px 15px";
+    buttonFrame.style.display = "block";
     window.document.body.appendChild(buttonFrame);
 
 	// create a new iframe element
@@ -154,6 +155,7 @@ function createOverlay() {
 	overlayFrame.style.borderRadius = "10px";
 	overlayFrame.style.boxShadow = "rgba(0, 0, 0, 0.35) 0px 5px 15px";
 	overlayFrame.style.resize = 'both';
+    overlayFrame.style.display = "block";
 	window.document.body.appendChild(overlayFrame);
 
 	if (!overlayVisible) overlayFrame.style.display = 'none';
