@@ -182,7 +182,7 @@ function getPrebidWrappers() {
         for (let wrapper of window._pbjsGlobals) {
             prebidWrappers.push(overlayFrameDoc[wrapper]);
         }
-    }*/
+    }
     // In some configurations, the wrapper is inside iframes
     else {
         const iframes = document.getElementsByTagName("iframe");
@@ -197,7 +197,7 @@ function getPrebidWrappers() {
             } catch (error) {
             }
         }
-    }
+    }*/
 }
 
 function buildOverlayHtml() {
