@@ -1063,7 +1063,7 @@ function checkAdagioUserSync() {
             appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.USERSYNC, `<code>${prebidWrapper}.getConfig('userSync')</code>: <code>${prebidUserSync}</code>`);
         }
         else {
-            const adagioUserSync = pbjs.getConfig('userSync').userIds.find(e => e.name === 'adagio');
+            const adagioUserSync = prebidObject.getConfig('userSync').userIds.find(e => e.name === 'adagio');
             if (adagioUserSync !== undefined) {
                 appendCheckerRow(STATUSBADGES.OK, ADAGIOCHECK.USERSYNC, `<code>${JSON.stringify(adagioUserSync)}</code>`);
             }
