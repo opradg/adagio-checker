@@ -11,6 +11,7 @@ let overlayVisible = true;
 // Prebid.js object, and window.ADAGIO object and events
 let pbjsGlobals = undefined;
 let prebidObject = undefined;
+let prebidWrappers = [];
 let prebidWrapper = undefined;
 let adagioAdapter = undefined;
 // Prebid events, bids and adUnits
@@ -77,6 +78,7 @@ const ADAGIOCHECK = Object.freeze({
     ADAPTER: 'Adagio adapter',
     LOCALSTORAGE: 'Localstorage',
     ADUNITS: 'Adunits',
+    USERSYNC: 'User sync',
     CURRENCY: 'Currency module',
     SCO: 'Supply chain object',
     CMP: 'Consent management platform',
@@ -131,7 +133,7 @@ function createOverlay() {
     buttonFrame.style.right = "10px";
     buttonFrame.style.width = "45px";
     buttonFrame.style.height = "45px";
-    buttonFrame.style.zIndex = "9999";
+    buttonFrame.style.zIndex = "999999999";
     buttonFrame.style.backgroundColor = "rgb(47, 55, 87)";
     buttonFrame.style.border = "none";
     buttonFrame.style.borderRadius = "10px";
@@ -146,7 +148,7 @@ function createOverlay() {
 	overlayFrame.style.left = "10px";
 	overlayFrame.style.width = "700px";
 	overlayFrame.style.height = "450px";
-	overlayFrame.style.zIndex = "9999";
+	overlayFrame.style.zIndex = "999999999";
 	overlayFrame.style.backgroundColor = "transparent";
 	overlayFrame.style.border = "none";
 	overlayFrame.style.borderRadius = "10px";
@@ -174,14 +176,21 @@ function getPrebidWrappers() {
         prebidWrapper = pbjsGlobals.includes('pbjs') ? 'pbjs' : pbjsGlobals[0];
         prebidObject = window[prebidWrapper];
     }
+    /*if (window._pbjsGlobals !== undefined) {
+        for (let wrapper of window._pbjsGlobals) {
+            prebidWrappers.push(overlayFrameDoc[wrapper]);
+        }
+    }*/
     // In some configurations, the wrapper is inside iframes
     else {
         const iframes = document.getElementsByTagName("iframe");
-        for (let i = 0; i < iframes.length; i++) { 
+        for (let iframe of iframes) { 
             try {
-                const overlayFrameDoc = iframes[i].contentWindow;
+                const overlayFrameDoc = iframe.contentWindow;
                 if (overlayFrameDoc._pbjsGlobals !== undefined) {
-
+                    for (let wrapper of overlayFrameDoc._pbjsGlobals) {
+                        prebidWrappers.push(overlayFrameDoc[wrapper]);
+                    }
                 }
             } catch (error) {
             }
@@ -931,6 +940,7 @@ function check() {
     checkAdagioModule();
     checkAdagioLocalStorage();
     checkAdagioAdUnitParams();
+    checkAdagioUserSync();
     checkCurrencyModule();
     checkSupplyChainObject();
     checkAdagioCMP();
@@ -1036,6 +1046,29 @@ function checkAdagioAdUnitParams() {
         }
 		// Fill the Adunits table with all the requested bids
 		appendAdUnitsRow(prebidBidders, prebidBids);
+    }
+}
+
+function checkAdagioUserSync() {
+    // Adagio strongly recommends enabling user syncing through iFrames. 
+    // This functionality improves DSP user match rates and increases the bid rate and bid price.
+    if (prebidObject === undefined) {
+        appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.USERSYNC, ADAGIOERRORS.PREBIDNOTFOUND);
+    }
+    else {
+        const prebidUserSync = prebidObject.getConfig('userSync');
+        if (prebidUserSync === undefined) {
+            appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.USERSYNC, `<code>${prebidWrapper}.getConfig('userSync')</code>: <code>${prebidUserSync}</code>`);
+        }
+        else {
+            const adagioUserSync = pbjs.getConfig('userSync').userIds.find(e => e.name === 'adagio');
+            if (adagioUserSync !== undefined) {
+                appendCheckerRow(STATUSBADGES.OK, ADAGIOCHECK.USERSYNC, `<code>${JSON.stringify(adagioUserSync)}</code>`);
+            }
+            else {
+                appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.USERSYNC, `<code>${prebidWrapper}.getConfig('userSync').userIds.find(e => e.name === 'adagio')</code>: <code>${adagioUserSync}</code>`);
+            }
+        }
     }
 }
 
