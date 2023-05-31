@@ -55,7 +55,8 @@ const ADAGIOTABSNAME = Object.freeze({
     MANAGER: 'Manager',
     CHECKER: 'Checker',
     ADUNITS: 'Adunits',
-    CONSENTS: 'Consents'
+    CONSENTS: 'Consents',
+    BUYERUIDS: 'BuyerUids'
 });
 
 const COLOR = Object.freeze({
@@ -94,7 +95,8 @@ const ADAGIOERRORS = Object.freeze({
 
 const ADAGIOLINKS = {
     WEBSITE: 'https://adagio.io/',
-    MANAGER: 'https://app.adagio.io/'
+    MANAGER: 'https://app.adagio.io/',
+    BUYERUIDS: 'https://u.4dex.io/healthcheck'
 };
 
 const ADAGIOPARAMS = {
@@ -117,6 +119,7 @@ createManagerDiv();
 createCheckerDiv();
 createAdUnitsDiv();
 createConsentsDiv();
+createBuyerUidsDiv();
 makeIframeDraggable();
 check();
 
@@ -217,6 +220,7 @@ function buildOverlayHtml() {
     ul.appendChild(buildTabButton(ADAGIOTABSNAME.CHECKER, ADAGIOSVG.CHECKER, true));
     ul.appendChild(buildTabButton(ADAGIOTABSNAME.ADUNITS, ADAGIOSVG.ADUNITS, false));
     ul.appendChild(buildTabButton(ADAGIOTABSNAME.CONSENTS, ADAGIOSVG.CONSENTS, false));
+    ul.appendChild(buildTabButton(ADAGIOTABSNAME.BUYERUIDS, ADAGIOSVG.CONSENTS, false));
     ul.appendChild(buildPrebidButton('Prebid versions detected', ADAGIOSVG.PREBID, true));
     ul.appendChild(buildOverlayButton('Show adunits overlay', ADAGIOSVG.EYECLOSED, false));
     ul.appendChild(buildRefreshButton('Refresh', ADAGIOSVG.REFRESH, true));
@@ -638,6 +642,61 @@ function createConsentsDiv() {
     overlayFrameDoc.body.appendChild(mainContainer);
 }
 
+function createBuyerUidsDiv() {
+
+
+    // build id name
+    const tabName = ADAGIOTABSNAME.BUYERUIDS.toLowerCase().replace(' ', '-');
+
+    // create main container element
+    const mainContainer = overlayFrameDoc.createElement('main');
+    mainContainer.classList.add('container-fluid');
+    mainContainer.setAttribute('id', `${tabName}-container`);
+    mainContainer.style.display = "none";
+    mainContainer.style.paddingTop = '5rem';
+    mainContainer.style.paddingBottom = '0';
+
+    // create headings container
+    const headings = overlayFrameDoc.createElement('div');
+    headings.classList.add('headings');
+
+    const h2 = overlayFrameDoc.createElement('h2');
+    h2.textContent = 'Consents';
+    const h3 = overlayFrameDoc.createElement('h3');
+    h3.textContent = 'User synchronization for Adagio partners';
+    headings.appendChild(h2);
+    headings.appendChild(h3);
+
+    // create table element
+    const table = overlayFrameDoc.createElement('table');
+    const thead = overlayFrameDoc.createElement('thead');
+    const tr = overlayFrameDoc.createElement('tr');
+    const th1 = overlayFrameDoc.createElement('th');
+    th1.setAttribute('scope', 'col');
+    th1.textContent = 'Partner';
+    const th2 = overlayFrameDoc.createElement('th');
+    th2.setAttribute('scope', 'col');
+    th2.textContent = 'Uids';
+    const th3 = overlayFrameDoc.createElement('th');
+    th3.setAttribute('scope', 'col');
+    th3.textContent = 'Sync';
+    tr.appendChild(th1);
+    tr.appendChild(th2);
+    tr.appendChild(th3);
+    thead.appendChild(tr);
+    const tbody = overlayFrameDoc.createElement('tbody');
+    tbody.setAttribute('id', `${tabName}-tbody`);
+    table.appendChild(thead);
+    table.appendChild(tbody);
+
+    // append navigation, headings, and table to main container
+    mainContainer.appendChild(headings);
+    mainContainer.appendChild(table);
+
+    // append the container to the body
+    overlayFrameDoc.body.appendChild(mainContainer);
+}
+
 function switchTab(tabName) {
     // switch visible div and button outline
     if (tabName !== activeTab) {
@@ -933,6 +992,29 @@ function makeIframeDraggable() {
     });
 }
 
+function base64Decode(base64String) {
+    var base64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+    var bufferLength = base64String.length * 0.75;
+    var len = base64String.length;
+    var decodedBytes = new Uint8Array(bufferLength);
+  
+    var p = 0;
+    var encoded1, encoded2, encoded3, encoded4;
+  
+    for (var i = 0; i < len; i += 4) {
+      encoded1 = base64.indexOf(base64String[i]);
+      encoded2 = base64.indexOf(base64String[i + 1]);
+      encoded3 = base64.indexOf(base64String[i + 2]);
+      encoded4 = base64.indexOf(base64String[i + 3]);
+  
+      decodedBytes[p++] = (encoded1 << 2) | (encoded2 >> 4);
+      decodedBytes[p++] = ((encoded2 & 15) << 4) | (encoded3 >> 2);
+      decodedBytes[p++] = ((encoded3 & 3) << 6) | (encoded4 & 63);
+    }
+  
+    return new TextDecoder().decode(decodedBytes);
+  }
+
 /*************************************************************************************************************************************************************************************************************************************
  * PBJS functions
  ************************************************************************************************************************************************************************************************************************************/
@@ -1064,14 +1146,16 @@ function checkAdagioUserSync() {
         }
         else {
             const prebidUserSyncIframe = prebidUserSync?.filterSettings?.iframe;
-            if (prebidUserSyncIframe === undefined) {
-                appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.USERSYNC, `<code>${prebidWrapper}.getConfig('userSync').filterSettings.iframe</code>: <code>${prebidUserSyncIframe}</code>`);
-            }
-            else if ((prebidUserSyncIframe?.bidders.includes('adagio') || prebidUserSyncIframe?.bidders.includes('*')) && prebidUserSyncIframe?.filter === 'include') {
+            const prebidUserSyncAll = prebidUserSync?.filterSettings?.all;
+
+            if (prebidUserSyncIframe !== undefined && (prebidUserSyncIframe?.bidders.includes('adagio') || prebidUserSyncIframe?.bidders.includes('*')) && prebidUserSyncIframe?.filter === 'include') {
                 appendCheckerRow(STATUSBADGES.OK, ADAGIOCHECK.USERSYNC, `<code>${JSON.stringify(prebidUserSyncIframe)}</code>`);
             }
+            else if (prebidUserSyncAll !== undefined && prebidUserSyncAll?.bidders.includes('*') && prebidUserSyncAll?.filter === 'include') {
+                appendCheckerRow(STATUSBADGES.OK, ADAGIOCHECK.USERSYNC, `<code>${JSON.stringify(prebidUserSyncAll)}</code>`);
+            }
             else {
-                appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.USERSYNC, `<code>${JSON.stringify(prebidUserSyncIframe)}</code>`);
+                appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.USERSYNC, `<code>${JSON.stringify(prebidUserSync)}</code>`);
             }
         }
     }
@@ -1128,6 +1212,7 @@ function checkAdagioCMP() {
     }
     // Gives the Consent Management strings values
     window.__tcfapi('getTCData', 2, (tcdata, success) => {
+        
         const cmpAdagioBidders = new Map();
         cmpAdagioBidders.set(617, 'Adagio');
         cmpAdagioBidders.set(58, '33Across');
