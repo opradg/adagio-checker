@@ -1151,7 +1151,7 @@ function checkAdagioUserSync() {
             if (prebidUserSyncIframe !== undefined && (prebidUserSyncIframe?.bidders.includes('adagio') || prebidUserSyncIframe?.bidders.includes('*')) && prebidUserSyncIframe?.filter === 'include') {
                 appendCheckerRow(STATUSBADGES.OK, ADAGIOCHECK.USERSYNC, `<code>${JSON.stringify(prebidUserSyncIframe)}</code>`);
             }
-            else if (prebidUserSyncAll !== undefined && prebidUserSyncAll?.bidders.includes('*') && prebidUserSyncAll?.filter === 'include') {
+            else if (prebidUserSyncAll !== undefined && (prebidUserSyncAll?.bidders.includes('adagio') || prebidUserSyncAll?.bidders.includes('*')) && prebidUserSyncAll?.filter === 'include') {
                 appendCheckerRow(STATUSBADGES.OK, ADAGIOCHECK.USERSYNC, `<code>${JSON.stringify(prebidUserSyncAll)}</code>`);
             }
             else {
