@@ -119,7 +119,7 @@ createManagerDiv();
 createCheckerDiv();
 createAdUnitsDiv();
 createConsentsDiv();
-createBuyerUidsDiv();
+// createBuyerUidsDiv();
 makeIframeDraggable();
 check();
 
@@ -220,7 +220,7 @@ function buildOverlayHtml() {
     ul.appendChild(buildTabButton(ADAGIOTABSNAME.CHECKER, ADAGIOSVG.CHECKER, true));
     ul.appendChild(buildTabButton(ADAGIOTABSNAME.ADUNITS, ADAGIOSVG.ADUNITS, false));
     ul.appendChild(buildTabButton(ADAGIOTABSNAME.CONSENTS, ADAGIOSVG.CONSENTS, false));
-    ul.appendChild(buildTabButton(ADAGIOTABSNAME.BUYERUIDS, ADAGIOSVG.CONSENTS, false));
+    // ul.appendChild(buildTabButton(ADAGIOTABSNAME.BUYERUIDS, ADAGIOSVG.CONSENTS, false));
     ul.appendChild(buildPrebidButton('Prebid versions detected', ADAGIOSVG.PREBID, true));
     ul.appendChild(buildOverlayButton('Show adunits overlay', ADAGIOSVG.EYECLOSED, false));
     ul.appendChild(buildRefreshButton('Refresh', ADAGIOSVG.REFRESH, true));
@@ -643,7 +643,6 @@ function createConsentsDiv() {
 }
 
 function createBuyerUidsDiv() {
-
 
     // build id name
     const tabName = ADAGIOTABSNAME.BUYERUIDS.toLowerCase().replace(' ', '-');
@@ -1151,7 +1150,7 @@ function checkAdagioUserSync() {
             if (prebidUserSyncIframe !== undefined && (prebidUserSyncIframe?.bidders.includes('adagio') || prebidUserSyncIframe?.bidders.includes('*')) && prebidUserSyncIframe?.filter === 'include') {
                 appendCheckerRow(STATUSBADGES.OK, ADAGIOCHECK.USERSYNC, `<code>${JSON.stringify(prebidUserSyncIframe)}</code>`);
             }
-            else if (prebidUserSyncAll !== undefined && (prebidUserSyncAll?.bidders.includes('adagio') || prebidUserSyncAll?.bidders.includes('*')) && prebidUserSyncAll?.filter === 'include') {
+            else if (prebidUserSyncAll !== undefined && prebidUserSyncAll?.bidders.includes('*') && prebidUserSyncAll?.filter === 'include') {
                 appendCheckerRow(STATUSBADGES.OK, ADAGIOCHECK.USERSYNC, `<code>${JSON.stringify(prebidUserSyncAll)}</code>`);
             }
             else {
