@@ -80,7 +80,7 @@ const ADAGIOCHECK = Object.freeze({
     LOCALSTORAGE: 'Localstorage',
     ADUNITS: 'Adunits',
     USERSYNC: 'User sync',
-    FLOOR: 'Floor price module',
+    FLOORS: 'Floors price module',
     CURRENCY: 'Currency module',
     SCO: 'Supply chain object',
     CMP: 'Consent management platform',
@@ -1165,16 +1165,16 @@ function checkAdagioUserSync() {
 function checkFloorPriceModule() {
     // Floor price requiere Prebid as it is a Prebid module
     if (prebidObject === undefined) {
-        appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.FLOOR, ADAGIOERRORS.PREBIDNOTFOUND);
+        appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.FLOORS, ADAGIOERRORS.PREBIDNOTFOUND);
     }
     // Floor price module allow to bid regardless of the adServer currency. It's mandatory when the adServer currency isn't USD
     else {
-        const prebidFloorPrice = prebidObject.getConfig('floor');
+        const prebidFloorPrice = prebidObject.getConfig('floors');
         if (prebidFloorPrice !== undefined) {
-            appendCheckerRow(STATUSBADGES.OK, ADAGIOCHECK.FLOOR, `<code>${JSON.stringify(prebidFloorPrice)}</code>`);
+            appendCheckerRow(STATUSBADGES.OK, ADAGIOCHECK.FLOORS, `<code>${JSON.stringify(prebidFloorPrice)}</code>`);
         }
         else {
-            appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.FLOOR, `<code>${prebidWrapper}.getConfig('floor')</code>: <code>${prebidFloorPrice}</code>`);
+            appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.FLOORS, `<code>${prebidWrapper}.getConfig('floor')</code>: <code>${prebidFloorPrice}</code>`);
         }
     }
 }
