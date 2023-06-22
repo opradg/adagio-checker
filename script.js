@@ -1167,7 +1167,7 @@ function checkFloorPriceModule() {
     if (prebidObject === undefined) {
         appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.FLOORS, ADAGIOERRORS.PREBIDNOTFOUND);
     }
-    // Floor price module allow to bid regardless of the adServer currency. It's mandatory when the adServer currency isn't USD
+    // Floor price module allow to share the lower price acceptable for an adUnit with the bidders
     else {
         const prebidFloorPrice = prebidObject.getConfig('floors');
         if (prebidFloorPrice !== undefined) {
