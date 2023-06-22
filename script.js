@@ -1174,7 +1174,7 @@ function checkFloorPriceModule() {
             appendCheckerRow(STATUSBADGES.OK, ADAGIOCHECK.FLOORS, `<code>${JSON.stringify(prebidFloorPrice)}</code>`);
         }
         else {
-            appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.FLOORS, `<code>${prebidWrapper}.getConfig('floor')</code>: <code>${prebidFloorPrice}</code>`);
+            appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.FLOORS, `<code>${prebidWrapper}.getConfig('floors')</code>: <code>${prebidFloorPrice}</code>`);
         }
     }
 }
