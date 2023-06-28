@@ -788,6 +788,7 @@ function appendAdUnitsRow(bidders, bids) {
             mediatypesCell.innerHTML += `<code>${mediaType}</code>: `;
             for (const size in mediaTypes[mediaType].sizes) {
                 mediatypesCell.innerHTML += `<code>${JSON.stringify(mediaTypes[mediaType].sizes[size])}</code>`;
+                // DEAL WITH PLAYERSIZE for VIDEO
             }
         }
         bidderParamButton.innerHTML = `${bidderId}`;
@@ -1025,10 +1026,10 @@ function base64Decode(base64String) {
     const tr = overlayFrameDoc.createElement('tr');
     const th1 = overlayFrameDoc.createElement('th');
     th1.setAttribute('scope', 'col');
-    th1.textContent = 'Parameter';
+    th1.textContent = 'Status';
     const th2 = overlayFrameDoc.createElement('th');
     th2.setAttribute('scope', 'col');
-    th2.textContent = 'Value';
+    th2.textContent = 'Parameter';
     const th3 = overlayFrameDoc.createElement('th');
     th3.setAttribute('scope', 'col');
     th3.textContent = 'Details';
@@ -1041,89 +1042,126 @@ function base64Decode(base64String) {
     table.appendChild(thead);
     table.appendChild(tbody);
 
-    let paramOrganizationId = bid.params.organizationId;
-    let paramSite = bid.params.site;
-    let paramPlacement = bid.params.placement;
-    let paramAdUnitElementId = bid.params.adUnitElementId;
+    // Check the adagio bidder params
+    let paramOrganizationId = bid.params?.organizationId;
+    let paramSite = bid.params?.site;
+    let paramPlacement = bid.params?.placement;
+    let paramAdUnitElementId = bid?.params.adUnitElementId;
 
     // Check the organizationId
-    if (paramOrganizationId === undefined) {
-        // LOG: parameter not found
-        appendParametersCheckerTableRow(tbody, 'Organization ID', '', 'Parameter not found');
-    }
+    if (paramOrganizationId === undefined) appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>params.organizationId</code>', 'Parameter not found...');
     else {
-        if (paramOrganizationId.length !== 4) {
-            // LOG: more than 4 characters
-            appendParametersCheckerTableRow(tbody, 'Organization ID', paramOrganizationId, 'More than 4 characters');
-        }
-        else if (/\D/.test(paramOrganizationId) !== false) {
-            // LOG: not only numbers
-            appendParametersCheckerTableRow(tbody, 'Organization ID', paramOrganizationId, 'Not only numbers');
-        }
-        else {
-            // LOG: OK
-            appendParametersCheckerTableRow(tbody, 'Organization ID', paramOrganizationId, 'OK');
-        }
+        if (paramOrganizationId.length !== 4) appendParametersCheckerTableRow(tbody, STATUSBADGES.CHECK, '<code>params.organizationId</code>', `More than 4 characters: <code>${paramOrganizationId}</code>`);
+        else if (/\D/.test(paramOrganizationId) !== false) appendParametersCheckerTableRow(tbody, STATUSBADGES.CHECK, '<code>params.organizationId</code>', `Not only numbers:  <code>${paramOrganizationId}</code>`);
+        else appendParametersCheckerTableRow(tbody, STATUSBADGES.OK, '<code>params.organizationId</code>', `<code>${paramOrganizationId}</code>`);
     }
 
     // Check the site name
-    if (paramSite === undefined) {
-        // LOG: parameter not found
-    }
+    if (paramSite === undefined) appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>params.site</code>', 'Parameter not found...');
     else {
-        if (/mobile/i.test(paramSite) || /desktop/i.test(paramSite) || /tablet/i.test(paramSite)) {
-            // LOG: string includes reference to an environment. Use environment parameter instead
-        }
-        else {
-            // LOG: OK
-        }
-    }
-
-    // Check the placement
-    if (paramPlacement === undefined) {
-        // LOG: parameter not found
-    }
-    else {
-        if (paramPlacement.trim() !== paramSite) {
-            // LOG: space character at the beginning or end of the string
-        }
-        else {
-            // LOG: OK
-        }
+        if (paramSite.trim() !== paramSite) appendParametersCheckerTableRow(tbody, STATUSBADGES.CHECK, '<code>params.site</code>', `Space character at the beginning or end of the string: <code>${paramSite}</code>`);
+        if (/mobile/i.test(paramSite) || /desktop/i.test(paramSite) || /tablet/i.test(paramSite)) appendParametersCheckerTableRow(tbody, STATUSBADGES.CHECK, '<code>params.site</code>', `Includes reference to an environment: <code>${paramSite}</code>`);
+        else appendParametersCheckerTableRow(tbody, STATUSBADGES.OK, '<code>params.site</code>', `<code>${paramSite}</code>`);
     }
 
     // Check the adUnitElementId
-    if (paramAdUnitElementId === undefined) {
-        // LOG: parameter not found
-    }
+    if (paramAdUnitElementId === undefined) appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>params.placement</code>', 'Parameter not found...');
     else {
         const htlmDiv = document.getElementById(paramAdUnitElementId);
-        if (htlmDiv === null) {
-            // LOG: div id not found
+        if (paramAdUnitElementId.trim() !== paramAdUnitElementId) appendParametersCheckerTableRow(tbody, STATUSBADGES.CHECK, '<code>params.adUnitElementId</code>', `Space character at the beginning or end of the string: <code>${paramAdUnitElementId}</code>`);
+        else if (htlmDiv === null) appendParametersCheckerTableRow(tbody, STATUSBADGES.CHECK, '<code>params.adUnitElementId</code>', `Id not found: <code>${paramAdUnitElementId}</code>`);
+        else appendParametersCheckerTableRow(tbody, STATUSBADGES.OK, '<code>params.adUnitElementId</code>', `<code>${paramAdUnitElementId}</code>`);
+    }
+
+    // Check the placement
+    if (paramPlacement === undefined) appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>params.placement</code>', 'Parameter not found...');
+    else {
+        if (paramPlacement.trim() !== paramPlacement) appendParametersCheckerTableRow(tbody, STATUSBADGES.CHECK, '<code>params.placement</code>', `Space character at the beginning or end of the string: <code>${paramPlacement}</code>`);
+        else appendParametersCheckerTableRow(tbody, STATUSBADGES.OK, '<code>params.placement</code>', `<code>${paramPlacement}</code>`);
+    }
+
+    // Check the mediatypes
+    let mediatypeBanner = bid.mediaTypes?.banner;
+    let mediatypeVideo = bid.mediaTypes?.video;
+    let mediatypeNative = bid.mediaTypes?.native;
+
+    if (mediatypeBanner === undefined && mediatypeVideo === undefined && mediatypeNative === undefined) appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediatype</code>', `No mediatype found: <code>${JSON.stringify(bid.mediaTypes)}</code>`);
+    else {
+        if (mediatypeBanner !== undefined) {
+            let mediatypeBannerSizes = mediatypeBanner?.sizes;
+
+            // Check the banner sizes
+            if (mediatypeBannerSizes !== undefined) {
+                let supportedSizes = [[160,600],[250,250],[300,100],[300,250],[300,300],[300,50],[300,600],[320,100],[320,160],[320,320],[320,480],[320,50],[336,280],[728,90],[800,250],[930,180],[970,250],[970,90],[1800,1000]];
+                let commonArrays = [];
+                supportedSizes.forEach(ss => {
+                    mediatypeBannerSizes.forEach(mbs => {
+                        if (JSON.stringify(ss) === JSON.stringify(mbs)) commonArrays.push(ss);
+                    });
+                });
+                if (commonArrays.length > 0) appendParametersCheckerTableRow(tbody, STATUSBADGES.OK, '<code>mediatype.banner.sizes</code>', `<code>${JSON.stringify(commonArrays)}</code>`);
+                else appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediatype.banner.sizes</code>', `No supported size: <code>${JSON.stringify(mediatypeBannerSizes)}</code>`);
+            }
+            else appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediatype.banner.sizes</code>', `No parameter found...`);
         }
-        else {
-            // LOG: OK
+
+        if (mediatypeVideo !== undefined) {
+            let mediatypeVideoContext = mediatypeVideo?.context;
+            let mediatypeVideoPlayerSize = mediatypeVideo?.playerSize;
+            let mediatypeVideoApi = mediatypeVideo?.api;
+            let mediatypeVideoPlaybackMethod = mediatypeVideo?.playbackMethod;
+
+            // Check the video context
+            if (mediatypeVideoContext !== undefined) {
+                if (mediatypeVideoContext === 'outstream') appendParametersCheckerTableRow(tbody, STATUSBADGES.OK, '<code>mediatype.video.context</code>', `<code>${JSON.stringify(mediatypeVideoContext)}</code>`);
+                else appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediatype.video.context</code>', `Different of <code>outstream<code>: <code>${JSON.stringify(mediatypeVideoContext)}</code>`);
+            }
+            else appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediatype.video.context</code>', `No parameter found...`);
+
+            // Check the video playerSize
+            if (mediatypeVideoPlayerSize !== undefined) appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediatype.video.playerSize</code>', `<code>${JSON.stringify(mediatypeVideoPlayerSize)}</code>`);
+            else appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediatype.video.playerSize</code>', `No parameter found...`);
+
+            // Check the video api
+            if (mediatypeVideoApi !== undefined) {
+                if (!mediatypeVideoApi.includes('2') && !mediatypeVideoApi.includes('7')) appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediatype.video.api</code>', `Api <code>2<code> and <code>7<code> not found: ${JSON.stringify(mediatypeVideoApi)}</code>`);
+                else if (!mediatypeVideoApi.includes('2')) appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediatype.video.api</code>', `Api <code>2<code> not found: ${JSON.stringify(mediatypeVideoApi)}</code>`);
+                else if (!mediatypeVideoApi.includes('7')) appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediatype.video.api</code>', `Api <code>7<code> not found: ${JSON.stringify(mediatypeVideoApi)}</code>`);
+                else appendParametersCheckerTableRow(tbody, STATUSBADGES.OK, '<code>mediatype.video.api</code>', `<code>${JSON.stringify(mediatypeVideoApi)}</code>`);
+            }
+            else appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediatype.video.api</code>', `No parameter found...`);
+
+            // Check the video playbackMethod
+            if (mediatypeVideoPlaybackMethod !== undefined) {
+                if (!mediatypeVideoPlaybackMethod.includes('6')) appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediatype.video.playbackMethod</code>', `PlaybackMethod <code>2<code> and <code>7<code> not found: ${JSON.stringify(mediatypeVideoPlaybackMethod)}</code>`);
+                else appendParametersCheckerTableRow(tbody, STATUSBADGES.OK, '<code>mediatype.video.playbackMethod</code>', `<code>${JSON.stringify(mediatypeVideoPlaybackMethod)}</code>`);
+            }
+            else appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediatype.video.playbackMethod</code>', `No parameter found...`);
+        }
+
+        if (mediatypeNative !== undefined) {
+            // TODO
         }
     }
 
     paragraph.appendChild(table);
   }
 
-  function appendParametersCheckerTableRow(tbody, parameter, value, status) {
+  function appendParametersCheckerTableRow(tbody, status, parameter, details) {
     // Create the row
     const newRow = overlayFrameDoc.createElement('tr');
     // Create the cells
     const statusCell = overlayFrameDoc.createElement('td');
-    const nameCell = overlayFrameDoc.createElement('td');
+    const parameterCell = overlayFrameDoc.createElement('td');
     const detailsCell = overlayFrameDoc.createElement('td');
     // Fill the cells
-    statusCell.innerHTML = parameter;
-    nameCell.innerHTML = value;
-    detailsCell.innerHTML = status;
+    statusCell.innerHTML = status;
+    parameterCell.innerHTML = parameter;
+    detailsCell.innerHTML = details;
     // Add the cells
     tbody.appendChild(newRow);
     newRow.appendChild(statusCell);
-    newRow.appendChild(nameCell);
+    newRow.appendChild(parameterCell);
     newRow.appendChild(detailsCell);
 }
 
