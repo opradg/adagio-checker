@@ -1085,7 +1085,7 @@ function base64Decode(base64String) {
     let mediatypeVideo = bid.mediaTypes?.video;
     let mediatypeNative = bid.mediaTypes?.native;
 
-    if (mediatypeBanner === undefined && mediatypeVideo === undefined && mediatypeNative === undefined) appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediatype</code>', `No mediatype found: <code>${JSON.stringify(bid.mediaTypes)}</code>`);
+    if (mediatypeBanner === undefined && mediatypeVideo === undefined && mediatypeNative === undefined) appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediaTypes</code>', `No mediatype found: <code>${JSON.stringify(bid.mediaTypes)}</code>`);
     else {
         if (mediatypeBanner !== undefined) {
             let mediatypeBannerSizes = mediatypeBanner?.sizes;
@@ -1099,10 +1099,10 @@ function base64Decode(base64String) {
                         if (JSON.stringify(ss) === JSON.stringify(mbs)) commonArrays.push(ss);
                     });
                 });
-                if (commonArrays.length > 0) appendParametersCheckerTableRow(tbody, STATUSBADGES.OK, '<code>mediatype.banner.sizes</code>', `<code>${JSON.stringify(commonArrays)}</code>`);
-                else appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediatype.banner.sizes</code>', `No supported size: <code>${JSON.stringify(mediatypeBannerSizes)}</code>`);
+                if (commonArrays.length > 0) appendParametersCheckerTableRow(tbody, STATUSBADGES.OK, '<code>mediaTypes.banner.sizes</code>', `<code>${JSON.stringify(commonArrays)}</code>`);
+                else appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediaTypes.banner.sizes</code>', `No supported size: <code>${JSON.stringify(mediatypeBannerSizes)}</code>`);
             }
-            else appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediatype.banner.sizes</code>', `No parameter found...`);
+            else appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediaTypes.banner.sizes</code>', `No parameter found...`);
         }
 
         if (mediatypeVideo !== undefined) {
@@ -1113,30 +1113,30 @@ function base64Decode(base64String) {
 
             // Check the video context
             if (mediatypeVideoContext !== undefined) {
-                if (mediatypeVideoContext === 'outstream') appendParametersCheckerTableRow(tbody, STATUSBADGES.OK, '<code>mediatype.video.context</code>', `<code>${mediatypeVideoContext}</code>`);
-                else appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediatype.video.context</code>', `Different of <code>outstream<code>: <code>${JSON.stringify(mediatypeVideoContext)}</code>`);
+                if (mediatypeVideoContext === 'outstream') appendParametersCheckerTableRow(tbody, STATUSBADGES.OK, '<code>mediaTypes.video.context</code>', `<code>${mediatypeVideoContext}</code>`);
+                else appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediaTypes.video.context</code>', `Different of <code>outstream<code>: <code>${JSON.stringify(mediatypeVideoContext)}</code>`);
             }
-            else appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediatype.video.context</code>', `No parameter found...`);
+            else appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediaTypes.video.context</code>', `No parameter found...`);
 
             // Check the video playerSize
-            if (mediatypeVideoPlayerSize !== undefined) appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediatype.video.playerSize</code>', `<code>${JSON.stringify(mediatypeVideoPlayerSize)}</code>`);
-            else appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediatype.video.playerSize</code>', `No parameter found...`);
+            if (mediatypeVideoPlayerSize !== undefined) appendParametersCheckerTableRow(tbody, STATUSBADGES.OK, '<code>mediaTypes.video.playerSize</code>', `<code>${JSON.stringify(mediatypeVideoPlayerSize)}</code>`);
+            else appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediaTypes.video.playerSize</code>', `No parameter found...`);
 
             // Check the video api
             if (mediatypeVideoApi !== undefined) {
-                if (!mediatypeVideoApi.includes('2') && !mediatypeVideoApi.includes('7')) appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediatype.video.api</code>', `Api <code>2<code> and <code>7<code> not found: ${JSON.stringify(mediatypeVideoApi)}</code>`);
-                else if (!mediatypeVideoApi.includes('2')) appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediatype.video.api</code>', `Api <code>2<code> not found: ${JSON.stringify(mediatypeVideoApi)}</code>`);
-                else if (!mediatypeVideoApi.includes('7')) appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediatype.video.api</code>', `Api <code>7<code> not found: ${JSON.stringify(mediatypeVideoApi)}</code>`);
-                else appendParametersCheckerTableRow(tbody, STATUSBADGES.OK, '<code>mediatype.video.api</code>', `<code>${JSON.stringify(mediatypeVideoApi)}</code>`);
+                if (!mediatypeVideoApi.includes('2') && !mediatypeVideoApi.includes('7')) appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediaTypes.video.api</code>', `Api <code>2<code> and <code>7<code> not found: ${JSON.stringify(mediatypeVideoApi)}</code>`);
+                else if (!mediatypeVideoApi.includes('2')) appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediaTypes.video.api</code>', `Api <code>2<code> not found: ${JSON.stringify(mediatypeVideoApi)}</code>`);
+                else if (!mediatypeVideoApi.includes('7')) appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediaTypes.video.api</code>', `Api <code>7<code> not found: ${JSON.stringify(mediatypeVideoApi)}</code>`);
+                else appendParametersCheckerTableRow(tbody, STATUSBADGES.OK, '<code>mediaTypes.video.api</code>', `<code>${JSON.stringify(mediatypeVideoApi)}</code>`);
             }
-            else appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediatype.video.api</code>', `No parameter found...`);
+            else appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediaTypes.video.api</code>', `No parameter found...`);
 
             // Check the video playbackMethod
             if (mediatypeVideoPlaybackMethod !== undefined) {
-                if (!mediatypeVideoPlaybackMethod.includes('6')) appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediatype.video.playbackMethod</code>', `PlaybackMethod <code>2<code> and <code>7<code> not found: ${JSON.stringify(mediatypeVideoPlaybackMethod)}</code>`);
-                else appendParametersCheckerTableRow(tbody, STATUSBADGES.OK, '<code>mediatype.video.playbackMethod</code>', `<code>${JSON.stringify(mediatypeVideoPlaybackMethod)}</code>`);
+                if (!mediatypeVideoPlaybackMethod.includes('6')) appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediaTypes.video.playbackMethod</code>', `PlaybackMethod <code>2<code> and <code>7<code> not found: ${JSON.stringify(mediatypeVideoPlaybackMethod)}</code>`);
+                else appendParametersCheckerTableRow(tbody, STATUSBADGES.OK, '<code>mediaTypes.video.playbackMethod</code>', `<code>${JSON.stringify(mediatypeVideoPlaybackMethod)}</code>`);
             }
-            else appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediatype.video.playbackMethod</code>', `No parameter found...`);
+            else appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediaTypes.video.playbackMethod</code>', `No parameter found...`);
         }
 
         if (mediatypeNative !== undefined) {
