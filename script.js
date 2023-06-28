@@ -1080,7 +1080,7 @@ function base64Decode(base64String) {
         else appendParametersCheckerTableRow(tbody, STATUSBADGES.OK, '<code>params.placement</code>', `<code>${paramPlacement}</code>`);
     }
 
-    // Check the mediatypes
+    // Check the mediatypes parameters
     let mediatypeBanner = bid.mediaTypes?.banner;
     let mediatypeVideo = bid.mediaTypes?.video;
     let mediatypeNative = bid.mediaTypes?.native;
@@ -1113,7 +1113,7 @@ function base64Decode(base64String) {
 
             // Check the video context
             if (mediatypeVideoContext !== undefined) {
-                if (mediatypeVideoContext === 'outstream') appendParametersCheckerTableRow(tbody, STATUSBADGES.OK, '<code>mediatype.video.context</code>', `<code>${JSON.stringify(mediatypeVideoContext)}</code>`);
+                if (mediatypeVideoContext === 'outstream') appendParametersCheckerTableRow(tbody, STATUSBADGES.OK, '<code>mediatype.video.context</code>', `<code>${mediatypeVideoContext}</code>`);
                 else appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediatype.video.context</code>', `Different of <code>outstream<code>: <code>${JSON.stringify(mediatypeVideoContext)}</code>`);
             }
             else appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediatype.video.context</code>', `No parameter found...`);
