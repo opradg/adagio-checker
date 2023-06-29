@@ -79,6 +79,7 @@ const ADAGIOCHECK = Object.freeze({
     ADAPTER: 'Adagio adapter',
     LOCALSTORAGE: 'Localstorage',
     ADUNITS: 'Adunits',
+    DUPLICATED: 'Duplicated adUnitCode',
     USERSYNC: 'User sync',
     FLOORS: 'Floors price module',
     CURRENCY: 'Currency module',
@@ -1174,6 +1175,7 @@ function check() {
     checkAdagioModule();
     checkAdagioLocalStorage();
     checkAdagioAdUnitParams();
+    checkDuplicatedAdUnitCode();
     checkAdagioUserSync();
     checkFloorPriceModule();
     checkCurrencyModule();
@@ -1281,6 +1283,35 @@ function checkAdagioAdUnitParams() {
         }
         // Fill the Adunits table with all the requested bids
         appendAdUnitsRow(prebidBidders, prebidBids);
+    }
+}
+
+function checkDuplicatedAdUnitCode() {
+    // In one bidRequest, we shall find only one occurence of each adUnit code detected
+    // If not, it will be refused
+    if (prebidObject === undefined) {
+        appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.DUPLICATED, ADAGIOERRORS.PREBIDNOTFOUND);
+    }
+    else {
+        const duplicates = [];
+        const adgioBidsRequested = prebidBidsRequested.filter(e => e.bidderCode.toLowerCase().includes('adagio'));
+        
+        adgioBidsRequested.forEach(bidRequested => {
+            const adUnitCodes = new Set();
+            bidRequested.bids.forEach(bid => {
+                // console.log(bid);
+                if (adUnitCodes.has(bid.adUnitCode)) {
+                    if (!duplicates.includes(bid.adUnitCode)) duplicates.push(bid.adUnitCode);
+                } 
+                else {
+                    adUnitCodes.add(bid.adUnitCode);
+                }
+            });
+        });
+    
+        console.log(duplicates);
+        if (duplicates.length !== 0) appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.DUPLICATED, `<code>${duplicates}</code>`);
+        else appendCheckerRow(STATUSBADGES.OK, ADAGIOCHECK.DUPLICATED, `No duplicated found`);
     }
 }
 
