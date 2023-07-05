@@ -183,12 +183,13 @@ function getPrebidWrappers() {
         prebidWrapper = pbjsGlobals.includes('pbjs') ? 'pbjs' : pbjsGlobals[0];
         prebidObject = window[prebidWrapper];
     }
+
+    // In some configurations, the wrapper is inside iframes
     /*if (window._pbjsGlobals !== undefined) {
         for (let wrapper of window._pbjsGlobals) {
             prebidWrappers.push(overlayFrameDoc[wrapper]);
         }
     }
-    // In some configurations, the wrapper is inside iframes
     else {
         const iframes = document.getElementsByTagName("iframe");
         for (let iframe of iframes) {
@@ -1125,16 +1126,16 @@ function base64Decode(base64String) {
 
             // Check the video api
             if (mediatypeVideoApi !== undefined) {
-                if (!mediatypeVideoApi.includes('2') && !mediatypeVideoApi.includes('7')) appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediaTypes.video.api</code>', `Api <code>2<code> and <code>7<code> not found: ${JSON.stringify(mediatypeVideoApi)}</code>`);
-                else if (!mediatypeVideoApi.includes('2')) appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediaTypes.video.api</code>', `Api <code>2<code> not found: ${JSON.stringify(mediatypeVideoApi)}</code>`);
-                else if (!mediatypeVideoApi.includes('7')) appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediaTypes.video.api</code>', `Api <code>7<code> not found: ${JSON.stringify(mediatypeVideoApi)}</code>`);
+                if (!mediatypeVideoApi.includes(2) && !mediatypeVideoApi.includes(7)) appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediaTypes.video.api</code>', `Api <code>2</code> and <code>7</code> not found: <code>${JSON.stringify(mediatypeVideoApi)}</code>`);
+                else if (!mediatypeVideoApi.includes(2)) appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediaTypes.video.api</code>', `Api <code>2<code> not found: ${JSON.stringify(mediatypeVideoApi)}</code>`);
+                else if (!mediatypeVideoApi.includes(7)) appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediaTypes.video.api</code>', `Api <code>7<code> not found: ${JSON.stringify(mediatypeVideoApi)}</code>`);
                 else appendParametersCheckerTableRow(tbody, STATUSBADGES.OK, '<code>mediaTypes.video.api</code>', `<code>${JSON.stringify(mediatypeVideoApi)}</code>`);
             }
             else appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediaTypes.video.api</code>', `No parameter found...`);
 
             // Check the video playbackMethod
             if (mediatypeVideoPlaybackMethod !== undefined) {
-                if (!mediatypeVideoPlaybackMethod.includes('6')) appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediaTypes.video.playbackMethod</code>', `PlaybackMethod <code>2<code> and <code>7<code> not found: ${JSON.stringify(mediatypeVideoPlaybackMethod)}</code>`);
+                if (!mediatypeVideoPlaybackMethod.includes(6)) appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediaTypes.video.playbackMethod</code>', `PlaybackMethod <code>6</code> not found: <code>${JSON.stringify(mediatypeVideoPlaybackMethod)}</code>`);
                 else appendParametersCheckerTableRow(tbody, STATUSBADGES.OK, '<code>mediaTypes.video.playbackMethod</code>', `<code>${JSON.stringify(mediatypeVideoPlaybackMethod)}</code>`);
             }
             else appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediaTypes.video.playbackMethod</code>', `No parameter found...`);
