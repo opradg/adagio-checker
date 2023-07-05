@@ -1135,7 +1135,7 @@ function base64Decode(base64String) {
 
             // Check the video playbackMethod
             if (mediatypeVideoPlaybackMethod !== undefined) {
-                if (!mediatypeVideoPlaybackMethod.includes(6)) appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediaTypes.video.playbackMethod</code>', `PlaybackMethod <code>6</code> not found: <code>${JSON.stringify(mediatypeVideoPlaybackMethod)}</code>`);
+                if (!mediatypeVideoPlaybackMethod.includes(6)) appendParametersCheckerTableRow(tbody, STATUSBADGES.CHECK, '<code>mediaTypes.video.playbackMethod</code>', `PlaybackMethod <code>6</code> not found: <code>${JSON.stringify(mediatypeVideoPlaybackMethod)}</code>`);
                 else appendParametersCheckerTableRow(tbody, STATUSBADGES.OK, '<code>mediaTypes.video.playbackMethod</code>', `<code>${JSON.stringify(mediatypeVideoPlaybackMethod)}</code>`);
             }
             else appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediaTypes.video.playbackMethod</code>', `No parameter found...`);
@@ -1300,7 +1300,6 @@ function checkDuplicatedAdUnitCode() {
         adgioBidsRequested.forEach(bidRequested => {
             const adUnitCodes = new Set();
             bidRequested.bids.forEach(bid => {
-                // console.log(bid);
                 if (adUnitCodes.has(bid.adUnitCode)) {
                     if (!duplicates.includes(bid.adUnitCode)) duplicates.push(bid.adUnitCode);
                 } 
@@ -1309,8 +1308,6 @@ function checkDuplicatedAdUnitCode() {
                 }
             });
         });
-    
-        console.log(duplicates);
         if (duplicates.length !== 0) appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.DUPLICATED, `<code>${duplicates}</code>`);
         else appendCheckerRow(STATUSBADGES.OK, ADAGIOCHECK.DUPLICATED, `No duplicated found`);
     }
