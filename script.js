@@ -1062,7 +1062,6 @@ function base64Decode(base64String) {
     if (paramSite === undefined) appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>params.site</code>', 'Parameter not found...');
     else {
         if (paramSite.trim() !== paramSite) appendParametersCheckerTableRow(tbody, STATUSBADGES.CHECK, '<code>params.site</code>', `Space character at the beginning or end of the string: <code>${paramSite}</code>`);
-        if (/mobile/i.test(paramSite) || /desktop/i.test(paramSite) || /tablet/i.test(paramSite)) appendParametersCheckerTableRow(tbody, STATUSBADGES.CHECK, '<code>params.site</code>', `Includes reference to an environment: <code>${paramSite}</code>`);
         else appendParametersCheckerTableRow(tbody, STATUSBADGES.OK, '<code>params.site</code>', `<code>${paramSite}</code>`);
     }
 
@@ -1079,6 +1078,7 @@ function base64Decode(base64String) {
     if (paramPlacement === undefined) appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>params.placement</code>', 'Parameter not found...');
     else {
         if (paramPlacement.trim() !== paramPlacement) appendParametersCheckerTableRow(tbody, STATUSBADGES.CHECK, '<code>params.placement</code>', `Space character at the beginning or end of the string: <code>${paramPlacement}</code>`);
+        else if (/mobile/i.test(paramPlacement) || /desktop/i.test(paramPlacement) || /tablet/i.test(paramPlacement)) appendParametersCheckerTableRow(tbody, STATUSBADGES.CHECK, '<code>params.placement</code>', `Includes reference to an environment: <code>${paramPlacement}</code>`);
         else appendParametersCheckerTableRow(tbody, STATUSBADGES.OK, '<code>params.placement</code>', `<code>${paramPlacement}</code>`);
     }
 
