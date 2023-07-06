@@ -904,6 +904,7 @@ function createBidderParamsModal(bid) {
     const article = overlayFrameDoc.createElement('article');
     const header = overlayFrameDoc.createElement('header');
     header.textContent = bid.bidder;
+    header.style.marginBottom = '0px';
     const closeLink = overlayFrameDoc.createElement('a');
     closeLink.setAttribute('aria-label', 'Close');
     closeLink.classList.add('close');
@@ -1023,6 +1024,22 @@ function base64Decode(base64String) {
 
   function createParametersCheckTable(paragraph, bid) {
 
+    // Create the alert text
+    // create the alert article
+    const alertContainer = overlayFrameDoc.createElement('article');
+    alertContainer.style.padding = '1em';
+    alertContainer.style.marginLeft = '';
+    alertContainer.style.marginRight = '';
+    alertContainer.style.marginTop = '1em';
+    alertContainer.style.marginBottom = '1em';
+    alertContainer.style.color = COLOR.YELLOWTEXT;
+    alertContainer.style.backgroundColor = COLOR.YELLOWBACKGROUND;
+
+    const alertTextDiv = overlayFrameDoc.createElement('div');
+    alertTextDiv.innerHTML = `<small>Checks if the parameters are <b>found</b>. Not if their string value exists in the data.</small>`
+    alertContainer.appendChild(alertTextDiv);
+
+    // Create the parameter checker table
     const table = overlayFrameDoc.createElement('table');
     const thead = overlayFrameDoc.createElement('thead');
     const tr = overlayFrameDoc.createElement('tr');
@@ -1146,6 +1163,7 @@ function base64Decode(base64String) {
         }
     }
 
+    paragraph.appendChild(alertContainer);
     paragraph.appendChild(table);
   }
 
