@@ -9,9 +9,8 @@ let buttonFrameDoc = undefined;
 // Overlay current state
 let overlayVisible = true;
 // Prebid.js object, and window.ADAGIO object and events
-let pbjsGlobals = undefined;
 let prebidObject = undefined;
-let prebidWrappers = [];
+let prebidWrappers = []; // arrays of [wrapper, window] : window[wrapper]
 let prebidWrapper = undefined;
 let adagioAdapter = undefined;
 // Prebid events, bids and adUnits
@@ -176,34 +175,38 @@ function createOverlay() {
 }
 
 function getPrebidWrappers() {
-    // Look for pbjs object (pbjs, hubjs, etc...)
-    pbjsGlobals = window._pbjsGlobals;
     // To add: getGlobal() => https://github.com/prebid/Prebid.js/pull/9568
-    if (pbjsGlobals !== undefined) {
-        prebidWrapper = pbjsGlobals.includes('pbjs') ? 'pbjs' : pbjsGlobals[0];
-        prebidObject = window[prebidWrapper];
-    }
-
-    // In some configurations, the wrapper is inside iframes
-    /*if (window._pbjsGlobals !== undefined) {
+    // Look for pbjs object (pbjs, hubjs, etc...)
+    if (window._pbjsGlobals !== undefined && window._pbjsGlobals !== null) {
         for (let wrapper of window._pbjsGlobals) {
-            prebidWrappers.push(overlayFrameDoc[wrapper]);
+            prebidWrappers.push([wrapper, window]);
         }
-    }
+        prebidWrapper = prebidWrappers[0];
+        prebidObject = prebidWrapper[1][prebidWrapper[0]];
+    }    
+    // In some configurations, the wrapper is inside iframes
     else {
         const iframes = document.getElementsByTagName("iframe");
         for (let iframe of iframes) {
             try {
-                const overlayFrameDoc = iframe.contentWindow;
-                if (overlayFrameDoc._pbjsGlobals !== undefined) {
-                    for (let wrapper of overlayFrameDoc._pbjsGlobals) {
-                        prebidWrappers.push(overlayFrameDoc[wrapper]);
+                const prebidIframeDoc = iframe.contentWindow;
+                if (prebidIframeDoc._pbjsGlobals !== undefined) {
+                    for (let wrapper of prebidIframeDoc._pbjsGlobals) {
+                        prebidWrappers.push([wrapper, prebidIframeDoc]);
                     }
                 }
-            } catch (error) {
+            }
+            catch (error) {
+                console.error(error);
+                // Expected output: ReferenceError: nonExistentFunction is not defined
+                // (Note: the exact output may be browser-dependent)
             }
         }
-    }*/
+        if (prebidWrappers.length !== 0) {
+            prebidWrapper = prebidWrappers[0];
+            prebidObject = prebidWrapper[1][prebidWrapper[0]];
+        }
+    }
 }
 
 function buildOverlayHtml() {
@@ -309,8 +312,8 @@ function buildPrebidButton(name, svg, isactive) {
 
     // Get the number of wrapper found
     let nbWrappers = 0;
-    if (pbjsGlobals !== undefined) {
-        nbWrappers = pbjsGlobals.length;
+    if (prebidWrappers !== []) {
+        nbWrappers = prebidWrappers.length;
     }
 
     // As website can use different wrapper for Prebid, this button allows to switch between them
@@ -372,26 +375,27 @@ function buildPrebidButton(name, svg, isactive) {
     // Fill the modal with the list Prebid wrappers found
     for (let i = 0; i < nbWrappers; i++) {
         // Create the radio button for the current wrapper item
-        const item = pbjsGlobals[i];
+        const item = prebidWrappers[i];
         const wrapperItem = overlayFrameDoc.createElement('div');
         const itemInput = overlayFrameDoc.createElement('input');
         itemInput.setAttribute('type', 'radio');
-        itemInput.setAttribute('value', item);
+        itemInput.setAttribute('value', i);
         itemInput.setAttribute('name', 'radio-group'); // added the 'name' attribute
-        itemInput.setAttribute('id', `${item.replace(' ', '-')}-wrapper`)
+        // itemInput.setAttribute('id', `${item.replace(' ', '-')}-wrapper`)
         const itemLabel = overlayFrameDoc.createElement('label');
-        itemLabel.setAttribute('for', item);
-        itemLabel.innerHTML = item;
+        itemLabel.setAttribute('for', i);
+        itemLabel.innerHTML = item[0];
+        if (prebidWrappers[i][1] !== window) itemLabel.innerHTML += ' (iframe)';
 
         // If current wrapper is the used one at the moment, check the radio
-        if (prebidWrapper === pbjsGlobals[i]) {
+        if (prebidWrapper === item) {
             itemInput.checked = true;
         }
 
         itemInput.addEventListener("click", function () {
             if (itemInput.checked) {
-                prebidWrapper = itemInput.value;
-                prebidObject = window[prebidWrapper];
+                prebidWrapper = prebidWrappers[itemInput.value];
+                prebidObject = prebidWrapper[1][prebidWrapper[0]];
                 refreshTables();
             }
         });
@@ -754,7 +758,7 @@ function appendAdUnitsRow(bidders, bids) {
     const alertTextDiv = overlayFrameDoc.getElementById(`${tabName}-alert`);
 
     // fill the article section
-    alertTextDiv.innerHTML = '<small>Adunit(s) found:</small>';
+    alertTextDiv.innerHTML = '<small>Adunit(s) found:</small> ';
     if (prebidAdUnitsCodes !== undefined && totalPrebidAdUnitsCodes > 0) {
         for (const adUnitCode of prebidAdUnitsCodes) {
             alertTextDiv.innerHTML += `<small> <code>${adUnitCode}</code>;</small>`;
@@ -1036,7 +1040,7 @@ function base64Decode(base64String) {
     alertContainer.style.backgroundColor = COLOR.YELLOWBACKGROUND;
 
     const alertTextDiv = overlayFrameDoc.createElement('div');
-    alertTextDiv.innerHTML = `<small>Checks if the parameters are <b>found</b>. Not if their string value exists in the data.</small>`
+    alertTextDiv.innerHTML = `<small>Checks if the <code>parameters</code> are <b>found</b>. Not if their string value exists in the data.</small>`
     alertContainer.appendChild(alertTextDiv);
 
     // Create the parameter checker table
@@ -1204,11 +1208,10 @@ function check() {
 }
 
 function checkPrebidVersion() {
-    if (prebidObject === undefined) {
-        appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.PREBID, `<code>window._pbjsGlobals</code>: <code>${pbjsGlobals}</code>`);
+    if (prebidWrapper === undefined) {
+        appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.PREBID, `<code>window._pbjsGlobals</code>: <code>undefined</code>`);
     } else {
-        // Sometimes, websites deal with multiple Prebids. If there's a pbjs global, use it in priority.
-        appendCheckerRow(STATUSBADGES.OK, ADAGIOCHECK.PREBID, `<code>window._pbjsGlobals</code>: <code>${pbjsGlobals}</code>`);
+        appendCheckerRow(STATUSBADGES.OK, ADAGIOCHECK.PREBID, `<code>window._pbjsGlobals</code>: <code>${prebidWrapper[0]}</code>`);
         if (typeof prebidObject.getEvents === 'function') {
             prebidEvents = prebidObject.getEvents();
         }
@@ -1236,13 +1239,13 @@ function checkAdagioLocalStorage() {
         const localStorage = prebidObject.bidderSettings;
 
         if (localStorage.standard?.storageAllowed) {
-            appendCheckerRow(STATUSBADGES.OK, ADAGIOCHECK.LOCALSTORAGE, `<code>${prebidWrapper}.bidderSettings.standard.storageAllowed</code>: <code>true</code>`);
+            appendCheckerRow(STATUSBADGES.OK, ADAGIOCHECK.LOCALSTORAGE, `<code>${prebidWrapper[0]}.bidderSettings.standard.storageAllowed</code>: <code>true</code>`);
         } else if (localStorage.adagio?.storageAllowed) {
-            appendCheckerRow(STATUSBADGES.OK, ADAGIOCHECK.LOCALSTORAGE, `<code>${prebidWrapper}.bidderSettings.adagio.storageAllowed</code>: <code>true</code>`);
+            appendCheckerRow(STATUSBADGES.OK, ADAGIOCHECK.LOCALSTORAGE, `<code>${prebidWrapper[0]}.bidderSettings.adagio.storageAllowed</code>: <code>true</code>`);
         } else if (localStorage.adagio?.storageAllowed === false) {
-            appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.LOCALSTORAGE, `<code>${prebidWrapper}.bidderSettings.adagio.storageAllowed</code>: <code>false</code>`);
+            appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.LOCALSTORAGE, `<code>${prebidWrapper[0]}.bidderSettings.adagio.storageAllowed</code>: <code>false</code>`);
         } else if (deviceAccess === true) {
-            appendCheckerRow(STATUSBADGES.CHECK, ADAGIOCHECK.LOCALSTORAGE, `Check network for local storage (<code>${prebidWrapper}.getConfig('deviceAccess')</code>: <code>true</code>)`);
+            appendCheckerRow(STATUSBADGES.CHECK, ADAGIOCHECK.LOCALSTORAGE, `Check network for local storage (<code>${prebidWrapper[0]}.getConfig('deviceAccess')</code>: <code>true</code>)`);
         } else if (parseInt(prebidObject.version.charAt(1)) < 7) {
             appendCheckerRow(STATUSBADGES.CHECK, ADAGIOCHECK.LOCALSTORAGE, 'Prebid version lower than <code>7</code>');
         } else {
@@ -1340,7 +1343,7 @@ function checkAdagioUserSync() {
     else {
         const prebidUserSync = prebidObject.getConfig('userSync');
         if (prebidUserSync === undefined) {
-            appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.USERSYNC, `<code>${prebidWrapper}.getConfig('userSync')</code>: <code>${prebidUserSync}</code>`);
+            appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.USERSYNC, `<code>${prebidWrapper[0]}.getConfig('userSync')</code>: <code>${prebidUserSync}</code>`);
         }
         else {
             const prebidUserSyncIframe = prebidUserSync?.filterSettings?.iframe;
@@ -1371,7 +1374,7 @@ function checkFloorPriceModule() {
             appendCheckerRow(STATUSBADGES.OK, ADAGIOCHECK.FLOORS, `<code>${JSON.stringify(prebidFloorPrice)}</code>`);
         }
         else {
-            appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.FLOORS, `<code>${prebidWrapper}.getConfig('floors')</code>: <code>${prebidFloorPrice}</code>`);
+            appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.FLOORS, `<code>${prebidWrapper[0]}.getConfig('floors')</code>: <code>${prebidFloorPrice}</code>`);
         }
     }
 }
@@ -1388,7 +1391,7 @@ function checkCurrencyModule() {
             appendCheckerRow(STATUSBADGES.OK, ADAGIOCHECK.CURRENCY, `<code>${JSON.stringify(prebidCurrency)}</code>`);
         }
         else {
-            appendCheckerRow(STATUSBADGES.CHECK, ADAGIOCHECK.CURRENCY, `<code>${prebidWrapper}.getConfig('currency')</code>: <code>${prebidCurrency}</code>`);
+            appendCheckerRow(STATUSBADGES.CHECK, ADAGIOCHECK.CURRENCY, `<code>${prebidWrapper[0]}.getConfig('currency')</code>: <code>${prebidCurrency}</code>`);
         }
     }
 }
@@ -1400,8 +1403,8 @@ function checkSupplyChainObject() {
         appendConsentsRow(STATUSBADGES.KO, 'Supply chain object', ADAGIOERRORS.PREBIDNOTFOUND);
         return;
     } else if (typeof prebidObject.getEvents !== 'function') {
-        appendCheckerRow(STATUSBADGES.KO, 'Supply chain object', `<code>${pbjsGlobals}.getEvents()</code> is not a function`);
-        appendConsentsRow(STATUSBADGES.KO, 'Supply chain object', `<code>${pbjsGlobals}.getEvents()</code> is not a function`);
+        appendCheckerRow(STATUSBADGES.KO, 'Supply chain object', `<code>${prebidWrapper[0]}.getEvents()</code> is not a function`);
+        appendConsentsRow(STATUSBADGES.KO, 'Supply chain object', `<code>${prebidWrapper[0]}.getEvents()</code> is not a function`);
         return;
     }
     // Find the first Adagio bidRequested event with an SCO
@@ -1473,8 +1476,8 @@ function checkConsentMetadata() {
         appendConsentsRow(STATUSBADGES.KO, 'Consent metadata', ADAGIOERRORS.PREBIDNOTFOUND);
         return;
     } else if (typeof prebidObject.getConsentMetadata !== 'function') {
-        appendCheckerRow(STATUSBADGES.KO, 'Consent metadata', `<code>${prebidWrapper}.getConsentMetadata()</code> not a function`);
-        appendConsentsRow(STATUSBADGES.KO, 'Consent metadata', `<code>${prebidWrapper}.getConsentMetadata()</code> not a function`);
+        appendCheckerRow(STATUSBADGES.KO, 'Consent metadata', `<code>${prebidWrapper[0]}.getConsentMetadata()</code> not a function`);
+        appendConsentsRow(STATUSBADGES.KO, 'Consent metadata', `<code>${prebidWrapper[0]}.getConsentMetadata()</code> not a function`);
         return;
     }
 
@@ -1492,10 +1495,10 @@ function checkConsentMetadata() {
         // appendConsentsRow(STATUSBADGES.OK, 'Consent metadata', `<code>${JSON.stringify(consentMetadata)}</code>`);
     }
     else {
-        appendCheckerRow(STATUSBADGES.KO, 'Consent metadata', `<code>${prebidWrapper}.getConsentMetadata()</code>: <code>undefined</code>`);
+        appendCheckerRow(STATUSBADGES.KO, 'Consent metadata', `<code>${prebidWrapper[0]}.getConsentMetadata()</code>: <code>undefined</code>`);
     }
 
-    const adagioBid = prebidObject.getEvents()
+    const adagioBid = prebidEvents
         .filter(e => e.eventType === 'bidRequested') //&& e.args.bidderCode.toLowerCase().includes('adagio'))
         .map(e => e.args)
         .flat()
