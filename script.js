@@ -1028,6 +1028,9 @@ function base64Decode(base64String) {
 
   function createParametersCheckTable(paragraph, bid) {
 
+
+    console.log(bid);
+
     // Create the alert text
     // create the alert article
     const alertContainer = overlayFrameDoc.createElement('article');
@@ -1040,7 +1043,8 @@ function base64Decode(base64String) {
     alertContainer.style.backgroundColor = COLOR.YELLOWBACKGROUND;
 
     const alertTextDiv = overlayFrameDoc.createElement('div');
-    alertTextDiv.innerHTML = `<small>Checks if the <code>parameters</code> are <b>found</b>. Not if their string value exists in the data.</small>`
+    alertTextDiv.innerHTML = `<small>Checks if the <code>parameters</code> are <b>found</b>. Not if their string value exists in the data.</small>`;
+    alertTextDiv.innerHTML += `<small><br><li><code>ortb2.site.domain</code>: <code>${bid?.ortb2?.site?.domain}</code></li></small>`;
     alertContainer.appendChild(alertTextDiv);
 
     // Create the parameter checker table
