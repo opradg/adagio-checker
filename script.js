@@ -791,7 +791,7 @@ function appendAdUnitsRow(bidders, bids) {
 
         codeCell.innerHTML = `<code>${adUnitCode}</code>`;
         for (const mediaType in mediaTypes) {
-            mediatypesCell.innerHTML += `<code>${mediaType}</code>: `;
+            mediatypesCell.innerHTML += `<code>${mediaType}</code>`;
             /*for (const size in mediaTypes[mediaType].sizes) {
                 mediatypesCell.innerHTML += `<code>${JSON.stringify(mediaTypes[mediaType].sizes[size])}</code>`;
                 // DEAL WITH PLAYERSIZE for VIDEO
