@@ -792,10 +792,10 @@ function appendAdUnitsRow(bidders, bids) {
         codeCell.innerHTML = `<code>${adUnitCode}</code>`;
         for (const mediaType in mediaTypes) {
             mediatypesCell.innerHTML += `<code>${mediaType}</code>: `;
-            for (const size in mediaTypes[mediaType].sizes) {
+            /*for (const size in mediaTypes[mediaType].sizes) {
                 mediatypesCell.innerHTML += `<code>${JSON.stringify(mediaTypes[mediaType].sizes[size])}</code>`;
                 // DEAL WITH PLAYERSIZE for VIDEO
-            }
+            }*/
         }
         bidderParamButton.innerHTML = `${bidderId}`;
 
@@ -1356,7 +1356,7 @@ function checkAdagioUserSync() {
             if (prebidUserSyncIframe !== undefined && (prebidUserSyncIframe?.bidders.includes('adagio') || prebidUserSyncIframe?.bidders.includes('*')) && prebidUserSyncIframe?.filter === 'include') {
                 appendCheckerRow(STATUSBADGES.OK, ADAGIOCHECK.USERSYNC, `<code>${JSON.stringify(prebidUserSyncIframe)}</code>`);
             }
-            else if (prebidUserSyncAll !== undefined && prebidUserSyncAll?.bidders.includes('*') && prebidUserSyncAll?.filter === 'include') {
+            else if (prebidUserSyncAll !== undefined && (prebidUserSyncAll?.bidders.includes('adagio') || prebidUserSyncAll?.bidders.includes('*')) && prebidUserSyncAll?.filter === 'include') {
                 appendCheckerRow(STATUSBADGES.OK, ADAGIOCHECK.USERSYNC, `<code>${JSON.stringify(prebidUserSyncAll)}</code>`);
             }
             else {
