@@ -1028,9 +1028,6 @@ function base64Decode(base64String) {
 
   function createParametersCheckTable(paragraph, bid) {
 
-
-    console.log(bid);
-
     // Create the alert text
     // create the alert article
     const alertContainer = overlayFrameDoc.createElement('article');
@@ -1353,10 +1350,10 @@ function checkAdagioUserSync() {
             const prebidUserSyncIframe = prebidUserSync?.filterSettings?.iframe;
             const prebidUserSyncAll = prebidUserSync?.filterSettings?.all;
 
-            if (prebidUserSyncIframe !== undefined && (prebidUserSyncIframe?.bidders.includes('adagio') || prebidUserSyncIframe?.bidders.includes('*')) && prebidUserSyncIframe?.filter === 'include') {
+            if (prebidUserSyncIframe !== undefined && (prebidUserSyncIframe?.bidders.some(item => item.includes('adagio')) || prebidUserSyncIframe?.bidders.includes('*')) && prebidUserSyncIframe?.filter === 'include') {
                 appendCheckerRow(STATUSBADGES.OK, ADAGIOCHECK.USERSYNC, `<code>${JSON.stringify(prebidUserSyncIframe)}</code>`);
             }
-            else if (prebidUserSyncAll !== undefined && (prebidUserSyncAll?.bidders.includes('adagio') || prebidUserSyncAll?.bidders.includes('*')) && prebidUserSyncAll?.filter === 'include') {
+            else if (prebidUserSyncAll !== undefined && (prebidUserSyncAll?.bidders.some(item => item.includes('adagio')) || prebidUserSyncAll?.bidders.includes('*')) && prebidUserSyncAll?.filter === 'include') {
                 appendCheckerRow(STATUSBADGES.OK, ADAGIOCHECK.USERSYNC, `<code>${JSON.stringify(prebidUserSyncAll)}</code>`);
             }
             else {
