@@ -1350,10 +1350,10 @@ function checkAdagioUserSync() {
             const prebidUserSyncIframe = prebidUserSync?.filterSettings?.iframe;
             const prebidUserSyncAll = prebidUserSync?.filterSettings?.all;
 
-            if (prebidUserSyncIframe !== undefined && (prebidUserSyncIframe?.bidders.includes('*') || prebidUserSyncIframe?.bidders.some(item => item.includes('adagio'))) && prebidUserSyncIframe?.filter === 'include') {
+            if (prebidUserSyncIframe !== undefined && (prebidUserSyncIframe?.bidders.includes('*') || (Array.isArray(prebidUserSyncIframe?.bidders) && prebidUserSyncIframe.bidders.some(item => item.includes('adagio')))) && prebidUserSyncIframe?.filter === 'include') {
                 appendCheckerRow(STATUSBADGES.OK, ADAGIOCHECK.USERSYNC, `<code>${JSON.stringify(prebidUserSyncIframe)}</code>`);
             }
-            else if (prebidUserSyncAll !== undefined && (prebidUserSyncAll?.bidders.includes('*') || prebidUserSyncAll?.bidders.some(item => item.includes('adagio'))) && prebidUserSyncAll?.filter === 'include') {
+            else if (prebidUserSyncAll !== undefined && (prebidUserSyncAll?.bidders.includes('*') || (Array.isArray(prebidUserSyncIframe?.bidders) && prebidUserSyncIframe.bidders.some(item => item.includes('adagio')))) && prebidUserSyncAll?.filter === 'include') {
                 appendCheckerRow(STATUSBADGES.OK, ADAGIOCHECK.USERSYNC, `<code>${JSON.stringify(prebidUserSyncAll)}</code>`);
             }
             else {
