@@ -1418,7 +1418,7 @@ function checkSupplyChainObject() {
         appendCheckerRow(STATUSBADGES.OK, 'Supply chain object', `<code>${JSON.stringify(adagioBid.schain)}</code>`);
         // appendConsentsRow(STATUSBADGES.OK, 'Supply chain object', `<code>${JSON.stringify(adagioBid.schain)}</code>`);
     } else {
-        appendCheckerRow(STATUSBADGES.CHECK, 'Supply chain object', 'If website is owned and managed, no SCO');
+        appendCheckerRow(STATUSBADGES.CHECK, 'Supply chain object', 'If website is owned and operated, no SCO');
         // appendConsentsRow(STATUSBADGES.CHECK, 'Supply chain object', 'If website is owned and managed, no SCO');
     }
 }
