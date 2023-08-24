@@ -1204,8 +1204,8 @@ function check() {
     checkFloorPriceModule();
     checkCurrencyModule();
     checkSupplyChainObject();
-    checkAdagioCMP();
     checkConsentMetadata();
+    checkAdagioCMP();
 }
 
 function checkPrebidVersion() {
@@ -1375,7 +1375,7 @@ function checkFloorPriceModule() {
             appendCheckerRow(STATUSBADGES.OK, ADAGIOCHECK.FLOORS, `<code>${JSON.stringify(prebidFloorPrice)}</code>`);
         }
         else {
-            appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.FLOORS, `<code>${prebidWrapper[0]}.getConfig('floors')</code>: <code>${prebidFloorPrice}</code>`);
+            appendCheckerRow(STATUSBADGES.CHECK, ADAGIOCHECK.FLOORS, `<code>${prebidWrapper[0]}.getConfig('floors')</code>: <code>${prebidFloorPrice}</code>`);
         }
     }
 }
@@ -1423,10 +1423,39 @@ function checkSupplyChainObject() {
     }
 }
 
+function checkConsentMetadata() {
+
+    if (prebidObject === undefined) {
+        appendConsentsRow(STATUSBADGES.KO, 'Consents', ADAGIOERRORS.PREBIDNOTFOUND);
+        return;
+    } else if (typeof prebidObject.getConsentMetadata !== 'function') {
+        appendCheckerRow(STATUSBADGES.KO, 'Consents', `<code>${prebidWrapper[0]}.getConsentMetadata()</code> not a function`);
+        appendConsentsRow(STATUSBADGES.KO, 'Consents', `<code>${prebidWrapper[0]}.getConsentMetadata()</code> not a function`);
+        return;
+    }
+
+    let consentMetadata = prebidObject.getConsentMetadata();
+
+    if (consentMetadata !== undefined) {
+
+        let stringBuilder = '';
+        for (const consent in consentMetadata) {
+            stringBuilder += `<code>${JSON.stringify(consent)}</code>: <code>${JSON.stringify(consentMetadata[consent])}</code><br>`;
+        };
+
+        appendCheckerRow(STATUSBADGES.OK, 'Consents', stringBuilder);
+        // appendCheckerRow(STATUSBADGES.OK, 'Consent metadata', `<code>${JSON.stringify(consentMetadata)}</code>`);
+        // appendConsentsRow(STATUSBADGES.OK, 'Consent metadata', `<code>${JSON.stringify(consentMetadata)}</code>`);
+    }
+    else {
+        appendCheckerRow(STATUSBADGES.KO, 'Consents', `<code>${prebidWrapper[0]}.getConsentMetadata()</code>: <code>undefined</code>`);
+    }
+}
+
 function checkAdagioCMP() {
     if (typeof window.__tcfapi !== 'function') {
-        appendCheckerRow(STATUSBADGES.KO, 'Consent Management Platform', '<code>window.__tcfapi</code> function is not defined');
-        appendConsentsRow(STATUSBADGES.KO, 'Consent Management Platform', '<code>window.__tcfapi</code> function is not defined');
+        appendCheckerRow(STATUSBADGES.KO, 'Consent management platform', '<code>window.__tcfapi</code> function is not defined');
+        appendConsentsRow(STATUSBADGES.KO, 'Consent management platform', '<code>window.__tcfapi</code> function is not defined');
         return;
     }
     // Gives the Consent Management strings values
@@ -1464,52 +1493,9 @@ function checkAdagioCMP() {
         };
 
         if (!adagioFound) {
-            appendCheckerRow(STATUSBADGES.KO, 'Consent Management Platform', 'Adagio consent: <code>false</code>');
+            appendCheckerRow(STATUSBADGES.KO, 'Consent management platform', 'Adagio consent: <code>false</code>');
         } else {
-            appendCheckerRow(STATUSBADGES.OK, 'Consent Management Platform', 'Adagio consent: <code>true</code>');
+            appendCheckerRow(STATUSBADGES.OK, 'Consent management platform', 'Adagio consent: <code>true</code>');
         }
     });
-}
-
-function checkConsentMetadata() {
-
-    if (prebidObject === undefined) {
-        appendConsentsRow(STATUSBADGES.KO, 'Consent metadata', ADAGIOERRORS.PREBIDNOTFOUND);
-        return;
-    } else if (typeof prebidObject.getConsentMetadata !== 'function') {
-        appendCheckerRow(STATUSBADGES.KO, 'Consent metadata', `<code>${prebidWrapper[0]}.getConsentMetadata()</code> not a function`);
-        appendConsentsRow(STATUSBADGES.KO, 'Consent metadata', `<code>${prebidWrapper[0]}.getConsentMetadata()</code> not a function`);
-        return;
-    }
-
-    let consentMetadata = prebidObject.getConsentMetadata();
-
-    if (consentMetadata !== undefined) {
-
-        let stringBuilder = '';
-        for (const consent in consentMetadata) {
-            stringBuilder += `<code>${JSON.stringify(consent)}</code>: <code>${JSON.stringify(consentMetadata[consent])}</code><br>`;
-        };
-
-        appendCheckerRow(STATUSBADGES.OK, 'Consent metadata', stringBuilder);
-        // appendCheckerRow(STATUSBADGES.OK, 'Consent metadata', `<code>${JSON.stringify(consentMetadata)}</code>`);
-        // appendConsentsRow(STATUSBADGES.OK, 'Consent metadata', `<code>${JSON.stringify(consentMetadata)}</code>`);
-    }
-    else {
-        appendCheckerRow(STATUSBADGES.KO, 'Consent metadata', `<code>${prebidWrapper[0]}.getConsentMetadata()</code>: <code>undefined</code>`);
-    }
-
-    const adagioBid = prebidEvents
-        .filter(e => e.eventType === 'bidRequested') //&& e.args.bidderCode.toLowerCase().includes('adagio'))
-        .map(e => e.args)
-        .flat()
-        .find(r => r.gdprConsent)
-
-    if (adagioBid !== undefined) {
-        appendCheckerRow(STATUSBADGES.OK, 'GDPR consent string', `<code>${JSON.stringify(adagioBid.gdprConsent)}</code>`);
-        // appendConsentsRow(STATUSBADGES.OK, 'GDPR consent string', `<code>${JSON.stringify(adagioBid.gdprConsent)}</code>`);
-    } else {
-        appendCheckerRow(STATUSBADGES.KO, 'GDPR consent string', `GDPR string not found. If consent metadata GDRP true, contact dev`);
-        // appendConsentsRow(STATUSBADGES.KO, 'GDPR consent string', 'GDPR string not found. If consent metadata GDRP true, contact dev');
-    }
 }
