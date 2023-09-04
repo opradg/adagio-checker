@@ -1133,7 +1133,7 @@ function base64Decode(base64String) {
             let mediatypeVideoContext = mediatypeVideo?.context;
             let mediatypeVideoPlayerSize = mediatypeVideo?.playerSize;
             let mediatypeVideoApi = mediatypeVideo?.api;
-            let mediatypeVideoPlaybackMethod = mediatypeVideo?.playbackMethod;
+            let mediatypeVideoPlaybackMethod = mediatypeVideo?.playbackmethod;
 
             // Check the video context
             if (mediatypeVideoContext !== undefined) {
@@ -1158,9 +1158,9 @@ function base64Decode(base64String) {
             // Check the video playbackMethod
             if (mediatypeVideoPlaybackMethod !== undefined) {
                 if (!mediatypeVideoPlaybackMethod.includes(6)) appendParametersCheckerTableRow(tbody, STATUSBADGES.CHECK, '<code>mediaTypes.video.playbackMethod</code>', `PlaybackMethod <code>6</code> not found: <code>${JSON.stringify(mediatypeVideoPlaybackMethod)}</code>`);
-                else appendParametersCheckerTableRow(tbody, STATUSBADGES.OK, '<code>mediaTypes.video.playbackMethod</code>', `<code>${JSON.stringify(mediatypeVideoPlaybackMethod)}</code>`);
+                else appendParametersCheckerTableRow(tbody, STATUSBADGES.OK, '<code>mediaTypes.video.playbackmethod</code>', `<code>${JSON.stringify(mediatypeVideoPlaybackMethod)}</code>`);
             }
-            else appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediaTypes.video.playbackMethod</code>', `No parameter found...`);
+            else appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediaTypes.video.playbackmethod</code>', `No parameter found...`);
         }
 
         if (mediatypeNative !== undefined) {
@@ -1434,18 +1434,21 @@ function checkConsentMetadata() {
         return;
     }
 
+    // Gets consents metadata from prebid object
     let consentMetadata = prebidObject.getConsentMetadata();
 
     if (consentMetadata !== undefined) {
 
-        let stringBuilder = '';
-        for (const consent in consentMetadata) {
-            stringBuilder += `<code>${JSON.stringify(consent)}</code>: <code>${JSON.stringify(consentMetadata[consent])}</code><br>`;
-        };
+        let coppaMetadata = consentMetadata?.coppa;
+        let gdprMetadata = consentMetadata?.gdpr;
+        let gppMetadata = consentMetadata?.gpp;
+        let uspMetadata = consentMetadata?.usp;
 
-        appendCheckerRow(STATUSBADGES.OK, 'Consents', stringBuilder);
-        // appendCheckerRow(STATUSBADGES.OK, 'Consent metadata', `<code>${JSON.stringify(consentMetadata)}</code>`);
-        // appendConsentsRow(STATUSBADGES.OK, 'Consent metadata', `<code>${JSON.stringify(consentMetadata)}</code>`);
+        // If has gdpr and a consent string, ok
+        if (gdprMetadata != undefined && gdprMetadata?.consentStringSize > 0) {
+            appendCheckerRow(STATUSBADGES.OK, 'GDPR', `<code>${gdprMetadata}</code>`);
+        }
+        else appendCheckerRow(STATUSBADGES.KO, 'GDPR', `<code>${gdprMetadata}</code>`);
     }
     else {
         appendCheckerRow(STATUSBADGES.KO, 'Consents', `<code>${prebidWrapper[0]}.getConsentMetadata()</code>: <code>undefined</code>`);
