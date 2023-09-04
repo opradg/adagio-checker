@@ -1446,9 +1446,9 @@ function checkConsentMetadata() {
 
         // If has gdpr and a consent string, ok
         if (gdprMetadata != undefined && gdprMetadata?.consentStringSize > 0) {
-            appendCheckerRow(STATUSBADGES.OK, 'GDPR', `<code>${gdprMetadata}</code>`);
+            appendCheckerRow(STATUSBADGES.OK, 'GDPR', `<code>${JSON.stringify(gdprMetadata)}</code>`);
         }
-        else appendCheckerRow(STATUSBADGES.KO, 'GDPR', `<code>${gdprMetadata}</code>`);
+        else appendCheckerRow(STATUSBADGES.KO, 'GDPR', `<code>${JSON.stringify(gdprMetadata)}</code>`);
     }
     else {
         appendCheckerRow(STATUSBADGES.KO, 'Consents', `<code>${prebidWrapper[0]}.getConsentMetadata()</code>: <code>undefined</code>`);
