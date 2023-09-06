@@ -1148,9 +1148,7 @@ function base64Decode(base64String) {
 
             // Check the video api
             if (mediatypeVideoApi !== undefined) {
-                if (!mediatypeVideoApi.includes(2) && !mediatypeVideoApi.includes(7)) appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediaTypes.video.api</code>', `Api <code>[2,7]</code> not found: <code>${JSON.stringify(mediatypeVideoApi)}</code>`);
-                else if (!mediatypeVideoApi.includes(2)) appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediaTypes.video.api</code>', `Api <code>2</code> not found: <code>${JSON.stringify(mediatypeVideoApi)}</code>`);
-                else if (!mediatypeVideoApi.includes(7)) appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediaTypes.video.api</code>', `Api <code>7</code> not found: <code>${JSON.stringify(mediatypeVideoApi)}</code>`);
+                if (!mediatypeVideoApi.includes(2) || !mediatypeVideoApi.includes(7)) appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediaTypes.video.api</code>', `Api <code>[2,7]</code> not found: <code>${JSON.stringify(mediatypeVideoApi)}</code>`);
                 else appendParametersCheckerTableRow(tbody, STATUSBADGES.OK, '<code>mediaTypes.video.api</code>', `<code>${JSON.stringify(mediatypeVideoApi)}</code>`);
             }
             else appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediaTypes.video.api</code>', `No parameter found...`);
@@ -1446,9 +1444,10 @@ function checkConsentMetadata() {
 
         // If has gdpr and a consent string, ok
         if (gdprMetadata != undefined && gdprMetadata?.consentStringSize > 0) {
-            appendCheckerRow(STATUSBADGES.OK, 'GDPR', `<code>${JSON.stringify(gdprMetadata)}</code>`);
+            appendCheckerRow(STATUSBADGES.OK, 'GDPR consent string', `<code>${JSON.stringify(gdprMetadata)}</code>`);
         }
-        else appendCheckerRow(STATUSBADGES.KO, 'GDPR', `<code>${JSON.stringify(gdprMetadata)}</code>`);
+        else appendCheckerRow(STATUSBADGES.KO, 'GDPR consent string', `<code>${JSON.stringify(gdprMetadata)}</code>`);
+
     }
     else {
         appendCheckerRow(STATUSBADGES.KO, 'Consents', `<code>${prebidWrapper[0]}.getConsentMetadata()</code>: <code>undefined</code>`);
