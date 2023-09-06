@@ -1155,7 +1155,7 @@ function base64Decode(base64String) {
 
             // Check the video playbackMethod
             if (mediatypeVideoPlaybackMethod !== undefined) {
-                if (!mediatypeVideoPlaybackMethod.includes(6)) appendParametersCheckerTableRow(tbody, STATUSBADGES.CHECK, '<code>mediaTypes.video.playbackMethod</code>', `PlaybackMethod <code>6</code> not found: <code>${JSON.stringify(mediatypeVideoPlaybackMethod)}</code>`);
+                if (!mediatypeVideoPlaybackMethod.includes(6)) appendParametersCheckerTableRow(tbody, STATUSBADGES.CHECK, '<code>mediaTypes.video.playbackmethod</code>', `playbackmethod <code>6</code> not found: <code>${JSON.stringify(mediatypeVideoPlaybackMethod)}</code>`);
                 else appendParametersCheckerTableRow(tbody, STATUSBADGES.OK, '<code>mediaTypes.video.playbackmethod</code>', `<code>${JSON.stringify(mediatypeVideoPlaybackMethod)}</code>`);
             }
             else appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediaTypes.video.playbackmethod</code>', `No parameter found...`);
