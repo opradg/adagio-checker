@@ -1088,7 +1088,7 @@ function base64Decode(base64String) {
     }
 
     // Check the adUnitElementId
-    if (paramAdUnitElementId === undefined) appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>params.placement</code>', 'Parameter not found...');
+    if (paramAdUnitElementId === undefined) appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>params.adUnitElementId</code>', 'Parameter not found...');
     else {
         const htlmDiv = document.getElementById(paramAdUnitElementId);
         if (paramAdUnitElementId.trim() !== paramAdUnitElementId) appendParametersCheckerTableRow(tbody, STATUSBADGES.CHECK, '<code>params.adUnitElementId</code>', `Space character at the beginning or end of the string: <code>${paramAdUnitElementId}</code>`);
@@ -1153,7 +1153,7 @@ function base64Decode(base64String) {
             }
             else appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>mediaTypes.video.api</code>', `No parameter found...`);
 
-            // Check the video playbackMethod
+            // Check the video playbackmethod
             if (mediatypeVideoPlaybackMethod !== undefined) {
                 if (!mediatypeVideoPlaybackMethod.includes(6)) appendParametersCheckerTableRow(tbody, STATUSBADGES.CHECK, '<code>mediaTypes.video.playbackmethod</code>', `playbackmethod <code>6</code> not found: <code>${JSON.stringify(mediatypeVideoPlaybackMethod)}</code>`);
                 else appendParametersCheckerTableRow(tbody, STATUSBADGES.OK, '<code>mediaTypes.video.playbackmethod</code>', `<code>${JSON.stringify(mediatypeVideoPlaybackMethod)}</code>`);
