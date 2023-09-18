@@ -76,6 +76,7 @@ const STATUSBADGES = Object.freeze({
 const ADAGIOCHECK = Object.freeze({
     PREBID: 'Prebid.js',
     ADAPTER: 'Adagio adapter',
+    ANALYTICS: 'Adagio analytics',
     LOCALSTORAGE: 'Localstorage',
     ADUNITS: 'Adunits',
     DUPLICATED: 'Duplicated adUnitCode',
@@ -1071,6 +1072,7 @@ function base64Decode(base64String) {
     let paramSite = bid.params?.site;
     let paramPlacement = bid.params?.placement;
     let paramAdUnitElementId = bid.params?.adUnitElementId;
+    let paramUseAdUnitCodeAsAdUnitElementId = bid.params?.useAdUnitCodeAsAdUnitElementId;
 
     // Check the organizationId
     if (paramOrganizationId === undefined) appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>params.organizationId</code>', 'Parameter not found...');
@@ -1188,6 +1190,29 @@ function base64Decode(base64String) {
     newRow.appendChild(detailsCell);
 }
 
+// Compare two strings representing a version: '8.14.0'
+function isHigherOrEqualVersion(v1, v2) {
+    // Split the version strings into arrays of numbers.
+    const v1Parts = v1.split('.');
+    const v2Parts = v2.split('.');
+
+    // Iterate over the parts of the version strings, comparing them one by one.
+    for (let i = 0; i < Math.min(v1Parts.length, v2Parts.length); i++) {
+        // If the current part of v1 is less than the current part of v2, then v1 is lower than v2.
+        if (parseInt(v1Parts[i]) < parseInt(v2Parts[i])) {
+        return false;
+        }
+
+        // If the current part of v1 is greater than the current part of v2, then v1 is higher than v2.
+        if (parseInt(v1Parts[i]) > parseInt(v2Parts[i])) {
+        return true;
+        }
+    }
+
+    // If we reach here, then the two version strings are equal.
+    return true;
+}
+
 /*************************************************************************************************************************************************************************************************************************************
  * PBJS functions
  ************************************************************************************************************************************************************************************************************************************/
@@ -1195,6 +1220,7 @@ function base64Decode(base64String) {
 function check() {
     checkPrebidVersion();
     checkAdagioModule();
+    checkAdagioAnalyticsModule();
     checkAdagioLocalStorage();
     checkAdagioAdUnitParams();
     checkDuplicatedAdUnitCode();
@@ -1225,6 +1251,25 @@ function checkAdagioModule() {
         appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.ADAPTER, `<code>window.ADAGIO</code>: <code>${window.ADAGIO}</code>`);
     } else {
         appendCheckerRow(STATUSBADGES.OK, ADAGIOCHECK.ADAPTER, `<code>${JSON.stringify(adagioAdapter.versions)}</code>`);
+    }
+}
+
+function checkAdagioAnalyticsModule() {
+    // Looking for Prebid version > to 8.14, and ADAGIO.versions.adagioAnalyticsAdapter
+    let hasEligibleVersion = isHigherOrEqualVersion(prebidObject.version.replace('v', ''), '8.14.0');
+    let hasEnabledAnalytics = adagioAdapter.versions?.adagioAnalyticsAdapter;
+
+    if (hasEligibleVersion && hasEnabledAnalytics) {
+        appendCheckerRow(STATUSBADGES.OK, ADAGIOCHECK.ANALYTICS, `Prebid version: <code>${prebidObject.version}</code> / Analytics: <code>${ADAGIO.versions.adagioAnalyticsAdapter}</code>`);
+    }
+    else if (!hasEligibleVersion) {
+        appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.ANALYTICS, `Prebid version: <code>${prebidObject.version}</code>`);
+    }
+    else if (!hasEnabledAnalytics) {
+        appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.ANALYTICS, `Analytics: <code>${hasEnabledAnalytics}</code>`);
+    }
+    else {
+        appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.ANALYTICS, `Prebid version: <code>${prebidObject.version}</code> / Analytics: <code>${ADAGIO.versions.adagioAnalyticsAdapter}</code>`);
     }
 }
 
