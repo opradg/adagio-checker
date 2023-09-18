@@ -1070,7 +1070,7 @@ function base64Decode(base64String) {
     let paramOrganizationId = bid.params?.organizationId;
     let paramSite = bid.params?.site;
     let paramPlacement = bid.params?.placement;
-    let paramAdUnitElementId = bid?.params.adUnitElementId;
+    let paramAdUnitElementId = bid.params?.adUnitElementId;
 
     // Check the organizationId
     if (paramOrganizationId === undefined) appendParametersCheckerTableRow(tbody, STATUSBADGES.KO, '<code>params.organizationId</code>', 'Parameter not found...');
