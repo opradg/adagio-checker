@@ -28,6 +28,7 @@ let totalPrebidAdUnitsCodes = 0;
 let totalPrebidAdagioAdUnitsCode = 0;
 let totalAdagioAdUnitsCodes = 0;
 let totalAdagioPbjsAdUnitsCodes = 0;
+let organizationIds = [];
 // Active tab (from button html element)
 let activeTab = undefined;
 // Variables for draggable iframe
@@ -1220,14 +1221,15 @@ function isHigherOrEqualVersion(v1, v2) {
 function check() {
     checkPrebidVersion();
     checkAdagioModule();
-    checkAdagioAnalyticsModule();
     checkAdagioLocalStorage();
+    checkAdagioUserSync();
+    checkAdagioAnalyticsModule();
     checkAdagioAdUnitParams();
     checkDuplicatedAdUnitCode();
-    checkAdagioUserSync();
+    checkPublisher();
+    checkSupplyChainObject();
     checkFloorPriceModule();
     checkCurrencyModule();
-    checkSupplyChainObject();
     checkConsentMetadata();
     checkAdagioCMP();
 }
@@ -1259,8 +1261,8 @@ function checkAdagioAnalyticsModule() {
     let hasEligibleVersion = isHigherOrEqualVersion(prebidObject.version.replace('v', ''), '8.14.0');
     let hasEnabledAnalytics = adagioAdapter.versions?.adagioAnalyticsAdapter;
 
-    if (hasEligibleVersion && hasEnabledAnalytics) {
-        appendCheckerRow(STATUSBADGES.OK, ADAGIOCHECK.ANALYTICS, `Prebid version: <code>${prebidObject.version}</code> / Analytics: <code>${ADAGIO.versions.adagioAnalyticsAdapter}</code>`);
+    if (!hasEligibleVersion && !hasEnabledAnalytics) {
+        appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.ANALYTICS, `Prebid version: <code>${prebidObject.version}</code> / Analytics: <code>${ADAGIO.versions.adagioAnalyticsAdapter}</code>`);
     }
     else if (!hasEligibleVersion) {
         appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.ANALYTICS, `Prebid version: <code>${prebidObject.version}</code>`);
@@ -1269,7 +1271,7 @@ function checkAdagioAnalyticsModule() {
         appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.ANALYTICS, `Analytics: <code>${hasEnabledAnalytics}</code>`);
     }
     else {
-        appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.ANALYTICS, `Prebid version: <code>${prebidObject.version}</code> / Analytics: <code>${ADAGIO.versions.adagioAnalyticsAdapter}</code>`);
+        appendCheckerRow(STATUSBADGES.OK, ADAGIOCHECK.ANALYTICS, `Prebid version: <code>${prebidObject.version}</code> / Analytics: <code>${ADAGIO.versions.adagioAnalyticsAdapter}</code>`);
     }
 }
 
@@ -1520,9 +1522,10 @@ function checkAdagioCMP() {
         cmpAdagioBidders.set(52, 'Rubicon');
         cmpAdagioBidders.set(45, 'Smart Adserver');
         cmpAdagioBidders.set(13, 'Sovrn');
-        cmpAdagioBidders.set(25, 'Yahoo');
+        // cmpAdagioBidders.set(25, 'Yahoo');
 
         let adagioFound = false;
+        let biddersNotFound = "";
 
         for (let [key, value] of cmpAdagioBidders) {
 
@@ -1533,14 +1536,20 @@ function checkAdagioCMP() {
                 adagioFound = true;
             }
 
+            // Build the line values per partner
             const bidderName = '<code>' + value + ' (' + key + ')</code>';
             const bidderConsent = consent ? STATUSBADGES.OK : STATUSBADGES.KO;
             const bidderLegitimate = legitimate ? STATUSBADGES.OK : STATUSBADGES.KO;
             appendConsentsRow(bidderName, bidderConsent, bidderLegitimate);
+
+            // Build the log string of partners CMP to add
+            if (!consent) biddersNotFound = biddersNotFound + bidderName + "; ";
         };
 
-        if (!adagioFound) {
-            appendCheckerRow(STATUSBADGES.KO, 'Consent management platform', 'Adagio consent: <code>false</code>');
+        if (biddersNotFound !== "") {
+            if (!adagioFound) appendCheckerRow(STATUSBADGES.KO, 'Consent management platform', `Missing: ${biddersNotFound}`);
+            else appendCheckerRow(STATUSBADGES.CHECK, 'Consent management platform', `Missing: ${biddersNotFound}`);
+
         } else {
             appendCheckerRow(STATUSBADGES.OK, 'Consent management platform', 'Adagio consent: <code>true</code>');
         }
