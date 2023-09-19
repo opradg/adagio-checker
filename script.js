@@ -81,7 +81,7 @@ const ADAGIOCHECK = Object.freeze({
     LOCALSTORAGE: 'Localstorage',
     ADUNITS: 'Adunits',
     DUPLICATED: 'Duplicated adUnitCode',
-    USERSYNC: 'User sync',
+    USERSYNC: 'Usersync',
     FLOORS: 'Floors price module',
     CURRENCY: 'Currency module',
     SCO: 'Supply chain object',
@@ -487,6 +487,20 @@ function createCheckerDiv() {
     headings.appendChild(h2);
     headings.appendChild(h3);
 
+    // create the alert article and text
+    const alertContainer = overlayFrameDoc.createElement('article');
+    alertContainer.style.padding = '1em';
+    alertContainer.style.marginLeft = '';
+    alertContainer.style.marginRight = '';
+    alertContainer.style.marginTop = '1em';
+    alertContainer.style.marginBottom = '1em';
+    alertContainer.style.color = COLOR.YELLOWTEXT;
+    alertContainer.style.backgroundColor = COLOR.YELLOWBACKGROUND;
+
+    const alertTextDiv = overlayFrameDoc.createElement('div');
+    alertTextDiv.setAttribute('id', `${tabName}-alert`);
+    alertContainer.appendChild(alertTextDiv);
+
     // create table element
     const table = overlayFrameDoc.createElement('table');
     const thead = overlayFrameDoc.createElement('thead');
@@ -511,6 +525,7 @@ function createCheckerDiv() {
 
     // append navigation, headings, and table to main container
     mainContainer.appendChild(headings);
+    mainContainer.appendChild(alertContainer);
     mainContainer.appendChild(table);
 
     // append the container to the body
@@ -1226,12 +1241,12 @@ function check() {
     checkAdagioAnalyticsModule();
     checkAdagioAdUnitParams();
     checkDuplicatedAdUnitCode();
-    checkPublisher();
     checkSupplyChainObject();
     checkFloorPriceModule();
     checkCurrencyModule();
     checkConsentMetadata();
     checkAdagioCMP();
+    checkPublisher();
 }
 
 function checkPrebidVersion() {
@@ -1343,7 +1358,15 @@ function checkAdagioAdUnitParams() {
         prebidAdagioBidsRequested = prebidBids.filter(e => e.bidder.toLowerCase().includes('adagio'));
         // Find the params for Adagio adUnits and update manager URL
         prebidAdagioParams = prebidAdagioBidsRequested.map(e => e.params);
-        if (prebidAdagioParams.length !== 0) updateManagerFilters(prebidAdagioParams[0]);
+        if (prebidAdagioParams.length !== 0) {
+            // Update manager url
+            updateManagerFilters(prebidAdagioParams[0]);
+            // Get all the orgId parameter value sent to fill organizationIds[]
+            for (const param in prebidAdagioParams) {
+                let paramOrganizationId = prebidAdagioParams[param]?.organizationId;
+                if (!organizationIds.includes(paramOrganizationId)) organizationIds.push(paramOrganizationId);
+            }
+        }
 
         // Find every adUnitsCode declared through bid requested
         prebidAdUnitsCodes = new Set();
@@ -1408,8 +1431,33 @@ function checkDuplicatedAdUnitCode() {
     }
 }
 
-function checkPublisher() {
+async function checkPublisher() {
 
+    let adagioSellersJsonUrl = 'https://adagio.io/sellers.json';
+    let adagioSellersJson = null;
+    let organizationJson = null;
+
+    // Fill the alert with number of orgIds found
+    const tabName = ADAGIOTABSNAME.CHECKER.toLowerCase().replace(' ', '-');
+    const alertTextDiv = overlayFrameDoc.getElementById(`${tabName}-alert`);
+    alertTextDiv.innerHTML = `<small>Organization(s) detected through adCalls: <kbd>${organizationIds.length}</kbd></small>`;
+
+    if (organizationIds/length > 0) {
+        // Fetch the adagio sellers.json
+        try {
+            const response = await fetch(adagioSellersJsonUrl);
+            adagioSellersJson = await response.json();
+            // Fill with org found
+            for (const organizationId in organizationIds) {
+                organizationJson = adagioSellersJson?.sellers.filter(e => e.seller_id === organizationIds[organizationId]);
+                alertTextDiv.innerHTML += `<br><li><small><code>${organizationJson[0].name} (${organizationJson[0].seller_id}) - ${organizationJson[0].seller_type}</code>: <code>'${organizationJson[0].domain}'</code></small></li>`;
+            }   
+        } catch (error) {
+            // Handle JSON failure here
+            adagioSellersJson = null;
+            console.log(error);
+        }
+    }
 }
 
 function checkFloorPriceModule() {
@@ -1487,18 +1535,15 @@ function checkConsentMetadata() {
     let consentMetadata = prebidObject.getConsentMetadata();
 
     if (consentMetadata !== undefined) {
-
         let coppaMetadata = consentMetadata?.coppa;
         let gdprMetadata = consentMetadata?.gdpr;
         let gppMetadata = consentMetadata?.gpp;
         let uspMetadata = consentMetadata?.usp;
-
         // If has gdpr and a consent string, ok
         if (gdprMetadata != undefined && gdprMetadata?.consentStringSize > 0) {
             appendCheckerRow(STATUSBADGES.OK, 'GDPR consent string', `<code>${JSON.stringify(gdprMetadata)}</code>`);
         }
         else appendCheckerRow(STATUSBADGES.KO, 'GDPR consent string', `<code>${JSON.stringify(gdprMetadata)}</code>`);
-
     }
     else {
         appendCheckerRow(STATUSBADGES.KO, 'Consents', `<code>${prebidWrapper[0]}.getConsentMetadata()</code>: <code>undefined</code>`);
