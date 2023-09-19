@@ -97,7 +97,7 @@ const ADAGIOERRORS = Object.freeze({
 });
 
 const ADAGIOLINKS = {
-    WEBSITE: 'https://adagio.io/',
+    WEBSITE: 'https://app.adagio.io/',
     MANAGER: 'https://app.adagio.io/',
     BUYERUIDS: 'https://u.4dex.io/healthcheck'
 };
