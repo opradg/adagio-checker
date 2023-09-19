@@ -1256,25 +1256,6 @@ function checkAdagioModule() {
     }
 }
 
-function checkAdagioAnalyticsModule() {
-    // Looking for Prebid version > to 8.14, and ADAGIO.versions.adagioAnalyticsAdapter
-    let hasEligibleVersion = isHigherOrEqualVersion(prebidObject.version.replace('v', ''), '8.14.0');
-    let hasEnabledAnalytics = adagioAdapter.versions?.adagioAnalyticsAdapter;
-
-    if (!hasEligibleVersion && !hasEnabledAnalytics) {
-        appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.ANALYTICS, `Prebid version: <code>${prebidObject.version}</code> / Analytics: <code>${ADAGIO.versions.adagioAnalyticsAdapter}</code>`);
-    }
-    else if (!hasEligibleVersion) {
-        appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.ANALYTICS, `Prebid version: <code>${prebidObject.version}</code>`);
-    }
-    else if (!hasEnabledAnalytics) {
-        appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.ANALYTICS, `Analytics: <code>${hasEnabledAnalytics}</code>`);
-    }
-    else {
-        appendCheckerRow(STATUSBADGES.OK, ADAGIOCHECK.ANALYTICS, `Prebid version: <code>${prebidObject.version}</code> / Analytics: <code>${ADAGIO.versions.adagioAnalyticsAdapter}</code>`);
-    }
-}
-
 function checkAdagioLocalStorage() {
     // Localstorage requieres pbjs
     if (prebidObject === undefined) {
@@ -1297,6 +1278,53 @@ function checkAdagioLocalStorage() {
         } else {
             appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.LOCALSTORAGE, 'Localstorage not found. If detected on network, contact dev!');
         }
+    }
+}
+
+function checkAdagioUserSync() {
+    // Adagio strongly recommends enabling user syncing through iFrames. 
+    // This functionality improves DSP user match rates and increases the bid rate and bid price.
+    if (prebidObject === undefined) {
+        appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.USERSYNC, ADAGIOERRORS.PREBIDNOTFOUND);
+    }
+    else {
+        const prebidUserSync = prebidObject.getConfig('userSync');
+        if (prebidUserSync === undefined) {
+            appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.USERSYNC, `<code>${prebidWrapper[0]}.getConfig('userSync')</code>: <code>${prebidUserSync}</code>`);
+        }
+        else {
+            const prebidUserSyncIframe = prebidUserSync?.filterSettings?.iframe;
+            const prebidUserSyncAll = prebidUserSync?.filterSettings?.all;
+
+            if (prebidUserSyncIframe !== undefined && (prebidUserSyncIframe?.bidders.includes('*') || (Array.isArray(prebidUserSyncIframe?.bidders) && prebidUserSyncIframe.bidders.some(item => item.includes('adagio')))) && prebidUserSyncIframe?.filter === 'include') {
+                appendCheckerRow(STATUSBADGES.OK, ADAGIOCHECK.USERSYNC, `<code>${JSON.stringify(prebidUserSyncIframe)}</code>`);
+            }
+            else if (prebidUserSyncAll !== undefined && (prebidUserSyncAll?.bidders.includes('*') || (Array.isArray(prebidUserSyncAll?.bidders) && prebidUserSyncAll.bidders.some(item => item.includes('adagio')))) && prebidUserSyncAll?.filter === 'include') {
+                appendCheckerRow(STATUSBADGES.OK, ADAGIOCHECK.USERSYNC, `<code>${JSON.stringify(prebidUserSyncAll)}</code>`);
+            }
+            else {
+                appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.USERSYNC, `<code>${JSON.stringify(prebidUserSync)}</code>`);
+            }
+        }
+    }
+}
+
+function checkAdagioAnalyticsModule() {
+    // Looking for Prebid version > to 8.14, and ADAGIO.versions.adagioAnalyticsAdapter
+    let hasEligibleVersion = isHigherOrEqualVersion(prebidObject.version.replace('v', ''), '8.14.0');
+    let hasEnabledAnalytics = adagioAdapter.versions?.adagioAnalyticsAdapter;
+
+    if (!hasEligibleVersion && !hasEnabledAnalytics) {
+        appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.ANALYTICS, `Prebid version: <code>${prebidObject.version}</code> / Analytics: <code>${ADAGIO.versions.adagioAnalyticsAdapter}</code>`);
+    }
+    else if (!hasEligibleVersion) {
+        appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.ANALYTICS, `Prebid version: <code>${prebidObject.version}</code>`);
+    }
+    else if (!hasEnabledAnalytics) {
+        appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.ANALYTICS, `Analytics: <code>${hasEnabledAnalytics}</code>`);
+    }
+    else {
+        appendCheckerRow(STATUSBADGES.OK, ADAGIOCHECK.ANALYTICS, `Prebid version: <code>${prebidObject.version}</code> / Analytics: <code>${ADAGIO.versions.adagioAnalyticsAdapter}</code>`);
     }
 }
 
@@ -1380,32 +1408,8 @@ function checkDuplicatedAdUnitCode() {
     }
 }
 
-function checkAdagioUserSync() {
-    // Adagio strongly recommends enabling user syncing through iFrames. 
-    // This functionality improves DSP user match rates and increases the bid rate and bid price.
-    if (prebidObject === undefined) {
-        appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.USERSYNC, ADAGIOERRORS.PREBIDNOTFOUND);
-    }
-    else {
-        const prebidUserSync = prebidObject.getConfig('userSync');
-        if (prebidUserSync === undefined) {
-            appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.USERSYNC, `<code>${prebidWrapper[0]}.getConfig('userSync')</code>: <code>${prebidUserSync}</code>`);
-        }
-        else {
-            const prebidUserSyncIframe = prebidUserSync?.filterSettings?.iframe;
-            const prebidUserSyncAll = prebidUserSync?.filterSettings?.all;
+function checkPublisher() {
 
-            if (prebidUserSyncIframe !== undefined && (prebidUserSyncIframe?.bidders.includes('*') || (Array.isArray(prebidUserSyncIframe?.bidders) && prebidUserSyncIframe.bidders.some(item => item.includes('adagio')))) && prebidUserSyncIframe?.filter === 'include') {
-                appendCheckerRow(STATUSBADGES.OK, ADAGIOCHECK.USERSYNC, `<code>${JSON.stringify(prebidUserSyncIframe)}</code>`);
-            }
-            else if (prebidUserSyncAll !== undefined && (prebidUserSyncAll?.bidders.includes('*') || (Array.isArray(prebidUserSyncAll?.bidders) && prebidUserSyncAll.bidders.some(item => item.includes('adagio')))) && prebidUserSyncAll?.filter === 'include') {
-                appendCheckerRow(STATUSBADGES.OK, ADAGIOCHECK.USERSYNC, `<code>${JSON.stringify(prebidUserSyncAll)}</code>`);
-            }
-            else {
-                appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.USERSYNC, `<code>${JSON.stringify(prebidUserSync)}</code>`);
-            }
-        }
-    }
 }
 
 function checkFloorPriceModule() {
