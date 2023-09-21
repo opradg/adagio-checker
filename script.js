@@ -1257,6 +1257,7 @@ function isHigherOrEqualVersion(v1, v2) {
  ************************************************************************************************************************************************************************************************************************************/
 
 function check() {
+    checkAdServer();
     checkPrebidVersion();
     checkAdagioModule();
     checkAdagioLocalStorage();
@@ -1270,6 +1271,45 @@ function check() {
     checkConsentMetadata();
     checkAdagioCMP();
     checkPublisher();
+}
+
+function checkAdServer() {
+
+    const adServers = new Map();
+    adServers.set('Google Ad Manager', window.googletag);
+    adServers.set('Kevel', window.kv);
+    adServers.set('Smart (Equativ)', window.smart);
+    adServers.set('Xandr Monetize', window.xandr);
+    adServers.set('Appnexus', window.apn);
+    adServers.set('Amazon Advertising',	window.a9);
+    adServers.set('Criteo',	window.criteo);
+    adServers.set('Media.net', window.medianet);
+    adServers.set('Yieldmo', window.yieldmo);
+    adServers.set('TripleLift', window.triplelift);
+    adServers.set('Moat by Oracle', window.moat);
+    adServers.set('Comscore', window.comscore);
+    adServers.set('Nielsen', window.nielsen);
+    adServers.set('VerifyAds', window.verifyads);
+
+    let stringAdServer = "";
+
+    // Loop on the map to check if value != undefined
+    for (let [key, value] of adServers) {
+        if (value !== undefined) {
+            stringAdServer += `<code>${key}</code> `;
+            console.log(stringAdServer);
+        }
+    }
+
+    // Fill the alert with number of orgIds found
+    const tabName = ADAGIOTABSNAME.CHECKER.toLowerCase().replace(' ', '-');
+    const alertTextDiv = overlayFrameDoc.getElementById(`${tabName}-alert`);
+    alertTextDiv.innerHTML = `<small>Adserver(s) detected: ${stringAdServer}</small><br>`;
+
+    // const slots = window.googletag.pubads().getSlots()
+    // slots.forEach(slot => {
+    //     console.log(`slot ${slot.getAdUnitPath()} || ${slot.getSlotElementId()}`);
+    // })
 }
 
 function checkPrebidVersion() {
@@ -1463,7 +1503,7 @@ async function checkPublisher() {
     // Fill the alert with number of orgIds found
     const tabName = ADAGIOTABSNAME.CHECKER.toLowerCase().replace(' ', '-');
     const alertTextDiv = overlayFrameDoc.getElementById(`${tabName}-alert`);
-    alertTextDiv.innerHTML = `<small>Organization(s) detected through adCalls: <kbd>${organizationIds.length}</kbd></small>`;
+    // alertTextDiv.innerHTML += `<small>Organization(s) detected through adCalls:</small>`;
 
     if (organizationIds/length > 0) {
         // Fetch the adagio sellers.json
@@ -1627,4 +1667,3 @@ function checkAdagioCMP() {
         }
     });
 }
-
