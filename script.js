@@ -1503,9 +1503,9 @@ async function checkPublisher() {
     // Fill the alert with number of orgIds found
     const tabName = ADAGIOTABSNAME.CHECKER.toLowerCase().replace(' ', '-');
     const alertTextDiv = overlayFrameDoc.getElementById(`${tabName}-alert`);
-    // alertTextDiv.innerHTML += `<small>Organization(s) detected through adCalls:</small>`;
+    alertTextDiv.innerHTML += `<small>Organization(s) detected: </small>`;
 
-    if (organizationIds/length > 0) {
+    if (organizationIds.length > 0) {
         // Fetch the adagio sellers.json
         try {
             const response = await fetch(adagioSellersJsonUrl);
@@ -1513,7 +1513,7 @@ async function checkPublisher() {
             // Fill with org found
             for (const organizationId in organizationIds) {
                 organizationJson = adagioSellersJson?.sellers.filter(e => e.seller_id === organizationIds[organizationId]);
-                alertTextDiv.innerHTML += `<br><li><small><code>${organizationJson[0].name} (${organizationJson[0].seller_id}) - ${organizationJson[0].seller_type}</code>: <code>'${organizationJson[0].domain}'</code></small></li>`;
+                alertTextDiv.innerHTML += `<small><code>${organizationJson[0].name} (${organizationJson[0].seller_id}) - ${organizationJson[0].seller_type}</code>: <code>'${organizationJson[0].domain}'</code></small> `;
             }   
         } catch (error) {
             // Handle JSON failure here
