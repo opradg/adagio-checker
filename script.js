@@ -1316,7 +1316,7 @@ function checkPrebidVersion() {
     if (prebidWrapper === undefined) {
         appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.PREBID, `<code>window._pbjsGlobals</code>: <code>undefined</code>`);
     } else {
-        appendCheckerRow(STATUSBADGES.OK, ADAGIOCHECK.PREBID, `<code>window._pbjsGlobals</code>: <code>${prebidWrapper[0]}</code>`);
+        appendCheckerRow(STATUSBADGES.OK, ADAGIOCHECK.PREBID, `<code>window._pbjsGlobals</code>: <code>${prebidWrapper[0]} (${prebidObject?.version})</code>`);
         if (typeof prebidObject.getEvents === 'function') {
             prebidEvents = prebidObject.getEvents();
         }
