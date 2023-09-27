@@ -1389,20 +1389,26 @@ function checkAdagioUserSync() {
 
 function checkAdagioAnalyticsModule() {
     // Looking for Prebid version > to 8.14, and ADAGIO.versions.adagioAnalyticsAdapter
-    let hasEligibleVersion = isHigherOrEqualVersion(prebidObject.version.replace('v', ''), '8.14.0');
-    let hasEnabledAnalytics = adagioAdapter.versions?.adagioAnalyticsAdapter;
+    if (prebidObject != undefined && adagioAdapter !== undefined) {
 
-    if (!hasEligibleVersion && !hasEnabledAnalytics) {
-        appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.ANALYTICS, `Prebid version: <code>${prebidObject.version}</code> / Analytics: <code>${ADAGIO.versions.adagioAnalyticsAdapter}</code>`);
-    }
-    else if (!hasEligibleVersion) {
-        appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.ANALYTICS, `Prebid version: <code>${prebidObject.version}</code>`);
-    }
-    else if (!hasEnabledAnalytics) {
-        appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.ANALYTICS, `Analytics: <code>${hasEnabledAnalytics}</code>`);
+        let hasEligibleVersion = isHigherOrEqualVersion(prebidObject.version.replace('v', ''), '8.14.0');
+        let hasEnabledAnalytics = adagioAdapter.versions?.adagioAnalyticsAdapter;
+    
+        if (!hasEligibleVersion && !hasEnabledAnalytics) {
+            appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.ANALYTICS, `Prebid version: <code>${prebidObject.version}</code> / Analytics: <code>${ADAGIO.versions.adagioAnalyticsAdapter}</code>`);
+        }
+        else if (!hasEligibleVersion) {
+            appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.ANALYTICS, `Prebid version: <code>${prebidObject.version}</code>`);
+        }
+        else if (!hasEnabledAnalytics) {
+            appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.ANALYTICS, `Analytics: <code>${hasEnabledAnalytics}</code>`);
+        }
+        else {
+            appendCheckerRow(STATUSBADGES.OK, ADAGIOCHECK.ANALYTICS, `Prebid version: <code>${prebidObject.version}</code> / Analytics: <code>${ADAGIO.versions.adagioAnalyticsAdapter}</code>`);
+        }
     }
     else {
-        appendCheckerRow(STATUSBADGES.OK, ADAGIOCHECK.ANALYTICS, `Prebid version: <code>${prebidObject.version}</code> / Analytics: <code>${ADAGIO.versions.adagioAnalyticsAdapter}</code>`);
+        appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.ANALYTICS, `Prebid wrapper or Adabio adapter: <code>undefined</code>`);
     }
 }
 
