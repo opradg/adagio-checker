@@ -1279,6 +1279,7 @@ function checkAdServer() {
     adServers.set('Google Ad Manager', window.googletag);
     adServers.set('Kevel', window.kv);
     adServers.set('Smart (Equativ)', window.smart);
+    adServers.set('Smart Ad Server', window.sas);
     adServers.set('Xandr Monetize', window.xandr);
     adServers.set('Appnexus', window.apn);
     adServers.set('Amazon Advertising',	window.a9);
@@ -1297,7 +1298,6 @@ function checkAdServer() {
     for (let [key, value] of adServers) {
         if (value !== undefined) {
             stringAdServer += `<code>${key}</code> `;
-            console.log(stringAdServer);
         }
     }
 
