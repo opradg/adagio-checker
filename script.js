@@ -314,10 +314,7 @@ function buildTabButton(name, svg, isactive) {
 function buildPrebidButton(name, svg, isactive) {
 
     // Get the number of wrapper found
-    let nbWrappers = 0;
-    if (prebidWrappers !== []) {
-        nbWrappers = prebidWrappers.length;
-    }
+    let nbWrappers = prebidWrappers.length;
 
     // As website can use different wrapper for Prebid, this button allows to switch between them
     const li = overlayFrameDoc.createElement('li');
@@ -1633,6 +1630,7 @@ function checkAdagioCMP() {
         cmpAdagioBidders.set(253, 'Improve Digital');
         cmpAdagioBidders.set(10, 'Index Exchange');
         cmpAdagioBidders.set(285, 'Freewheel');
+        cmpAdagioBidders.set(36, 'Nexxen Unruly'); 
         cmpAdagioBidders.set(241, 'OneTag');
         cmpAdagioBidders.set(69, 'OpenX');
         cmpAdagioBidders.set(76, 'Pubmatic');
