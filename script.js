@@ -1630,7 +1630,7 @@ function checkAdagioCMP() {
         cmpAdagioBidders.set(253, 'Improve Digital');
         cmpAdagioBidders.set(10, 'Index Exchange');
         cmpAdagioBidders.set(285, 'Freewheel');
-        cmpAdagioBidders.set(36, 'Nexxen Unruly'); 
+        cmpAdagioBidders.set(36, 'Nexxen (Unruly)'); 
         cmpAdagioBidders.set(241, 'OneTag');
         cmpAdagioBidders.set(69, 'OpenX');
         cmpAdagioBidders.set(76, 'Pubmatic');
