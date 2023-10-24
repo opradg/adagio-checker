@@ -1265,6 +1265,7 @@ function check() {
     checkFloorPriceModule();
     checkCurrencyModule();
     checkConsentMetadata();
+    checkGgprConsentString();
     checkAdagioCMP();
     checkPublisher();
 }
@@ -1606,12 +1607,35 @@ function checkConsentMetadata() {
         let uspMetadata = consentMetadata?.usp;
         // If has gdpr and a consent string, ok
         if (gdprMetadata != undefined && gdprMetadata?.consentStringSize > 0) {
-            appendCheckerRow(STATUSBADGES.OK, 'GDPR consent string', `<code>${JSON.stringify(gdprMetadata)}</code>`);
+            appendCheckerRow(STATUSBADGES.OK, 'GDPR metadata', `<code>${JSON.stringify(gdprMetadata)}</code>`);
         }
-        else appendCheckerRow(STATUSBADGES.KO, 'GDPR consent string', `<code>${JSON.stringify(gdprMetadata)}</code>`);
+        else appendCheckerRow(STATUSBADGES.KO, 'GDPR metadata', `<code>${JSON.stringify(gdprMetadata)}</code>`);
     }
     else {
         appendCheckerRow(STATUSBADGES.KO, 'Consents', `<code>${prebidWrapper[0]}.getConsentMetadata()</code>: <code>undefined</code>`);
+    }
+}
+
+function checkGgprConsentString() {
+    // Has been found or not
+    let hasCstString = false;
+    // Checks if bids have been requested
+    if (prebidBidsRequested !== undefined) {
+        // Filter on adagio ones
+        let prbAdgBidRequested = prebidBidsRequested.filter(e => e.bidderCode === 'adagio');
+        if (prbAdgBidRequested !== undefined) {
+            // Look for consent string
+            let cstString = prbAdgBidRequested[0]?.gdprConsent?.consentString;
+            // Checks if not empty
+            if (cstString !== undefined) {
+                hasCstString = true;
+                appendCheckerRow(STATUSBADGES.OK, 'GDPR consent string', `<code>${cstString}</code>`);
+            }
+        }
+    }
+    // Last check
+    if (!hasCstString) {
+        appendCheckerRow(STATUSBADGES.KO, 'GDPR consent string', `<code>undefined</code>`);
     }
 }
 
