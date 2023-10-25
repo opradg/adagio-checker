@@ -1651,9 +1651,10 @@ function checkAdagioCMP() {
         const cmpAdagioBidders = new Map();
         cmpAdagioBidders.set(617, 'Adagio');
         cmpAdagioBidders.set(58, '33Across');
+        cmpAdagioBidders.set(90, 'E-Planning');
+        cmpAdagioBidders.set(285, 'Freewheel');
         cmpAdagioBidders.set(253, 'Improve Digital');
         cmpAdagioBidders.set(10, 'Index Exchange');
-        cmpAdagioBidders.set(285, 'Freewheel');
         cmpAdagioBidders.set(36, 'Nexxen (Unruly)'); 
         cmpAdagioBidders.set(241, 'OneTag');
         cmpAdagioBidders.set(69, 'OpenX');
@@ -1661,6 +1662,7 @@ function checkAdagioCMP() {
         cmpAdagioBidders.set(52, 'Rubicon');
         cmpAdagioBidders.set(45, 'Smart Adserver');
         cmpAdagioBidders.set(13, 'Sovrn');
+        cmpAdagioBidders.set(28, 'TripleLift');
         // cmpAdagioBidders.set(25, 'Yahoo');
 
         let adagioFound = false;
