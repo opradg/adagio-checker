@@ -1392,7 +1392,7 @@ function checkAdagioAnalyticsModule() {
         let hasEnabledAnalytics = adagioAdapter.versions?.adagioAnalyticsAdapter;
     
         if (!hasEligibleVersion && !hasEnabledAnalytics) {
-            appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.ANALYTICS, `Prebid version: <code>${prebidObject.version}</code> / Analytics: <code>${ADAGIO.versions.adagioAnalyticsAdapter}</code>`);
+            appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.ANALYTICS, `Prebid version: <code>${prebidObject.version}</code> / Analytics: <code>${adagioAdapter.versions?.adagioAnalyticsAdapter}</code>`);
         }
         else if (!hasEligibleVersion) {
             appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.ANALYTICS, `Prebid version: <code>${prebidObject.version}</code>`);
@@ -1401,7 +1401,7 @@ function checkAdagioAnalyticsModule() {
             appendCheckerRow(STATUSBADGES.KO, ADAGIOCHECK.ANALYTICS, `Analytics: <code>${hasEnabledAnalytics}</code>`);
         }
         else {
-            appendCheckerRow(STATUSBADGES.OK, ADAGIOCHECK.ANALYTICS, `Prebid version: <code>${prebidObject.version}</code> / Analytics: <code>${ADAGIO.versions.adagioAnalyticsAdapter}</code>`);
+            appendCheckerRow(STATUSBADGES.OK, ADAGIOCHECK.ANALYTICS, `Prebid version: <code>${prebidObject.version}</code> / Analytics: <code>${adagioAdapter.versions?.adagioAnalyticsAdapter}</code>`);
         }
     }
     else {
@@ -1506,7 +1506,7 @@ async function checkPublisher() {
     // Fill the alert with number of orgIds found
     const tabName = ADAGIOTABSNAME.CHECKER.toLowerCase().replace(' ', '-');
     const alertTextDiv = overlayFrameDoc.getElementById(`${tabName}-alert`);
-    alertTextDiv.innerHTML += `<small>Organization(s) detected: </small>`;
+    
 
     if (organizationIds.length > 0) {
         // Fetch the adagio sellers.json
@@ -1514,6 +1514,7 @@ async function checkPublisher() {
             const response = await fetch(adagioSellersJsonUrl);
             adagioSellersJson = await response.json();
             // Fill with org found
+            alertTextDiv.innerHTML += `<small>Organization(s) detected: </small>`;
             for (const organizationId in organizationIds) {
                 organizationJson = adagioSellersJson?.sellers.filter(e => e.seller_id === organizationIds[organizationId]);
                 alertTextDiv.innerHTML += `<small><code>${organizationJson[0].name} (${organizationJson[0].seller_id}) - ${organizationJson[0].seller_type}</code>: <code>'${organizationJson[0].domain}'</code></small> `;
@@ -1523,6 +1524,9 @@ async function checkPublisher() {
             adagioSellersJson = null;
             console.log(error);
         }
+    }
+    else {
+        alertTextDiv.innerHTML += `<small>No organization(s) detected: <code>no orgId</code></small>`;
     }
 }
 
@@ -1621,20 +1625,18 @@ function checkGgprConsentString() {
     let hasCstString = false;
     // Checks if bids have been requested
     if (prebidBidsRequested !== undefined) {
-        // Filter on adagio ones
-        let prbAdgBidRequested = prebidBidsRequested.filter(e => e.bidderCode === 'adagio');
-        if (prbAdgBidRequested !== undefined) {
+        // Loop on the bidrequests
+        prebidBidsRequested.forEach(bidRequested => {
             // Look for consent string
-            let cstString = prbAdgBidRequested[0]?.gdprConsent?.consentString;
+            let cstString = bidRequested?.gdprConsent?.consentString;
             // Checks if not empty
-            if (cstString !== undefined) {
-                hasCstString = true;
+            if (cstString !== undefined && !hasCstString) {
                 appendCheckerRow(STATUSBADGES.OK, 'GDPR consent string', `<code>${cstString}</code>`);
+                hasCstString = true;
             }
-        }
+        });
     }
-    // Last check
-    if (!hasCstString) {
+    else {
         appendCheckerRow(STATUSBADGES.KO, 'GDPR consent string', `<code>undefined</code>`);
     }
 }
