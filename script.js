@@ -139,7 +139,7 @@ function createOverlay() {
     buttonFrame.style.right = "10px";
     buttonFrame.style.width = "45px";
     buttonFrame.style.height = "45px";
-    buttonFrame.style.zIndex = "999999999";
+    buttonFrame.style.zIndex = "2147483647";
     buttonFrame.style.backgroundColor = "rgb(47, 55, 87)";
     buttonFrame.style.border = "none";
     buttonFrame.style.borderRadius = "10px";
@@ -155,7 +155,7 @@ function createOverlay() {
     overlayFrame.style.left = "10px";
     overlayFrame.style.width = "700px";
     overlayFrame.style.height = "450px";
-    overlayFrame.style.zIndex = "999999999";
+    overlayFrame.style.zIndex = "2147483647";
     overlayFrame.style.backgroundColor = "transparent";
     overlayFrame.style.border = "none";
     overlayFrame.style.borderRadius = "10px";
