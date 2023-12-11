@@ -1446,8 +1446,11 @@ function checkAdagioAdUnitParams() {
         prebidAdagioAdUnitsCodes = [...new Set(prebidAdagioBidsRequested.map(e => e.adUnitCode))];
         // Find adUnitsCode found in ADAGIO object (adCall received)
         let adagioAdUnitsCodes = '';
-        if (adagioAdapter !== undefined) adagioAdUnitsCodes = adagioAdapter.adUnits;
-        if (adagioAdapter !== undefined) adagioPbjsAdUnitsCode = adagioAdapter.pbjsAdUnits.map(e => e.code);
+        if (adagioAdapter !== undefined) {
+            adagioAdUnitsCodes = adagioAdapter.adUnits;
+            adagioPbjsAdUnitsCode = adagioAdapter.pbjsAdUnits?.map(e => e.code);
+            if (adagioPbjsAdUnitsCode === undefined) adagioPbjsAdUnitsCode = [];
+        }
 
         totalPrebidAdUnitsCodes = prebidAdUnitsCodes.size;
         totalPrebidAdagioAdUnitsCode = prebidAdagioAdUnitsCodes.length;
