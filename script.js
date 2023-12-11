@@ -1445,10 +1445,13 @@ function checkAdagioAdUnitParams() {
         // Find adUnitsCodes found in Adagio bid requested
         prebidAdagioAdUnitsCodes = [...new Set(prebidAdagioBidsRequested.map(e => e.adUnitCode))];
         // Find adUnitsCode found in ADAGIO object (adCall received)
-        let adagioAdUnitsCodes = '';
+        let adagioAdUnitsCodes = [];
+        adagioPbjsAdUnitsCode = [];
+
         if (adagioAdapter !== undefined) {
-            adagioAdUnitsCodes = adagioAdapter.adUnits;
-            adagioPbjsAdUnitsCode = adagioAdapter.pbjsAdUnits?.map(e => e.code);
+            adagioAdUnitsCodes = adagioAdapter?.adUnits;
+            if (adagioAdUnitsCodes === undefined) adagioAdUnitsCodes = [];
+            adagioPbjsAdUnitsCode = adagioAdapter?.pbjsAdUnits?.map(e => e.code);
             if (adagioPbjsAdUnitsCode === undefined) adagioPbjsAdUnitsCode = [];
         }
 
